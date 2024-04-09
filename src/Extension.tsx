@@ -11,8 +11,7 @@ function Extension() {
         headers: {
           Accept: "*/*",
           "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-          "x-api-key":
-            "91b75b7e4f4a0036ee3c942838065bae8891820bf2b15e7246cffa04da0922f3",
+          "x-api-key": `${import.meta.env.VITE_APP_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
