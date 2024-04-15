@@ -1,47 +1,112 @@
-import { Button } from "@trail-ui/react";
-import { useState } from "react";
+import {Button} from '@trail-ui/react'
+import {useState} from 'react'
+
+interface Issues {
+  issues: {
+    errors: {
+      code: string
+      conformance_level: string
+      criteria_name: string
+      element: string
+      failing_issue_variable: string
+      failing_technique: string
+      issues: {
+        clip: {
+          x: number
+          y: number
+          width: number
+          height: number
+        }
+        clipBase64: string
+        code: string
+        context: string
+        elementTagName: string
+        message: string
+        recurrence: number
+        selector: string
+        type: string
+        typeCode: number
+      }[]
+      message: string
+      occurences: string
+      rule_name: string
+      severity: string
+    }[]
+    warnings: {
+      code: string
+      conformance_level: string
+      criteria_name: string
+      element: string
+      failing_issue_variable: string
+      failing_technique: string
+      issues: {
+        clip: {
+          x: number
+          y: number
+          width: number
+          height: number
+        }
+        clipBase64: string
+        code: string
+        context: string
+        elementTagName: string
+        message: string
+        recurrence: number
+        selector: string
+        type: string
+        typeCode: number
+      }[]
+      message: string
+      occurences: string
+      rule_name: string
+      severity: string
+    }[]
+  }
+}
 
 function Extension() {
-  const [responseData, setResponseData] = useState([]);
+  const [responseData, setResponseData] = useState<Issues>()
+  const [isLoading, setIsLoading] = useState(false)
   const postData = async () => {
+    setIsLoading(true)
     await fetch(
-      "http://ec2-65-0-110-95.ap-south-1.compute.amazonaws.com:3000/audit",
+      'http://ec2-65-0-110-95.ap-south-1.compute.amazonaws.com:3000/audit',
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          Accept: "*/*",
-          "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-          "x-api-key": `${import.meta.env.VITE_APP_API_KEY}`,
-          "Content-Type": "application/json",
+          Accept: '*/*',
+          'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+          'x-api-key': `${import.meta.env.VITE_APP_API_KEY}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          url: "https://barrierbreak.com",
-          element: "",
+          url: 'https://barrierbreak.com',
+          element: '',
         }),
       }
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log("Success:", data);
-        setResponseData(data);
+        console.log('Success:', data)
+        setResponseData(data)
+        setIsLoading(false)
       })
       .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
+        console.error('Error:', error)
+      })
+  }
 
   const handleClick = () => {
-    window.parent.postMessage("close-button-clicked", "*");
-  };
+    window.parent.postMessage('close-button-clicked', '*')
+  }
 
   const handleTestResults = () => {
-    postData();
-    console.log("data", responseData);
-  };
+    postData()
+  }
 
   return (
     <>
-      <div className="w-[324px]">
+      <div className="w-[600px]">
         <div className="flex justify-between items-center border-b border-neutral-300 pt-[6px] pr-[20px] pb-[6px] pl-[24px]">
           <div className="flex items-center">
             <svg
@@ -101,14 +166,93 @@ function Extension() {
             </svg>
           </button>
         </div>
-        <div className="flex justify-center items-center h-screen">
-          <Button appearance="primary" onPress={handleTestResults}>
-            Test Website
-          </Button>
+        <div className="flex h-screen p-3">
+          {responseData?.issues ? (
+            <div>
+              <h1 className="text-red-600 font-extrabold">Errors</h1>
+              <ul>
+                <table className="table border">
+                  <th className="table-header-group border bg-neutral-100">
+                    <td className="table-cell p-1">Element</td>
+                    <td className="table-cell p-1">Screenshot</td>
+                    <td className="table-cell p-1">Code</td>
+                  </th>
+                  <tbody>
+                    {responseData?.issues.errors.map((issue) => (
+                      <>
+                        <tr className="border">
+                          <td className="table-cell p-1" colSpan={3}>
+                            <h2 className="font-semibold">{issue.message}</h2>
+                          </td>
+                        </tr>
+                        {issue.issues.map((issue) => (
+                          <tr className="table-row border">
+                            <td className="table-cell border-r p-2">
+                              {issue.elementTagName}
+                            </td>
+                            <td className="table-cell border-r  p-2">
+                              <img
+                                src={`data:image/png;base64,${issue.clipBase64}`}
+                                alt="screenshot"
+                              />
+                            </td>
+                            <td className="table-cell p-2">{issue.code}</td>
+                          </tr>
+                        ))}
+                      </>
+                    ))}
+                  </tbody>
+                </table>
+              </ul>
+              <h1 className="font-bold text-yellow-800">Warnings</h1>
+              <ul>
+                <table className="table border">
+                  <th className="table-header-group border bg-neutral-100">
+                    <td className="table-cell p-1">Element</td>
+                    <td className="table-cell p-1">Screenshot</td>
+                    <td className="table-cell p-1">Code</td>
+                  </th>
+                  <tbody>
+                    {responseData?.issues.warnings.map((issue) => (
+                      <>
+                        <tr className="border">
+                          <td className="table-cell p-1" colSpan={3}>
+                            <h2 className="font-semibold">{issue.message}</h2>
+                          </td>
+                        </tr>
+                        {issue.issues.map((issue) => (
+                          <tr className="table-row border">
+                            <td className="table-cell border-r p-2">
+                              {issue.elementTagName}
+                            </td>
+                            <td className="table-cell border-r  p-2">
+                              <img
+                                src={`data:image/png;base64,${issue.clipBase64}`}
+                                alt="screenshot"
+                              />
+                            </td>
+                            <td className="table-cell p-2">{issue.code}</td>
+                          </tr>
+                        ))}
+                      </>
+                    ))}
+                  </tbody>
+                </table>
+              </ul>
+            </div>
+          ) : (
+            <Button
+              appearance="primary"
+              onPress={handleTestResults}
+              isLoading={isLoading}
+            >
+              Test Website
+            </Button>
+          )}
         </div>
       </div>
     </>
-  );
+  )
 }
 
-export default Extension;
+export default Extension

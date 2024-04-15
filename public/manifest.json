@@ -7,7 +7,7 @@
     "default_title": "Click to open side panel"
   },
   "host_permissions": ["<all_urls>"],
-  "permissions": ["scripting", "tabs", "activeTab"],
+  "permissions": ["scripting", "tabs", "activeTab","nativeMessaging","storage"],
   "background": {
     "service_worker": "background.js"
   },

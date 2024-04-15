@@ -28,7 +28,7 @@ extensionBtn.addEventListener("click", () => {
 
 //Functions to show extension iframe
 function showIframe() {
-  iframe.style.width = "324px";
+  iframe.style.width = "648px";
 }
 
 //Functions to hide extension iframe
