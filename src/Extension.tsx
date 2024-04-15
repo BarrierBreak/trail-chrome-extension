@@ -106,8 +106,8 @@ function Extension() {
 
   return (
     <>
-      <div className="w-[600px]">
-        <div className="flex justify-between items-center border-b border-neutral-300 pt-[6px] pr-[20px] pb-[6px] pl-[24px]">
+      <div className="w-full">
+        <div className="flex justify-between items-center border-b border-neutral-300 pt-[6px] pb-[6px]">
           <div className="flex items-center">
             <svg
               className="mr-[6px]"
