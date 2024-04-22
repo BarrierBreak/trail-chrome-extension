@@ -1,5 +1,5 @@
-import {Button} from '@trail-ui/react'
-import {useState} from 'react'
+import {Button, Checkbox, Tab, TabList, TabPanel, Tabs} from '@trail-ui/react'
+import {useEffect, useState} from 'react'
 
 interface Issues {
   issues: {
@@ -67,24 +67,53 @@ interface Issues {
 function Extension() {
   const [responseData, setResponseData] = useState<Issues>()
   const [isLoading, setIsLoading] = useState(false)
+
+  const [html, setHtml] = useState('')
+
+  useEffect(() => {
+    async function getCurrentTabHtmlSource() {
+      const [tab] = await chrome.tabs.query({active: true, currentWindow: true})
+      chrome.scripting.executeScript(
+        {
+          target: {tabId: tab.id!},
+          func: () => {
+            const html = document.documentElement.outerHTML
+            return html
+          },
+        },
+        (results) => {
+          setHtml(results[0].result as string)
+        }
+      )
+    }
+
+    getCurrentTabHtmlSource()
+  }, [])
+
   const postData = async () => {
     setIsLoading(true)
-    await fetch(
-      'http://ec2-65-0-110-95.ap-south-1.compute.amazonaws.com:3000/audit',
-      {
-        method: 'POST',
-        headers: {
-          Accept: '*/*',
-          'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
-          'x-api-key': `${import.meta.env.VITE_APP_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: 'https://barrierbreak.com',
-          element: '',
-        }),
-      }
-    )
+
+    const htmlDocument = new DOMParser().parseFromString(html, 'text/html')
+
+    // remove html element with id trail-btn
+    const element = htmlDocument.querySelector('#trail-btn')
+    if (element) {
+      element.remove()
+    }
+
+    await fetch('https://trail-api.barrierbreak.com/api/test-html', {
+      method: 'POST',
+      headers: {
+        Accept: '*/*',
+        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
+        'x-api-key': `${import.meta.env.VITE_APP_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        html: htmlDocument.documentElement.outerHTML,
+        element: '',
+      }),
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log('Success:', data)
@@ -105,9 +134,9 @@ function Extension() {
   }
 
   return (
-    <>
+    <main>
       <div className="w-full">
-        <div className="flex justify-between items-center border-b border-neutral-300 pt-[6px] pb-[6px]">
+        <div className="flex justify-between items-center border-b border-neutral-300 pt-[6px] pb-[6px] pl-6 pr-5">
           <div className="flex items-center">
             <svg
               className="mr-[6px]"
@@ -166,27 +195,36 @@ function Extension() {
             </svg>
           </button>
         </div>
-        <div className="flex h-screen p-3">
+        <div className="flex h-screen pt-3 pl-6 pr-5 w-full">
           {responseData?.issues ? (
-            <div>
-              <h1 className="text-red-600 font-extrabold">Errors</h1>
-              <ul>
+            <Tabs>
+              <TabList aria-label="History of Ancient Rome">
+                <Tab id="ERRORS">Failures</Tab>
+                <Tab id="WARNINGS">Warnings</Tab>
+              </TabList>
+              <TabPanel id="ERRORS">
                 <table className="table border">
                   <th className="table-header-group border bg-neutral-100">
-                    <td className="table-cell p-1">Element</td>
-                    <td className="table-cell p-1">Screenshot</td>
-                    <td className="table-cell p-1">Code</td>
+                    <td className="table-cell p-1 h-10"></td>
+                    <td className="table-cell p-1 h-10">Element</td>
+                    <td className="table-cell p-1 h-10">Screenshot</td>
+                    <td className="table-cell p-1 h-10">Code</td>
                   </th>
                   <tbody>
                     {responseData?.issues.errors.map((issue) => (
                       <>
                         <tr className="border">
                           <td className="table-cell p-1" colSpan={3}>
-                            <h2 className="font-semibold">{issue.message}</h2>
+                            <h2 className="font-semibold">
+                              {issue.failing_technique}
+                            </h2>
                           </td>
                         </tr>
                         {issue.issues.map((issue) => (
                           <tr className="table-row border">
+                            <td className="table-cell border-r p-2">
+                              <Checkbox />
+                            </td>
                             <td className="table-cell border-r p-2">
                               {issue.elementTagName}
                             </td>
@@ -196,32 +234,41 @@ function Extension() {
                                 alt="screenshot"
                               />
                             </td>
-                            <td className="table-cell p-2">{issue.code}</td>
+                            <td className="table-cell p-2">
+                              <div className="h-20 w-52 overflow-y-scroll">
+                                {issue.context}
+                              </div>
+                            </td>
                           </tr>
                         ))}
                       </>
                     ))}
                   </tbody>
                 </table>
-              </ul>
-              <h1 className="font-bold text-yellow-800">Warnings</h1>
-              <ul>
+              </TabPanel>
+              <TabPanel id="WARNINGS">
                 <table className="table border">
-                  <th className="table-header-group border bg-neutral-100">
-                    <td className="table-cell p-1">Element</td>
-                    <td className="table-cell p-1">Screenshot</td>
-                    <td className="table-cell p-1">Code</td>
+                  <th className="table-header-group border bg-neutral-100 ">
+                    <td className="table-cell p-1 h-10"></td>
+                    <td className="table-cell p-1 h-10">Element</td>
+                    <td className="table-cell p-1 h-10">Screenshot</td>
+                    <td className="table-cell p-1 h-10">Code</td>
                   </th>
                   <tbody>
                     {responseData?.issues.warnings.map((issue) => (
                       <>
                         <tr className="border">
                           <td className="table-cell p-1" colSpan={3}>
-                            <h2 className="font-semibold">{issue.message}</h2>
+                            <h2 className="font-semibold">
+                              {issue.failing_technique}
+                            </h2>
                           </td>
                         </tr>
                         {issue.issues.map((issue) => (
                           <tr className="table-row border">
+                            <td className="table-cell border-r p-2">
+                              <Checkbox />
+                            </td>
                             <td className="table-cell border-r p-2">
                               {issue.elementTagName}
                             </td>
@@ -231,27 +278,33 @@ function Extension() {
                                 alt="screenshot"
                               />
                             </td>
-                            <td className="table-cell p-2">{issue.code}</td>
+                            <td className="table-cell p-2">
+                              <div className="h-20 w-52 overflow-y-scroll">
+                                {issue.context}
+                              </div>
+                            </td>
                           </tr>
                         ))}
                       </>
                     ))}
                   </tbody>
                 </table>
-              </ul>
-            </div>
+              </TabPanel>
+            </Tabs>
           ) : (
-            <Button
-              appearance="primary"
-              onPress={handleTestResults}
-              isLoading={isLoading}
-            >
-              Test Website
-            </Button>
+            <div className="flex items-center justify-center w-full">
+              <Button
+                appearance="primary"
+                onPress={handleTestResults}
+                isLoading={isLoading}
+              >
+                Test Website
+              </Button>
+            </div>
           )}
         </div>
       </div>
-    </>
+    </main>
   )
 }
 

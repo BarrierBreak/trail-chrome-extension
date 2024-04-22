@@ -6,21 +6,41 @@
   "action": {
     "default_title": "Click to open side panel"
   },
-  "host_permissions": ["<all_urls>"],
-  "permissions": ["scripting", "tabs", "activeTab","nativeMessaging","storage"],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "permissions": [
+    "scripting",
+    "tabs",
+    "activeTab",
+    "nativeMessaging",
+    "storage"
+  ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "js": ["content.js"],
-      "matches": ["http://*/*", "https://*/*", "file:///*"]
+      "js": [
+        "content.js"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "file:///*"
+      ]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["index.html"],
-      "matches": ["https://*/*", "http://*/*", "file:///*"]
+      "resources": [
+        "index.html"
+      ],
+      "matches": [
+        "https://*/*",
+        "http://*/*",
+        "file:///*"
+      ]
     }
   ]
 }
