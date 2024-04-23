@@ -6,9 +6,7 @@
   "action": {
     "default_title": "Click to open side panel"
   },
-  "host_permissions": [
-    "*://*/*"
-  ],
+  "host_permissions": ["*://*/*"],
   "permissions": [
     "scripting",
     "tabs",
@@ -21,26 +19,14 @@
   },
   "content_scripts": [
     {
-      "js": [
-        "content.js"
-      ],
-      "matches": [
-        "http://*/*",
-        "https://*/*",
-        "file:///*"
-      ]
+      "js": ["content.js"],
+      "matches": ["http://*/*", "https://*/*", "file:///*"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "index.html"
-      ],
-      "matches": [
-        "https://*/*",
-        "http://*/*",
-        "file:///*"
-      ]
+      "resources": ["index.html"],
+      "matches": ["https://*/*", "http://*/*", "file:///*"]
     }
   ]
 }

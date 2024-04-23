@@ -1,104 +1,115 @@
-import {Button, Checkbox, Tab, TabList, TabPanel, Tabs} from '@trail-ui/react'
-import {useEffect, useState} from 'react'
+import {
+  Button,
+  Checkbox,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
+} from "@trail-ui/react";
+import { useEffect, useState } from "react";
+import { ProjectIcon } from "@trail-ui/icons";
 
 interface Issues {
   issues: {
     errors: {
-      code: string
-      conformance_level: string
-      criteria_name: string
-      element: string
-      failing_issue_variable: string
-      failing_technique: string
+      code: string;
+      conformance_level: string;
+      criteria_name: string;
+      element: string;
+      failing_issue_variable: string;
+      failing_technique: string;
       issues: {
         clip: {
-          x: number
-          y: number
-          width: number
-          height: number
-        }
-        clipBase64: string
-        code: string
-        context: string
-        elementTagName: string
-        message: string
-        recurrence: number
-        selector: string
-        type: string
-        typeCode: number
-      }[]
-      message: string
-      occurences: string
-      rule_name: string
-      severity: string
-    }[]
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        };
+        clipBase64: string;
+        code: string;
+        context: string;
+        elementTagName: string;
+        message: string;
+        recurrence: number;
+        selector: string;
+        type: string;
+        typeCode: number;
+      }[];
+      message: string;
+      occurences: string;
+      rule_name: string;
+      severity: string;
+    }[];
     warnings: {
-      code: string
-      conformance_level: string
-      criteria_name: string
-      element: string
-      failing_issue_variable: string
-      failing_technique: string
+      code: string;
+      conformance_level: string;
+      criteria_name: string;
+      element: string;
+      failing_issue_variable: string;
+      failing_technique: string;
       issues: {
         clip: {
-          x: number
-          y: number
-          width: number
-          height: number
-        }
-        clipBase64: string
-        code: string
-        context: string
-        elementTagName: string
-        message: string
-        recurrence: number
-        selector: string
-        type: string
-        typeCode: number
-      }[]
-      message: string
-      occurences: string
-      rule_name: string
-      severity: string
-    }[]
-  }
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        };
+        clipBase64: string;
+        code: string;
+        context: string;
+        elementTagName: string;
+        message: string;
+        recurrence: number;
+        selector: string;
+        type: string;
+        typeCode: number;
+      }[];
+      message: string;
+      occurences: string;
+      rule_name: string;
+      severity: string;
+    }[];
+  };
 }
 
 function Extension() {
-  const [responseData, setResponseData] = useState<Issues>()
-  const [isLoading, setIsLoading] = useState(false)
+  const [responseData, setResponseData] = useState<Issues>();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [html, setHtml] = useState('')
+  const [html, setHtml] = useState("");
 
   useEffect(() => {
     async function getCurrentTabHtmlSource() {
-      const [tab] = await chrome.tabs.query({active: true, currentWindow: true})
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
       chrome.scripting.executeScript(
         {
-          target: {tabId: tab.id!},
+          target: { tabId: tab.id! },
           func: () => {
-            const html = document.documentElement.outerHTML
-            return html
+            const html = document.documentElement.outerHTML;
+            return html;
           },
         },
         (results) => {
-          setHtml(results[0].result as string)
+          setHtml(results[0].result as string);
         }
-      )
+      );
     }
 
-    getCurrentTabHtmlSource()
-  }, [])
+    getCurrentTabHtmlSource();
+  }, []);
 
   const postData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
-    const htmlDocument = new DOMParser().parseFromString(html, 'text/html')
+    const htmlDocument = new DOMParser().parseFromString(html, "text/html");
 
     // remove html element with id trail-btn
-    const element = htmlDocument.querySelector('#trail-btn')
+    const element = htmlDocument.querySelector("#trail-btn");
     if (element) {
-      element.remove()
+      element.remove();
     }
 
     await fetch('https://trail-api.barrierbreak.com/api/test-html', {
@@ -111,27 +122,27 @@ function Extension() {
       },
       body: JSON.stringify({
         html: htmlDocument.documentElement.outerHTML,
-        element: '',
+        element: "",
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Success:', data)
-        setResponseData(data)
-        setIsLoading(false)
+        console.log("Success:", data);
+        setResponseData(data);
+        setIsLoading(false);
       })
       .catch((error) => {
-        console.error('Error:', error)
-      })
-  }
+        console.error("Error:", error);
+      });
+  };
 
   const handleClick = () => {
-    window.parent.postMessage('close-button-clicked', '*')
-  }
+    window.parent.postMessage("close-button-clicked", "*");
+  };
 
   const handleTestResults = () => {
-    postData()
-  }
+    postData();
+  };
 
   return (
     <main>
@@ -305,7 +316,7 @@ function Extension() {
         </div>
       </div>
     </main>
-  )
+  );
 }
 
-export default Extension
+export default Extension;
