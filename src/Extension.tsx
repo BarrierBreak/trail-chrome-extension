@@ -77,6 +77,7 @@ function Extension() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [html, setHtml] = useState("");
+  const apiKey = localStorage.getItem("authtoken");
 
   useEffect(() => {
     async function getCurrentTabHtmlSource() {
@@ -112,13 +113,13 @@ function Extension() {
       element.remove();
     }
 
-    await fetch('https://trail-api.barrierbreak.com/api/test-html', {
-      method: 'POST',
+    await fetch("https://trail-api.barrierbreak.com/api/test-html", {
+      method: "POST",
       headers: {
-        Accept: '*/*',
-        'User-Agent': 'Thunder Client (https://www.thunderclient.com)',
-        'x-api-key': `${import.meta.env.VITE_APP_API_KEY}`,
-        'Content-Type': 'application/json',
+        Accept: "*/*",
+        "User-Agent": "BarrierBreak Client (https://www.barrierbreak.com)",
+        "x-api-key": `${apiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         html: htmlDocument.documentElement.outerHTML,
