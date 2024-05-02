@@ -2,6 +2,7 @@ import {
   CloseIcon,
   DownloadIcon,
   ExportIcon,
+  ProjectIcon,
   WarningIcon,
 } from "@trail-ui/icons";
 import {
@@ -405,7 +406,7 @@ function Extension() {
           </button>
         </div>
 
-        <div className="flex h-screen px-12 w-full">
+        <div className="flex h-screen px-8 w-full">
           {responseData?.issues ? (
             <Tabs>
               <div className="flex items-center justify-between h-12">
@@ -430,8 +431,18 @@ function Extension() {
                       <p>Warnings ({responseData.issues.warnings.length})</p>
                     </div>
                   </Tab>
+                  <Tab id="STRUCTURE">
+                    <div className="flex items-center gap-[2px] font-medium text-sm h-12">
+                      <ProjectIcon
+                        width={16}
+                        height={16}
+                        className="text-purple-600"
+                      />
+                      <p>Structure</p>
+                    </div>
+                  </Tab>
                 </TabList>
-                <div className="flex gap-2">
+                <div className="flex">
                   <Button
                     className="font-medium"
                     appearance="text"
