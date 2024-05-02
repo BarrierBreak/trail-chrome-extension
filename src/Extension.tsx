@@ -1,4 +1,10 @@
 import {
+  CloseIcon,
+  DownloadIcon,
+  ExportIcon,
+  WarningIcon,
+} from "@trail-ui/icons";
+import {
   Button,
   Checkbox,
   Tab,
@@ -7,7 +13,27 @@ import {
   Tabs,
 } from "@trail-ui/react";
 import { useEffect, useState } from "react";
-import { ProjectIcon } from "@trail-ui/icons";
+
+interface IssueItems {
+  issues: {
+    clip: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
+    clipBase64: string;
+    code: string;
+    context: string;
+    elementTagName: string;
+    id: string;
+    message: string;
+    recurrence: number;
+    selector: string;
+    type: string;
+    typeCode: number;
+  }[];
+}
 
 interface Issues {
   issues: {
@@ -18,6 +44,7 @@ interface Issues {
       element: string;
       failing_issue_variable: string;
       failing_technique: string;
+      id: string;
       issues: {
         clip: {
           x: number;
@@ -29,6 +56,7 @@ interface Issues {
         code: string;
         context: string;
         elementTagName: string;
+        id: string;
         message: string;
         recurrence: number;
         selector: string;
@@ -47,6 +75,7 @@ interface Issues {
       element: string;
       failing_issue_variable: string;
       failing_technique: string;
+      id: string;
       issues: {
         clip: {
           x: number;
@@ -58,6 +87,7 @@ interface Issues {
         code: string;
         context: string;
         elementTagName: string;
+        id: string;
         message: string;
         recurrence: number;
         selector: string;
@@ -78,6 +108,11 @@ function Extension() {
 
   const [html, setHtml] = useState("");
   const apiKey = localStorage.getItem("authtoken");
+
+  const [failureErrors, setFailureErrors] = useState<string[]>([]);
+  const [failureTitles, setFailureTitles] = useState<string[]>([]);
+  const [warningErrors, setWarningErrors] = useState<string[]>([]);
+  const [warningTitles, setWarningTitles] = useState<string[]>([]);
 
   useEffect(() => {
     async function getCurrentTabHtmlSource() {
@@ -105,14 +140,16 @@ function Extension() {
   const postData = async () => {
     setIsLoading(true);
 
+    // to get html structure of webpage
     const htmlDocument = new DOMParser().parseFromString(html, "text/html");
 
-    // remove html element with id trail-btn
+    // to remove html element having id as 'trail-btn' from DOM
     const element = htmlDocument.querySelector("#trail-btn");
     if (element) {
       element.remove();
     }
 
+    // to fetch a11y results of webpage
     await fetch("https://trail-api.barrierbreak.com/api/test-html", {
       method: "POST",
       headers: {
@@ -137,12 +174,181 @@ function Extension() {
       });
   };
 
-  const handleClick = () => {
+  const handleClose = () => {
     window.parent.postMessage("close-button-clicked", "*");
   };
 
   const handleTestResults = () => {
     postData();
+  };
+
+  const numberToAlphabet = (num: number): string => {
+    if (num < 1) {
+      console.error("Number must be greater than or equal to 1");
+    }
+
+    let result = "";
+    while (num > 0) {
+      const remainder = (num - 1) % 26;
+      result = String.fromCharCode(65 + remainder) + result;
+      num = Math.floor((num - 1) / 26);
+    }
+
+    return result;
+  };
+
+  const checkForFailureTitleSelection = (
+    parentIndex: number,
+    updatedErrors: string[]
+  ) => {
+    const shouldParentBeSelected = responseData?.issues.errors[
+      parentIndex
+    ].issues.every((checkbox) => updatedErrors.includes(checkbox.id));
+
+    if (shouldParentBeSelected && responseData?.issues.errors[parentIndex].id)
+      setFailureTitles((prev) => [
+        ...prev,
+        responseData?.issues.errors[parentIndex].id,
+      ]);
+  };
+
+  const checkForWarningTitleSelection = (
+    parentIndex: number,
+    updatedErrors: string[]
+  ) => {
+    const shouldParentBeSelected = responseData?.issues.warnings[
+      parentIndex
+    ].issues.every((checkbox) => updatedErrors.includes(checkbox.id));
+
+    if (shouldParentBeSelected && responseData?.issues.warnings[parentIndex].id)
+      setWarningTitles((prev) => [
+        ...prev,
+        responseData?.issues.warnings[parentIndex].id,
+      ]);
+  };
+
+  const checkForFailureTitleDeselection = (parentIndex: number) => {
+    const id = responseData?.issues.errors[parentIndex].id;
+
+    if (failureTitles.includes(id as string)) {
+      setFailureTitles((prev) => prev.filter((item) => item !== id));
+    }
+  };
+
+  const checkForWarningTitleDeselection = (parentIndex: number) => {
+    const id = responseData?.issues.warnings[parentIndex].id;
+
+    if (warningTitles.includes(id as string)) {
+      setWarningTitles((prev) => prev.filter((item) => item !== id));
+    }
+  };
+
+  const handleFailureErrorClick = (id: string, parentIndex: number) => {
+    const isSelected = failureErrors.includes(id);
+
+    if (isSelected) {
+      setFailureErrors(failureErrors.filter((key) => key !== id));
+      checkForFailureTitleDeselection(parentIndex);
+    } else {
+      const updatedErrors = [...failureErrors, id];
+      setFailureErrors(updatedErrors);
+      checkForFailureTitleSelection(parentIndex, updatedErrors);
+    }
+  };
+
+  const handleWarningErrorClick = (id: string, parentIndex: number) => {
+    const isSelected = warningErrors.includes(id);
+
+    if (isSelected) {
+      setWarningErrors(warningErrors.filter((key) => key !== id));
+      checkForWarningTitleDeselection(parentIndex);
+    } else {
+      const updatedErrors = [...warningErrors, id];
+      setWarningErrors(updatedErrors);
+      checkForWarningTitleSelection(parentIndex, updatedErrors);
+    }
+  };
+
+  const handleFailureTitleClick = (issues: IssueItems, titleId: string) => {
+    const isSelected = failureTitles.includes(titleId);
+
+    const updatedTitles = isSelected
+      ? failureTitles.filter((key) => key !== titleId)
+      : [...failureTitles, titleId];
+
+    let updatedErrors: string[] = [...failureErrors];
+    const allIssueIds = issues.issues.map((item) => item.id);
+
+    if (isSelected) {
+      updatedErrors = updatedErrors.filter((id) => !allIssueIds.includes(id));
+    } else {
+      updatedErrors = [...new Set([...updatedErrors, ...allIssueIds])];
+    }
+
+    setFailureTitles(updatedTitles);
+    setFailureErrors(updatedErrors);
+  };
+
+  const handleWarningTitleClick = (issues: IssueItems, titleId: string) => {
+    const isSelected = warningTitles.includes(titleId);
+
+    const updatedTitles = isSelected
+      ? warningTitles.filter((key) => key !== titleId)
+      : [...warningTitles, titleId];
+
+    let updatedErrors: string[] = [...warningErrors];
+    const allIssueIds = issues.issues.map((item) => item.id);
+
+    if (isSelected) {
+      updatedErrors = updatedErrors.filter((id) => !allIssueIds.includes(id));
+    } else {
+      updatedErrors = [...new Set([...updatedErrors, ...allIssueIds])];
+    }
+
+    setWarningTitles(updatedTitles);
+    setWarningErrors(updatedErrors);
+  };
+
+  const isAllFailureErrorSelected = (issues: IssueItems): number => {
+    return issues.issues.filter((item) => failureErrors.includes(item.id))
+      .length;
+  };
+
+  const isAllWarningErrorSelected = (issues: IssueItems): number => {
+    return issues.issues.filter((item) => warningErrors.includes(item.id))
+      .length;
+  };
+
+  const handleFailureHeaderClick = () => {
+    if (responseData) {
+      if (failureTitles.length === responseData?.issues.errors.length) {
+        setFailureTitles([]);
+        setFailureErrors([]);
+      } else {
+        setFailureTitles(responseData.issues.errors.map((item) => item.id));
+        setFailureErrors(
+          responseData.issues.errors.flatMap((item) =>
+            item.issues.map((issue) => issue.id)
+          )
+        );
+      }
+    }
+  };
+
+  const handleWarningHeaderClick = () => {
+    if (responseData) {
+      if (warningTitles.length === responseData?.issues.warnings.length) {
+        setWarningTitles([]);
+        setWarningErrors([]);
+      } else {
+        setWarningTitles(responseData.issues.warnings.map((item) => item.id));
+        setWarningErrors(
+          responseData.issues.warnings.flatMap((item) =>
+            item.issues.map((issue) => issue.id)
+          )
+        );
+      }
+    }
   };
 
   return (
@@ -192,61 +398,150 @@ function Extension() {
               />
             </svg>
           </div>
-          <button onClick={handleClick}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 32 32"
-              fill="none"
-            >
-              <path
-                d="M16.0001 25.3333C10.8454 25.3333 6.66675 21.1546 6.66675 16C6.66675 10.8453 10.8454 6.66666 16.0001 6.66666C21.1547 6.66666 25.3334 10.8453 25.3334 16C25.3334 21.1546 21.1547 25.3333 16.0001 25.3333ZM16.0001 14.6801L13.3602 12.0402L12.0403 13.3601L14.6802 16L12.0403 18.6398L13.3602 19.9598L16.0001 17.3199L18.6399 19.9598L19.9598 18.6398L17.32 16L19.9598 13.3601L18.6399 12.0402L16.0001 14.6801Z"
-                fill="#484453"
-              />
-            </svg>
+          <button onClick={handleClose}>
+            <div className="w-8 h-8">
+              <CloseIcon width={32} height={32} />
+            </div>
           </button>
         </div>
-        <div className="flex h-screen pt-3 pl-6 pr-5 w-full">
+
+        <div className="flex h-screen px-12 w-full">
           {responseData?.issues ? (
             <Tabs>
-              <TabList aria-label="History of Ancient Rome">
-                <Tab id="ERRORS">Failures</Tab>
-                <Tab id="WARNINGS">Warnings</Tab>
-              </TabList>
+              <div className="flex items-center justify-between h-12">
+                <TabList aria-label="History of Ancient Rome">
+                  <Tab id="ERRORS">
+                    <div className="flex items-center gap-[2px] font-medium text-sm h-12">
+                      <CloseIcon
+                        width={24}
+                        height={24}
+                        className="text-red-700"
+                      />
+                      <p>Failures ({responseData.issues.errors.length})</p>
+                    </div>
+                  </Tab>
+                  <Tab id="WARNINGS">
+                    <div className="flex items-center gap-[2px] font-medium text-sm h-12">
+                      <WarningIcon
+                        width={24}
+                        height={24}
+                        className="text-yellow-800"
+                      />
+                      <p>Warnings ({responseData.issues.warnings.length})</p>
+                    </div>
+                  </Tab>
+                </TabList>
+                <div className="flex gap-2">
+                  <Button
+                    className="font-medium"
+                    appearance="text"
+                    endContent={<DownloadIcon width={24} height={24} />}
+                  >
+                    CSV
+                  </Button>
+                  <Button
+                    className="font-medium"
+                    appearance="primary"
+                    endContent={<ExportIcon width={24} height={24} />}
+                  >
+                    Export
+                  </Button>
+                </div>
+              </div>
               <TabPanel id="ERRORS">
                 <table className="table border">
-                  <th className="table-header-group border bg-neutral-100">
-                    <td className="table-cell p-1 h-10"></td>
-                    <td className="table-cell p-1 h-10">Element</td>
-                    <td className="table-cell p-1 h-10">Screenshot</td>
-                    <td className="table-cell p-1 h-10">Code</td>
+                  <th className="table-header-group border border-neutral-200 bg-neutral-100 align-middle">
+                    <td className="px-4 py-2">
+                      <Checkbox
+                        isSelected={
+                          failureTitles.length ===
+                          responseData.issues.errors.length
+                        }
+                        isIndeterminate={
+                          failureTitles.length > 0 &&
+                          failureTitles.length !==
+                            responseData.issues.errors.length
+                        }
+                        onChange={() => handleFailureHeaderClick()}
+                      />
+                    </td>
+                    <td className="table-cell p-1 h-10 border border-neutral-200">
+                      <p className="font-medium text-sm">Element</p>
+                    </td>
+                    <td className="table-cell p-1 h-10 border border-neutral-200">
+                      <p className="font-medium text-sm">Screenshot</p>
+                    </td>
+                    <td className="table-cell p-1 h-10 border border-neutral-200">
+                      <p className="font-medium text-sm">Code</p>
+                    </td>
                   </th>
                   <tbody>
-                    {responseData?.issues.errors.map((issue) => (
+                    {responseData?.issues.errors.map((issue, parentIndex) => (
                       <>
-                        <tr className="border">
-                          <td className="table-cell p-1" colSpan={3}>
+                        <tr
+                          className={`${
+                            failureTitles.includes(issue.id) ||
+                            isAllFailureErrorSelected(issue) ===
+                              issue.issues.length
+                              ? "bg-neutral-100"
+                              : "bg-neutral-50"
+                          }`}
+                        >
+                          <td key="selection" className="px-4 py-2">
+                            <Checkbox
+                              isSelected={
+                                isAllFailureErrorSelected(issue) ===
+                                issue.issues.length
+                              }
+                              isIndeterminate={
+                                isAllFailureErrorSelected(issue) !== 0 &&
+                                isAllFailureErrorSelected(issue) !==
+                                  issue.issues.length
+                              }
+                              onChange={() =>
+                                handleFailureTitleClick(issue, issue.id)
+                              }
+                            />
+                          </td>
+                          <td className="table-cell p-2 border" colSpan={3}>
                             <h2 className="font-semibold">
-                              {issue.failing_technique}
+                              {`${numberToAlphabet(parentIndex + 1)}. ${
+                                issue.failing_technique
+                              }`}
                             </h2>
                           </td>
                         </tr>
-                        {issue.issues.map((issue) => (
-                          <tr className="table-row border">
-                            <td className="table-cell border-r p-2">
-                              <Checkbox />
+
+                        {issue.issues.map((issue, index) => (
+                          <tr
+                            key={issue.id}
+                            className={`${
+                              failureErrors.includes(issue.id)
+                                ? "bg-neutral-100"
+                                : ""
+                            }`}
+                          >
+                            <td
+                              key="selection"
+                              className="border px-4 py-2 w-10"
+                            >
+                              <Checkbox
+                                isSelected={failureErrors.includes(issue.id)}
+                                onChange={() =>
+                                  handleFailureErrorClick(issue.id, parentIndex)
+                                }
+                              />
                             </td>
-                            <td className="table-cell border-r p-2">
-                              {issue.elementTagName}
+                            <td className="table-cell border p-2 w-[100px]">
+                              {` ${index + 1}. <${issue.elementTagName}>`}
                             </td>
-                            <td className="table-cell border-r  p-2">
+                            <td className="table-cell border p-2 w-40">
                               <img
                                 src={`data:image/png;base64,${issue.clipBase64}`}
                                 alt="screenshot"
                               />
                             </td>
-                            <td className="table-cell p-2">
+                            <td className="table-cell p-2 border w-[198px]">
                               <div className="h-20 w-52 overflow-y-scroll">
                                 {issue.context}
                               </div>
@@ -260,37 +555,98 @@ function Extension() {
               </TabPanel>
               <TabPanel id="WARNINGS">
                 <table className="table border">
-                  <th className="table-header-group border bg-neutral-100 ">
-                    <td className="table-cell p-1 h-10"></td>
-                    <td className="table-cell p-1 h-10">Element</td>
-                    <td className="table-cell p-1 h-10">Screenshot</td>
-                    <td className="table-cell p-1 h-10">Code</td>
+                  <th className="table-header-group border border-neutral-200 bg-neutral-100 align-middle">
+                    <td className="px-4 py-2">
+                      <Checkbox
+                        isSelected={
+                          warningTitles.length ===
+                          responseData.issues.warnings.length
+                        }
+                        isIndeterminate={
+                          warningTitles.length > 0 &&
+                          warningTitles.length !==
+                            responseData.issues.warnings.length
+                        }
+                        onChange={() => handleWarningHeaderClick()}
+                      />
+                    </td>
+                    <td className="table-cell p-1 h-10 border border-neutral-200">
+                      <p className="font-medium text-sm">Element</p>
+                    </td>
+                    <td className="table-cell p-1 h-10 border border-neutral-200">
+                      <p className="font-medium text-sm">Screenshot</p>
+                    </td>
+                    <td className="table-cell p-1 h-10 border border-neutral-200">
+                      <p className="font-medium text-sm">Code</p>
+                    </td>
                   </th>
                   <tbody>
-                    {responseData?.issues.warnings.map((issue) => (
+                    {responseData?.issues.warnings.map((issue, parentIndex) => (
                       <>
-                        <tr className="border">
-                          <td className="table-cell p-1" colSpan={3}>
+                        <tr
+                          className={`${
+                            warningTitles.includes(issue.id) ||
+                            isAllWarningErrorSelected(issue) ===
+                              issue.issues.length
+                              ? "bg-neutral-100"
+                              : "bg-neutral-50"
+                          }`}
+                        >
+                          <td key="selection" className="px-4 py-2">
+                            <Checkbox
+                              isSelected={
+                                isAllWarningErrorSelected(issue) ===
+                                issue.issues.length
+                              }
+                              isIndeterminate={
+                                isAllWarningErrorSelected(issue) !== 0 &&
+                                isAllWarningErrorSelected(issue) !==
+                                  issue.issues.length
+                              }
+                              onChange={() =>
+                                handleWarningTitleClick(issue, issue.id)
+                              }
+                            />
+                          </td>
+                          <td className="table-cell p-2 border" colSpan={3}>
                             <h2 className="font-semibold">
-                              {issue.failing_technique}
+                              {`${numberToAlphabet(parentIndex + 1)}. ${
+                                issue.failing_technique
+                              }`}
                             </h2>
                           </td>
                         </tr>
-                        {issue.issues.map((issue) => (
-                          <tr className="table-row border">
-                            <td className="table-cell border-r p-2">
-                              <Checkbox />
+
+                        {issue.issues.map((issue, index) => (
+                          <tr
+                            key={issue.id}
+                            className={`${
+                              warningErrors.includes(issue.id)
+                                ? "bg-neutral-100"
+                                : ""
+                            }`}
+                          >
+                            <td
+                              key="selection"
+                              className="border px-4 py-2 w-10"
+                            >
+                              <Checkbox
+                                isSelected={warningErrors.includes(issue.id)}
+                                onChange={() =>
+                                  handleWarningErrorClick(issue.id, parentIndex)
+                                }
+                              />
                             </td>
-                            <td className="table-cell border-r p-2">
-                              {issue.elementTagName}
+                            <td className="table-cell border p-2 w-[100px]">
+                              {` ${index + 1}. <${issue.elementTagName}>`}
                             </td>
-                            <td className="table-cell border-r  p-2">
+                            <td className="table-cell border p-2 w-40">
                               <img
                                 src={`data:image/png;base64,${issue.clipBase64}`}
                                 alt="screenshot"
                               />
                             </td>
-                            <td className="table-cell p-2">
+                            <td className="table-cell p-2 border w-[198px]">
                               <div className="h-20 w-52 overflow-y-scroll">
                                 {issue.context}
                               </div>
