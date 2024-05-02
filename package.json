@@ -10,8 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@trail-ui/react": "^1.1.5",
-    "@trail-ui/theme": "^1.1.5",
+    "@trail-ui/icons": "^1.0.4",
+    "@trail-ui/react": "^1.1.6",
+    "@trail-ui/theme": "^1.1.6",
     "framer-motion": "^11.1.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
