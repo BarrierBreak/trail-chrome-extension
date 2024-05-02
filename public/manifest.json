@@ -2,13 +2,11 @@
   "manifest_version": 3,
   "name": "Trail Extension",
   "version": "1.0",
-  "description": "Trail Extension Trail Extension Trail Extension Trail Extension",
+  "description": "Trail Extension - A Chrome Extension for testing accessibility of a website.",
   "action": {
-    "default_title": "Click to open side panel"
+    "default_title": "Trail Extension"
   },
-  "host_permissions": [
-    "*://*/*"
-  ],
+  "host_permissions": ["*://*/*"],
   "permissions": [
     "scripting",
     "tabs",
@@ -19,28 +17,20 @@
   "background": {
     "service_worker": "background.js"
   },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
   "content_scripts": [
     {
-      "js": [
-        "content.js"
-      ],
-      "matches": [
-        "http://*/*",
-        "https://*/*",
-        "file:///*"
-      ]
+      "js": ["content.js"],
+      "matches": ["http://*/*", "https://*/*", "file:///*"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "index.html"
-      ],
-      "matches": [
-        "https://*/*",
-        "http://*/*",
-        "file:///*"
-      ]
+      "resources": ["index.html"],
+      "matches": ["https://*/*", "http://*/*", "file:///*"]
     }
   ]
 }
