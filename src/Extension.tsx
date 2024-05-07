@@ -4,199 +4,193 @@ import {
   ExportIcon,
   ProjectIcon,
   WarningIcon,
-} from "@trail-ui/icons";
-import {
-  Button,
-  Checkbox,
-  Tab,
-  TabList,
-  TabPanel,
-  Tabs,
-} from "@trail-ui/react";
-import { useEffect, useState } from "react";
+} from '@trail-ui/icons'
+import {Button, Checkbox, Tab, TabList, TabPanel, Tabs} from '@trail-ui/react'
+import {useEffect, useState} from 'react'
+import WebsiteLandmarks from './WebsiteLandmarks'
 
 interface IssueItems {
   issues: {
     clip: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    };
-    clipBase64: string;
-    code: string;
-    context: string;
-    elementTagName: string;
-    id: string;
-    message: string;
-    recurrence: number;
-    selector: string;
-    type: string;
-    typeCode: number;
-  }[];
+      x: number
+      y: number
+      width: number
+      height: number
+    }
+    clipBase64: string
+    code: string
+    context: string
+    elementTagName: string
+    id: string
+    message: string
+    recurrence: number
+    selector: string
+    type: string
+    typeCode: number
+  }[]
 }
 
 interface Issues {
   issues: {
     errors: {
-      code: string;
-      conformance_level: string;
-      criteria_name: string;
-      element: string;
-      failing_issue_variable: string;
-      failing_technique: string;
-      id: string;
+      code: string
+      conformance_level: string
+      criteria_name: string
+      element: string
+      failing_issue_variable: string
+      failing_technique: string
+      id: string
       issues: {
         clip: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        };
-        clipBase64: string;
-        code: string;
-        context: string;
-        elementTagName: string;
-        id: string;
-        message: string;
-        recurrence: number;
-        selector: string;
-        type: string;
-        typeCode: number;
-      }[];
-      message: string;
-      occurences: string;
-      rule_name: string;
-      severity: string;
-    }[];
+          x: number
+          y: number
+          width: number
+          height: number
+        }
+        clipBase64: string
+        code: string
+        context: string
+        elementTagName: string
+        id: string
+        message: string
+        recurrence: number
+        selector: string
+        type: string
+        typeCode: number
+      }[]
+      message: string
+      occurences: string
+      rule_name: string
+      severity: string
+    }[]
     warnings: {
-      code: string;
-      conformance_level: string;
-      criteria_name: string;
-      element: string;
-      failing_issue_variable: string;
-      failing_technique: string;
-      id: string;
+      code: string
+      conformance_level: string
+      criteria_name: string
+      element: string
+      failing_issue_variable: string
+      failing_technique: string
+      id: string
       issues: {
         clip: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        };
-        clipBase64: string;
-        code: string;
-        context: string;
-        elementTagName: string;
-        id: string;
-        message: string;
-        recurrence: number;
-        selector: string;
-        type: string;
-        typeCode: number;
-      }[];
-      message: string;
-      occurences: string;
-      rule_name: string;
-      severity: string;
-    }[];
-  };
+          x: number
+          y: number
+          width: number
+          height: number
+        }
+        clipBase64: string
+        code: string
+        context: string
+        elementTagName: string
+        id: string
+        message: string
+        recurrence: number
+        selector: string
+        type: string
+        typeCode: number
+      }[]
+      message: string
+      occurences: string
+      rule_name: string
+      severity: string
+    }[]
+  }
 }
 
 function Extension() {
-  const [responseData, setResponseData] = useState<Issues>();
-  const [isLoading, setIsLoading] = useState(false);
+  const [responseData, setResponseData] = useState<Issues>()
+  const [isLoading, setIsLoading] = useState(false)
 
-  const [html, setHtml] = useState("");
-  const apiKey = localStorage.getItem("authtoken");
+  const [html, setHtml] = useState('')
+  const apiKey = localStorage.getItem('authtoken')
 
-  const [failureErrors, setFailureErrors] = useState<string[]>([]);
-  const [failureTitles, setFailureTitles] = useState<string[]>([]);
-  const [warningErrors, setWarningErrors] = useState<string[]>([]);
-  const [warningTitles, setWarningTitles] = useState<string[]>([]);
+  const [failureErrors, setFailureErrors] = useState<string[]>([])
+  const [failureTitles, setFailureTitles] = useState<string[]>([])
+  const [warningErrors, setWarningErrors] = useState<string[]>([])
+  const [warningTitles, setWarningTitles] = useState<string[]>([])
 
   useEffect(() => {
     async function getCurrentTabHtmlSource() {
       const [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true,
-      });
+      })
       chrome.scripting.executeScript(
         {
-          target: { tabId: tab.id! },
+          target: {tabId: tab.id!},
           func: () => {
-            const html = document.documentElement.outerHTML;
-            return html;
+            const html = document.documentElement.outerHTML
+            return html
           },
         },
         (results) => {
-          setHtml(results[0].result as string);
+          setHtml(results[0].result as string)
         }
-      );
+      )
     }
 
-    getCurrentTabHtmlSource();
-  }, []);
+    getCurrentTabHtmlSource()
+  }, [])
 
   const postData = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
 
     // to get html structure of webpage
-    const htmlDocument = new DOMParser().parseFromString(html, "text/html");
+    const htmlDocument = new DOMParser().parseFromString(html, 'text/html')
 
     // to remove html element having id as 'trail-btn' from DOM
-    const element = htmlDocument.querySelector("#trail-btn");
+    const element = htmlDocument.querySelector('#trail-btn')
     if (element) {
-      element.remove();
+      element.remove()
     }
 
     // to fetch a11y results of webpage
-    await fetch("https://trail-api.barrierbreak.com/api/test-html", {
-      method: "POST",
+    await fetch('https://trail-api.barrierbreak.com/api/test-html', {
+      method: 'POST',
       headers: {
-        Accept: "*/*",
-        "User-Agent": "BarrierBreak Client (https://www.barrierbreak.com)",
-        "x-api-key": `${apiKey}`,
-        "Content-Type": "application/json",
+        Accept: '*/*',
+        'User-Agent': 'BarrierBreak Client (https://www.barrierbreak.com)',
+        'x-api-key': `${apiKey}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         html: htmlDocument.documentElement.outerHTML,
-        element: "",
+        element: '',
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Success:", data);
-        setResponseData(data);
-        setIsLoading(false);
+        console.log('Success:', data)
+        setResponseData(data)
+        setIsLoading(false)
       })
       .catch((error) => {
-        console.error("Error:", error);
-      });
-  };
+        console.error('Error:', error)
+      })
+  }
 
   const handleClose = () => {
-    window.parent.postMessage("close-button-clicked", "*");
-  };
+    window.parent.postMessage('close-button-clicked', '*')
+  }
 
   const handleTestResults = () => {
-    postData();
-  };
+    postData()
+  }
 
   const numberToAlphabet = (num: number): string => {
     if (num < 1) {
-      console.error("Number must be greater than or equal to 1");
+      console.error('Number must be greater than or equal to 1')
     }
 
-    let result = "";
+    let result = ''
     while (num > 0) {
-      const remainder = (num - 1) % 26;
-      result = String.fromCharCode(65 + remainder) + result;
-      num = Math.floor((num - 1) / 26);
+      const remainder = (num - 1) % 26
+      result = String.fromCharCode(65 + remainder) + result
+      num = Math.floor((num - 1) / 26)
     }
 
-    return result;
-  };
+    return result
+  }
 
   const checkForFailureTitleSelection = (
     parentIndex: number,
@@ -204,14 +198,14 @@ function Extension() {
   ) => {
     const shouldParentBeSelected = responseData?.issues.errors[
       parentIndex
-    ].issues.every((checkbox) => updatedErrors.includes(checkbox.id));
+    ].issues.every((checkbox) => updatedErrors.includes(checkbox.id))
 
     if (shouldParentBeSelected && responseData?.issues.errors[parentIndex].id)
       setFailureTitles((prev) => [
         ...prev,
         responseData?.issues.errors[parentIndex].id,
-      ]);
-  };
+      ])
+  }
 
   const checkForWarningTitleSelection = (
     parentIndex: number,
@@ -219,138 +213,176 @@ function Extension() {
   ) => {
     const shouldParentBeSelected = responseData?.issues.warnings[
       parentIndex
-    ].issues.every((checkbox) => updatedErrors.includes(checkbox.id));
+    ].issues.every((checkbox) => updatedErrors.includes(checkbox.id))
 
     if (shouldParentBeSelected && responseData?.issues.warnings[parentIndex].id)
       setWarningTitles((prev) => [
         ...prev,
         responseData?.issues.warnings[parentIndex].id,
-      ]);
-  };
+      ])
+  }
 
   const checkForFailureTitleDeselection = (parentIndex: number) => {
-    const id = responseData?.issues.errors[parentIndex].id;
+    const id = responseData?.issues.errors[parentIndex].id
 
     if (failureTitles.includes(id as string)) {
-      setFailureTitles((prev) => prev.filter((item) => item !== id));
+      setFailureTitles((prev) => prev.filter((item) => item !== id))
     }
-  };
+  }
 
   const checkForWarningTitleDeselection = (parentIndex: number) => {
-    const id = responseData?.issues.warnings[parentIndex].id;
+    const id = responseData?.issues.warnings[parentIndex].id
 
     if (warningTitles.includes(id as string)) {
-      setWarningTitles((prev) => prev.filter((item) => item !== id));
+      setWarningTitles((prev) => prev.filter((item) => item !== id))
     }
-  };
+  }
 
   const handleFailureErrorClick = (id: string, parentIndex: number) => {
-    const isSelected = failureErrors.includes(id);
+    const isSelected = failureErrors.includes(id)
 
     if (isSelected) {
-      setFailureErrors(failureErrors.filter((key) => key !== id));
-      checkForFailureTitleDeselection(parentIndex);
+      setFailureErrors(failureErrors.filter((key) => key !== id))
+      checkForFailureTitleDeselection(parentIndex)
     } else {
-      const updatedErrors = [...failureErrors, id];
-      setFailureErrors(updatedErrors);
-      checkForFailureTitleSelection(parentIndex, updatedErrors);
+      const updatedErrors = [...failureErrors, id]
+      setFailureErrors(updatedErrors)
+      checkForFailureTitleSelection(parentIndex, updatedErrors)
     }
-  };
+  }
 
   const handleWarningErrorClick = (id: string, parentIndex: number) => {
-    const isSelected = warningErrors.includes(id);
+    const isSelected = warningErrors.includes(id)
 
     if (isSelected) {
-      setWarningErrors(warningErrors.filter((key) => key !== id));
-      checkForWarningTitleDeselection(parentIndex);
+      setWarningErrors(warningErrors.filter((key) => key !== id))
+      checkForWarningTitleDeselection(parentIndex)
     } else {
-      const updatedErrors = [...warningErrors, id];
-      setWarningErrors(updatedErrors);
-      checkForWarningTitleSelection(parentIndex, updatedErrors);
+      const updatedErrors = [...warningErrors, id]
+      setWarningErrors(updatedErrors)
+      checkForWarningTitleSelection(parentIndex, updatedErrors)
     }
-  };
+  }
 
   const handleFailureTitleClick = (issues: IssueItems, titleId: string) => {
-    const isSelected = failureTitles.includes(titleId);
+    const isSelected = failureTitles.includes(titleId)
 
     const updatedTitles = isSelected
       ? failureTitles.filter((key) => key !== titleId)
-      : [...failureTitles, titleId];
+      : [...failureTitles, titleId]
 
-    let updatedErrors: string[] = [...failureErrors];
-    const allIssueIds = issues.issues.map((item) => item.id);
+    let updatedErrors: string[] = [...failureErrors]
+    const allIssueIds = issues.issues.map((item) => item.id)
 
     if (isSelected) {
-      updatedErrors = updatedErrors.filter((id) => !allIssueIds.includes(id));
+      updatedErrors = updatedErrors.filter((id) => !allIssueIds.includes(id))
     } else {
-      updatedErrors = [...new Set([...updatedErrors, ...allIssueIds])];
+      updatedErrors = [...new Set([...updatedErrors, ...allIssueIds])]
     }
 
-    setFailureTitles(updatedTitles);
-    setFailureErrors(updatedErrors);
-  };
+    setFailureTitles(updatedTitles)
+    setFailureErrors(updatedErrors)
+  }
 
   const handleWarningTitleClick = (issues: IssueItems, titleId: string) => {
-    const isSelected = warningTitles.includes(titleId);
+    const isSelected = warningTitles.includes(titleId)
 
     const updatedTitles = isSelected
       ? warningTitles.filter((key) => key !== titleId)
-      : [...warningTitles, titleId];
+      : [...warningTitles, titleId]
 
-    let updatedErrors: string[] = [...warningErrors];
-    const allIssueIds = issues.issues.map((item) => item.id);
+    let updatedErrors: string[] = [...warningErrors]
+    const allIssueIds = issues.issues.map((item) => item.id)
 
     if (isSelected) {
-      updatedErrors = updatedErrors.filter((id) => !allIssueIds.includes(id));
+      updatedErrors = updatedErrors.filter((id) => !allIssueIds.includes(id))
     } else {
-      updatedErrors = [...new Set([...updatedErrors, ...allIssueIds])];
+      updatedErrors = [...new Set([...updatedErrors, ...allIssueIds])]
     }
 
-    setWarningTitles(updatedTitles);
-    setWarningErrors(updatedErrors);
-  };
+    setWarningTitles(updatedTitles)
+    setWarningErrors(updatedErrors)
+  }
 
   const isAllFailureErrorSelected = (issues: IssueItems): number => {
     return issues.issues.filter((item) => failureErrors.includes(item.id))
-      .length;
-  };
+      .length
+  }
 
   const isAllWarningErrorSelected = (issues: IssueItems): number => {
     return issues.issues.filter((item) => warningErrors.includes(item.id))
-      .length;
-  };
+      .length
+  }
 
   const handleFailureHeaderClick = () => {
     if (responseData) {
       if (failureTitles.length === responseData?.issues.errors.length) {
-        setFailureTitles([]);
-        setFailureErrors([]);
+        setFailureTitles([])
+        setFailureErrors([])
       } else {
-        setFailureTitles(responseData.issues.errors.map((item) => item.id));
+        setFailureTitles(responseData.issues.errors.map((item) => item.id))
         setFailureErrors(
           responseData.issues.errors.flatMap((item) =>
             item.issues.map((issue) => issue.id)
           )
-        );
+        )
       }
     }
-  };
+  }
 
   const handleWarningHeaderClick = () => {
     if (responseData) {
       if (warningTitles.length === responseData?.issues.warnings.length) {
-        setWarningTitles([]);
-        setWarningErrors([]);
+        setWarningTitles([])
+        setWarningErrors([])
       } else {
-        setWarningTitles(responseData.issues.warnings.map((item) => item.id));
+        setWarningTitles(responseData.issues.warnings.map((item) => item.id))
         setWarningErrors(
           responseData.issues.warnings.flatMap((item) =>
             item.issues.map((issue) => issue.id)
           )
-        );
+        )
       }
     }
-  };
+  }
+
+  const focusElement = async (elementId: string) => {
+    console.log('Focus Element ID :---', elementId)
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    })
+
+    chrome.scripting.executeScript({
+      target: {tabId: tab.id!},
+      func: (elementId) => {
+        const element = document.querySelector(elementId)
+        const className = `focused-element-${Math.random()
+          .toString(36)
+          .substring(7)}`
+        const styleElement = document.createElement('style')
+        styleElement.innerText = `.${className} { outline: 1px solid red !important; background: yellow !important; }`
+        document.body.appendChild(styleElement)
+
+        /** @type {Element | null} */
+        let lastFocusedElement = null
+        if (element) {
+          lastFocusedElement = element
+          element.classList.add(className)
+          element.scrollIntoView({behavior: 'smooth', block: 'center'})
+        }
+
+        // keep the focus on the element for 2 seconds
+        setTimeout(() => {
+          if (lastFocusedElement) {
+            lastFocusedElement.classList.remove(className)
+          }
+          styleElement.remove()
+        }, 2000)
+      },
+      args: [elementId],
+    })
+  }
 
   return (
     <main>
@@ -485,6 +517,9 @@ function Extension() {
                     <td className="table-cell p-1 h-10 border border-neutral-200">
                       <p className="font-medium text-sm">Code</p>
                     </td>
+                    <td className="table-cell p-1 h-10 border border-neutral-200">
+                      <p className="font-medium text-sm">Context</p>
+                    </td>
                   </th>
                   <tbody>
                     {responseData?.issues.errors.map((issue, parentIndex) => (
@@ -494,8 +529,8 @@ function Extension() {
                             failureTitles.includes(issue.id) ||
                             isAllFailureErrorSelected(issue) ===
                               issue.issues.length
-                              ? "bg-neutral-100"
-                              : "bg-neutral-50"
+                              ? 'bg-neutral-100'
+                              : 'bg-neutral-50'
                           }`}
                         >
                           <td key="selection" className="px-4 py-2">
@@ -528,8 +563,8 @@ function Extension() {
                             key={issue.id}
                             className={`${
                               failureErrors.includes(issue.id)
-                                ? "bg-neutral-100"
-                                : ""
+                                ? 'bg-neutral-100'
+                                : ''
                             }`}
                           >
                             <td
@@ -556,6 +591,15 @@ function Extension() {
                               <div className="h-20 w-52 overflow-y-scroll">
                                 {issue.context}
                               </div>
+                            </td>
+                            <td className="table-cell p-2 border w-[198px]">
+                              <Button
+                                appearance="primary"
+                                isDisabled={!issue.selector}
+                                onPress={() => focusElement(issue.selector)}
+                              >
+                                Focus
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -590,6 +634,9 @@ function Extension() {
                     <td className="table-cell p-1 h-10 border border-neutral-200">
                       <p className="font-medium text-sm">Code</p>
                     </td>
+                    <td className="table-cell p-1 h-10 border border-neutral-200">
+                      <p className="font-medium text-sm">Context</p>
+                    </td>
                   </th>
                   <tbody>
                     {responseData?.issues.warnings.map((issue, parentIndex) => (
@@ -599,8 +646,8 @@ function Extension() {
                             warningTitles.includes(issue.id) ||
                             isAllWarningErrorSelected(issue) ===
                               issue.issues.length
-                              ? "bg-neutral-100"
-                              : "bg-neutral-50"
+                              ? 'bg-neutral-100'
+                              : 'bg-neutral-50'
                           }`}
                         >
                           <td key="selection" className="px-4 py-2">
@@ -633,8 +680,8 @@ function Extension() {
                             key={issue.id}
                             className={`${
                               warningErrors.includes(issue.id)
-                                ? "bg-neutral-100"
-                                : ""
+                                ? 'bg-neutral-100'
+                                : ''
                             }`}
                           >
                             <td
@@ -662,12 +709,24 @@ function Extension() {
                                 {issue.context}
                               </div>
                             </td>
+                            <td className="table-cell p-2 border w-[198px]">
+                              <Button
+                                appearance="primary"
+                                isDisabled={issue.selector === ''}
+                                onPress={() => focusElement(issue.selector)}
+                              >
+                                Focus
+                              </Button>
+                            </td>
                           </tr>
                         ))}
                       </>
                     ))}
                   </tbody>
                 </table>
+              </TabPanel>
+              <TabPanel id="STRUCTURE">
+                <WebsiteLandmarks html={html} />
               </TabPanel>
             </Tabs>
           ) : (
@@ -684,7 +743,7 @@ function Extension() {
         </div>
       </div>
     </main>
-  );
+  )
 }
 
-export default Extension;
+export default Extension

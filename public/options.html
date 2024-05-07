@@ -1,28 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Options</title>
-  </head>
-  <body>
-    <div class="wrapper">
-      <form>
-        <div
-          class="field"
-          style="padding: 8px; display: flex; align-items: center; gap: 8px"
-        >
-          <label for="authtoken">Auth Token:</label>
-          <input
-            type="text"
-            name="authtoken"
-            id="authtoken"
-            style="width: 196px"
-          />
-          <button id="btnToken">Add Token</button>
-        </div>
-      </form>
-    </div>
-    <script src="options.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Options</title>
+</head>
+
+<body>
+  <div class="wrapper">
+    <form>
+      <div class="field" style="display: flex; align-items: center; gap: 8px">
+        <label for="authtoken">Auth Token:</label>
+        <input type="text" name="authtoken" id="authtoken" style="width: 100%;" />
+        <button style="*:hover { background-color: #f1f1f1; }" id="btnToken">Save</button>
+      </div>
+    </form>
+  </div>
+  <script src="options.js"></script>
+</body>
+
 </html>
