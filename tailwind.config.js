@@ -8,7 +8,12 @@ export default {
     "./node_modules/@trail-ui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        poppins: ["Poppins", "Roboto"],
+        sourceCode: ["Source Code Pro", "monospace"],
+      },
+    },
   },
   darkMode: "selector",
   plugins: [trailui()],
