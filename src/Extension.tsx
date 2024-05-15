@@ -166,6 +166,21 @@ function Extension() {
   const [html, setHtml] = useState("");
   const apiKey = localStorage.getItem("authtoken");
 
+  const tabData = [
+    { id: "FAIL", label: "Fail", issues: responseData?.issues.errors.length },
+    {
+      id: "MANUAL",
+      label: "Manual",
+      issues: responseData?.issues.warnings.length,
+    },
+    { id: "PASS", label: "Pass", issues: responseData?.issues.pass.length },
+    {
+      id: "BEST-PRACTICE",
+      label: "BP",
+      issues: responseData?.issues.notices.length,
+    },
+  ];
+
   useEffect(() => {
     // To scrape HTML source code from current tab of webpage
     async function getCurrentTabHtmlSource() {
@@ -286,71 +301,24 @@ function Extension() {
             <Tabs color="purple">
               <div className="flex items-center justify-between h-12 w-[564px]">
                 <TabList>
-                  <Tab id="FAIL">
-                    <div className="flex items-center gap-1 font-medium text-sm h-12">
-                      <p>Fail</p>
-                      <Chip
-                        variant="solid"
-                        color="default"
-                        size="md"
-                        radius="full"
-                        children={`${responseData.issues.errors.length}`}
-                        classNames={{
-                          base: "p-0 h-[18px] min-w-7",
-                          content: "text-xs text-center px-2 py-0",
-                        }}
-                      />
-                    </div>
-                  </Tab>
-
-                  <Tab id="MANUAL">
-                    <div className="flex items-center gap-1 font-medium text-sm h-12">
-                      <p>Manual</p>
-                      <Chip
-                        variant="solid"
-                        color="default"
-                        size="md"
-                        radius="full"
-                        children={`${responseData.issues.warnings.length}`}
-                        classNames={{
-                          base: "p-0 h-[18px] min-w-7",
-                          content: "text-xs text-center px-2 py-0",
-                        }}
-                      />
-                    </div>
-                  </Tab>
-                  <Tab id="PASS">
-                    <div className="flex items-center gap-1 font-medium text-sm h-12">
-                      <p>Pass</p>
-                      <Chip
-                        variant="solid"
-                        color="default"
-                        size="md"
-                        radius="full"
-                        children={`${responseData.issues.pass.length}`}
-                        classNames={{
-                          base: "p-0 h-[18px] min-w-7",
-                          content: "text-xs text-center px-2 py-0",
-                        }}
-                      />
-                    </div>
-                  </Tab>
-                  <Tab id="BEST-PRACTICE">
-                    <div className="flex items-center gap-1 font-medium text-sm h-12">
-                      <p>BP</p>
-                      <Chip
-                        variant="solid"
-                        color="default"
-                        size="md"
-                        radius="full"
-                        children={`${responseData.issues.notices.length}`}
-                        classNames={{
-                          base: "p-0 h-[18px] min-w-7",
-                          content: "text-xs text-center px-2 py-0",
-                        }}
-                      />
-                    </div>
-                  </Tab>
+                  {tabData.map((tab) => (
+                    <Tab id={tab.id}>
+                      <div className="flex items-center gap-1 font-medium text-sm h-12">
+                        <p>{tab.label}</p>
+                        <Chip
+                          variant="solid"
+                          color="default"
+                          size="md"
+                          radius="full"
+                          children={`${tab.issues}`}
+                          classNames={{
+                            base: "p-0 h-[18px] min-w-7",
+                            content: "text-xs text-center px-2 py-0",
+                          }}
+                        />
+                      </div>
+                    </Tab>
+                  ))}
                   <Tab id="STRUCTURE">
                     <div className="flex items-center font-medium text-sm h-12">
                       <p>Structure</p>
