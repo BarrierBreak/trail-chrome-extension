@@ -174,21 +174,26 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
     <>
       {data.issues[issueType].length ? (
         <>
-          <div className="flex items-center justify-between pt-1 pb-4">
+          <div className="flex items-center justify-between py-4 border-t border-t-neutral-300">
             <span className="font-semibold text-base">
               Level A (Conformance Level)
             </span>
             <Chip
               variant="solid"
-              color="default"
+              color="purple"
               size="md"
               radius="full"
-              children={`${issueCount} Issues`}
+              children={`${issueCount} ${
+                issueCount === 1 ? "Issue" : "Issues"
+              }`}
+              classNames={{
+                base: "hover:bg-purple-100 active:bg-purple-100",
+              }}
             />
           </div>
           <table className="table">
-            <th className="table-header-group font-medium border border-neutral-300 bg-neutral-200 text-left">
-              <td className="px-4 py-2 align-middle border border-neutral-300">
+            <th className="table-header-group font-medium border border-neutral-200 bg-neutral-200 text-left">
+              <td className="px-4 py-2 align-middle border border-neutral-200">
                 <Checkbox
                   isSelected={
                     selectedTitles.length === data.issues[issueType].length
@@ -202,7 +207,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                 />
               </td>
               {tableHeaders.map((item) => (
-                <td className="table-cell p-1 h-10 border border-neutral-300 align-middle">
+                <td className="table-cell p-1 h-10 border border-neutral-200 align-middle">
                   <p className="font-medium text-sm pl-1">{item}</p>
                 </td>
               ))}
@@ -214,13 +219,13 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                     className={`${
                       selectedTitles.includes(issue.id) ||
                       isAllErrorSelected(issue) === issue.issues.length
-                        ? "bg-neutral-100"
+                        ? "bg-purple-50"
                         : "bg-neutral-50"
                     }`}
                   >
                     <td
                       key="selection"
-                      className="px-4 py-2 border border-neutral-300"
+                      className="px-4 py-2 border border-neutral-200"
                     >
                       <Checkbox
                         isSelected={
@@ -235,7 +240,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                       />
                     </td>
                     <td
-                      className="table-cell p-2 border border-neutral-300"
+                      className="table-cell p-2 border border-neutral-200"
                       colSpan={4}
                     >
                       <div className="flex gap-1 items-center justify-between">
@@ -264,14 +269,12 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                     <tr
                       key={issue.id}
                       className={`${
-                        selectedErrors.includes(issue.id)
-                          ? "bg-neutral-100"
-                          : ""
+                        selectedErrors.includes(issue.id) ? "bg-purple-50" : ""
                       }`}
                     >
                       <td
                         key="selection"
-                        className="border border-neutral-300 px-4 py-2 w-10"
+                        className="border border-neutral-200 px-4 py-2 w-10"
                       >
                         <Checkbox
                           isSelected={selectedErrors.includes(issue.id)}
@@ -281,10 +284,10 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                           aria-label={`${index + 1} ${issue.elementTagName}`}
                         />
                       </td>
-                      <td className="table-cell border border-neutral-300 p-2 w-[100px]">
+                      <td className="table-cell border border-neutral-200 p-2 w-[100px]">
                         {` ${index + 1}. <${issue.elementTagName}>`}
                       </td>
-                      <td className="table-cell border border-neutral-300 p-2 w-40">
+                      <td className="table-cell border border-neutral-200 p-2 w-40">
                         <img
                           src={`data:image/png;base64,${issue.clipBase64}`}
                           alt={`screenshot-${numberToAlphabet(
@@ -292,7 +295,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                           )}${index + 1}`}
                         />
                       </td>
-                      <td className="table-cell p-2 border border-neutral-300 w-[198px] relative font-sourceCode">
+                      <td className="table-cell p-2 border border-neutral-200 w-[198px] relative font-sourceCode">
                         <section
                           className="h-20 w-52 overflow-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                           tabIndex={0}
@@ -300,7 +303,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                           {issue.context}
                         </section>
                         <button
-                          className="absolute h-6 w-6 top-[1px] right-[1px] bg-white focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
+                          className="absolute h-6 w-6 top-[1px] right-[1px] focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
                           onClick={() => handleCopy(issue.context)}
                         >
                           <CopyIcon
@@ -313,7 +316,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                           />
                         </button>
                       </td>
-                      <td className="table-cell p-2 border border-neutral-300 w-[198px] text-center">
+                      <td className="table-cell p-2 border border-neutral-200 w-[198px] text-center">
                         <Button
                           appearance="link"
                           isDisabled={!issue.selector}
