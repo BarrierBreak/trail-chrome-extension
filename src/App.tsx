@@ -1,12 +1,11 @@
-import Extension from "./Extension";
-import "./App.css";
+import Extension from './Extension'
 
 function App() {
   return (
     <>
       <Extension />
     </>
-  );
+  )
 }
 
-export default App;
+export default App
