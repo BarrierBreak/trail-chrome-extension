@@ -192,8 +192,8 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
             />
           </div>
           <table className="table">
-            <th className="table-header-group font-medium border border-neutral-200 bg-neutral-200 text-left">
-              <td className="px-4 py-2 align-middle border border-neutral-200">
+            <th className="table-header-group font-medium border border-neutral-300 bg-neutral-200 text-left">
+              <td className="px-4 py-2 align-middle border border-neutral-300">
                 <Checkbox
                   isSelected={
                     selectedTitles.length === data.issues[issueType].length
@@ -207,7 +207,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                 />
               </td>
               {tableHeaders.map((item) => (
-                <td className="table-cell p-1 h-10 border border-neutral-200 align-middle">
+                <td className="table-cell p-1 h-10 border border-neutral-300 align-middle">
                   <p className="font-medium text-sm pl-1">{item}</p>
                 </td>
               ))}
