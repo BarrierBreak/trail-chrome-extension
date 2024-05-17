@@ -20,8 +20,23 @@ extensionBtn.addEventListener("click", () => {
   showIframe();
 });
 
+// To handle animation of trail button on focus
+extensionBtn.addEventListener("focusin", () => {
+  extensionBtn.style.right = "-41px";
+  extensionBtn.style.transition =
+    "all 0.5s cubic-bezier( 0.68, -0.55, 0.265, 1.55 )";
+});
+
+// To handle animation of trail button going out of focus
+extensionBtn.addEventListener("focusout", () => {
+  extensionBtn.style.right = "-72px";
+  extensionBtn.style.transition =
+    "all 0.5s cubic-bezier( 0.68, -0.55, 0.265, 1.55 )";
+});
+
 //To handle keyboard shortvut to display / hide iframe
 let keys = {};
+
 window.addEventListener("keydown", (ev) => {
   keys[ev.key] = true;
 });
@@ -36,6 +51,7 @@ window.addEventListener("keyup", () => {
   keys = {};
 });
 
+// To minimize iframe
 window.addEventListener("message", (event) => {
   if (event.data === "close-button-clicked") {
     hideIframe();

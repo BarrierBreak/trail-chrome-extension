@@ -203,7 +203,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                     selectedTitles.length !== data.issues[issueType].length
                   }
                   onChange={() => handleHeaderClick()}
-                  aria-label="Table Header"
+                  aria-label="Select All"
                 />
               </td>
               {tableHeaders.map((item) => (
@@ -310,7 +310,9 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                             width={24}
                             height={24}
                             className="text-neutral-600"
-                            aria-label="Copy to Clipboard"
+                            aria-label={`Copy ${index + 1} ${
+                              issue.elementTagName
+                            } code to clipboard`}
                             aria-hidden="false"
                             role="img"
                           />
