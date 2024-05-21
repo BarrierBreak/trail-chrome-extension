@@ -9,7 +9,7 @@ document.body.insertBefore(extensionBtn, document.body.firstChild);
 
 // To inject Trail extension iframe on load
 const iframe = new DOMParser().parseFromString(
-  "<iframe id='trail-iframe' title='trail-extension' style = 'width: 0px !important; height: 100vh; position: fixed; top: 0; right: 0; border-radius: 5px; z-index: 999999; box-shadow: -8px 0px 24px 0px rgba(0, 0, 0, 0.12);'></iframe>",
+  "<iframe id='trail-iframe' title='trail-extension' allow='clipboard-write' style = 'width: 0px !important; height: 100vh; position: fixed; top: 0; right: 0; border-radius: 5px; z-index: 999999; box-shadow: -8px 0px 24px 0px rgba(0, 0, 0, 0.12);'></iframe>",
   "text/html"
 ).body.firstElementChild;
 iframe.src = chrome.runtime.getURL("index.html");
@@ -79,6 +79,7 @@ function showIframe() {
     "top 1.5s cubic-bezier( 0.68, -0.55, 0.265, 1.55 )";
   iframe.style.transition = "width 0.5s";
   iframe.style.width = "612px";
+  iframe.focus();
 }
 
 //Functions to hide extension iframe
@@ -89,5 +90,5 @@ function hideIframe() {
     "top 1.5s cubic-bezier( 0.68, -0.55, 0.265, 1.55 )";
   iframe.style.transition = "width 0.5s";
   iframe.style.width = "0px";
-  document.querySelector("#trail-btn").focus();
+  extensionBtn.focus();
 }

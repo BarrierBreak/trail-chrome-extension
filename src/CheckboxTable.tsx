@@ -14,6 +14,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
   const [selectedErrors, setSelectedErrors] = useState<string[]>([]);
   const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
   const [issueCount, setIssueCount] = useState<number>(0);
+  const [activePopup, setActivePopup] = useState<string>("");
 
   useEffect(() => {
     // To count the total number of individual issues
@@ -44,8 +45,19 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
   };
 
   // To handle copy to clipboard functionality
-  const handleCopy = (code: string) => {
-    console.log(code);
+  const handleCopy = (code: string, id: string) => {
+    navigator.clipboard.writeText(code).then(() => {
+      console.log("Code copied successfully");
+      handleShowPopup(id);
+    });
+  };
+
+  // To handle displaying of copied to clipboard popup
+  const handleShowPopup = (id: string) => {
+    setActivePopup(id);
+    setTimeout(() => {
+      setActivePopup("");
+    }, 3000);
   };
 
   // To check whether title checkbox should be selected
@@ -304,7 +316,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                         </section>
                         <button
                           className="absolute h-6 w-6 top-[1px] right-[1px] focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
-                          onClick={() => handleCopy(issue.context)}
+                          onClick={() => handleCopy(issue.context, issue.id)}
                         >
                           <CopyIcon
                             width={24}
@@ -317,6 +329,11 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                             role="img"
                           />
                         </button>
+                        {activePopup === issue.id && (
+                          <div className="absolute -top-[50%] -right-[30%] bg-purple-100 shadow-md transition-all duration-500 ease-in-out border border-purple-600 text-purple-600 p-2.5 rounded">
+                            Copied to Clipboard!
+                          </div>
+                        )}
                       </td>
                       <td className="table-cell p-2 border border-neutral-200 w-[198px] text-center">
                         <Button
