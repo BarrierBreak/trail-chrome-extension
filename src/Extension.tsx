@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button, Chip, Tab, TabList, TabPanel, Tabs } from "@trail-ui/react";
 import {
-  CloseFilledIcon,
   DownloadIcon,
   ExportIcon,
+  MinusIcon,
   TrailIcon,
 } from "@trail-ui/icons";
 import WebsiteLandmarks from "./WebsiteLandmarks";
@@ -243,8 +243,8 @@ function Extension() {
       });
   };
 
-  // To handle close functionality
-  const handleClose = () => {
+  // To handle minimise functionality
+  const handleMinimise = () => {
     window.parent.postMessage("close-button-clicked", "*");
   };
 
@@ -268,18 +268,19 @@ function Extension() {
             />
             <TrailAMSVerticalIcon width={36} height={32} />
           </div>
-          <button
-            onClick={handleClose}
-            className="focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+          <Button
+            appearance="default"
+            onPress={handleMinimise}
+            className="px-1 rounded-full focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
           >
-            <CloseFilledIcon
+            <MinusIcon
               width={24}
               height={24}
-              aria-label="Close"
-              aria-hidden="false"
               role="img"
+              aria-label="Minimise"
+              aria-hidden="false"
             />
-          </button>
+          </Button>
         </div>
 
         <div className="flex h-screen px-6">
@@ -289,7 +290,7 @@ function Extension() {
                 <TabList>
                   {tabData.map((tab) => (
                     <Tab id={tab.id}>
-                      <div className="flex items-center gap-1 font-medium text-sm h-12">
+                      <div className="flex items-center gap-1 text-sm h-12">
                         <p>{tab.label}</p>
                         <Chip
                           variant="solid"
@@ -306,7 +307,7 @@ function Extension() {
                     </Tab>
                   ))}
                   <Tab id="STRUCTURE">
-                    <div className="flex items-center font-medium text-sm h-12">
+                    <div className="flex items-center text-sm h-12">
                       <p>Structure</p>
                     </div>
                   </Tab>

@@ -45,7 +45,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
   };
 
   // To handle copy to clipboard functionality
-  const handleCopy = (code: string, id: string) => {
+  const handleCopyToClipboard = (code: string, id: string) => {
     navigator.clipboard.writeText(code).then(() => {
       console.log("Code copied successfully");
       handleShowPopup(id);
@@ -256,10 +256,12 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                       colSpan={4}
                     >
                       <div className="flex gap-1 items-center justify-between">
-                        <h2 className="font-bold">
+                        <h2 className="font-semibold">
                           {`${numberToAlphabet(parentIndex + 1)}. ${
                             issue.failing_technique
-                          } (${issue.issues.length})`}
+                          } (${issue.issues.length} ${
+                            issue.issues.length === 1 ? "Instance" : "Instances"
+                          })`}
                         </h2>
                         <button
                           className="h-6 w-6 focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
@@ -316,21 +318,21 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                         </section>
                         <button
                           className="absolute h-6 w-6 top-[1px] right-[1px] focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
-                          onClick={() => handleCopy(issue.context, issue.id)}
+                          onClick={() => handleCopyToClipboard(issue.context, issue.id)}
                         >
                           <CopyIcon
                             width={24}
                             height={24}
                             className="text-neutral-600"
+                            role="img"
                             aria-label={`Copy ${index + 1} ${
                               issue.elementTagName
                             } code to clipboard`}
                             aria-hidden="false"
-                            role="img"
                           />
                         </button>
                         {activePopup === issue.id && (
-                          <div className="absolute -top-[50%] -right-[30%] bg-purple-100 shadow-md transition-all duration-500 ease-in-out border border-purple-600 text-purple-600 p-2.5 rounded">
+                          <div className="absolute -top-[50%] -right-[30%] bg-purple-100 font-semibold shadow-lg text-purple-600 p-2.5 rounded">
                             Copied to Clipboard!
                           </div>
                         )}
