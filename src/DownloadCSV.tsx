@@ -30,7 +30,7 @@ const DownloadCSV = ({ csvdata }) => {
 
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-    XLSX.writeFile(workbook, "yessss.xlsx");
+    XLSX.writeFile(workbook, "Report.xlsx");
   };
   return (
     <div>
