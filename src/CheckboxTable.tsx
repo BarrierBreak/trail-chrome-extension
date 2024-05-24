@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Button, Checkbox, Chip } from "@trail-ui/react";
 import { ChevronDownIcon, CopyIcon } from "@trail-ui/icons";
@@ -6,12 +7,26 @@ import { Issues, IssueItems } from "./Extension";
 interface CheckboxTableProps {
   data: Issues;
   issueType: "errors" | "warnings" | "pass" | "notices";
+  sendDataToParent: (
+    data: {
+      id: string;
+      data: IssueItems;
+    }[]
+  ) => void;
 }
 
-const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
+const CheckboxTable = ({
+  data,
+  issueType,
+  sendDataToParent,
+}: CheckboxTableProps) => {
   const tableHeaders = ["Element", "Screenshot", "Code", "Action"];
 
   const [selectedErrors, setSelectedErrors] = useState<string[]>([]);
+  const [selectedErrorsData, setSelectedErrorsData] = useState<
+    { id: string; data: IssueItems }[]
+  >([]);
+
   const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
   const [issueCount, setIssueCount] = useState<number>(0);
   const [activePopup, setActivePopup] = useState<string>("");
@@ -91,16 +106,36 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
 
     if (isSelected) {
       setSelectedErrors(selectedErrors.filter((key) => key !== id));
+
+      setSelectedErrorsData(
+        selectedErrorsData.filter((error) => error.id !== id)
+      );
+
       checkForTitleDeselection(parentIndex);
     } else {
       const updatedErrors = [...selectedErrors, id];
       setSelectedErrors(updatedErrors);
+
+      const updatedErrorsData = [
+        ...selectedErrorsData,
+        { id: id, data: data.issues[issueType][parentIndex] },
+      ];
+      setSelectedErrorsData(updatedErrorsData);
+
       checkForTitleSelection(parentIndex, updatedErrors);
     }
   };
 
+  useEffect(() => {
+    handleClick(selectedErrorsData);
+  }, [selectedErrorsData]);
+
   // To handle title checkbox click
-  const handleTitleClick = (issues: IssueItems, titleId: string) => {
+  const handleTitleClick = (
+    issues: IssueItems,
+    titleId: string,
+    parentIndex: number
+  ) => {
     const isSelected = selectedTitles.includes(titleId);
 
     const updatedTitles = isSelected
@@ -108,16 +143,41 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
       : [...selectedTitles, titleId];
 
     let updatedErrors: string[] = [...selectedErrors];
+    let updatedErrorsData: { id: string; data: IssueItems }[] = [
+      ...selectedErrorsData,
+    ];
     const allIssueIds = issues.issues.map((item) => item.id);
+
+    let newdata: { id: string; data: IssueItems }[] = [];
 
     if (isSelected) {
       updatedErrors = updatedErrors.filter((id) => !allIssueIds.includes(id));
+      updatedErrorsData = selectedErrorsData.filter(
+        (error) => !allIssueIds.includes(error.id)
+      );
     } else {
       updatedErrors = [...new Set([...updatedErrors, ...allIssueIds])];
+
+      data.issues[issueType][parentIndex].issues.forEach((item) => {
+        newdata = [
+          ...newdata,
+          { id: item.id, data: data.issues[issueType][parentIndex] },
+        ];
+      });
+
+      const combinedArray = [...selectedErrorsData, ...newdata];
+      
+      const uniqueItems: any = {};
+      combinedArray.forEach((item) => {
+        uniqueItems[item.id] = item;
+      });
+
+      updatedErrorsData = Object.values(uniqueItems);
     }
 
     setSelectedTitles(updatedTitles);
     setSelectedErrors(updatedErrors);
+    setSelectedErrorsData(updatedErrorsData);
   };
 
   // To check whether all available errors are selected or not
@@ -132,6 +192,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
       if (selectedTitles.length === data?.issues[issueType].length) {
         setSelectedTitles([]);
         setSelectedErrors([]);
+        setSelectedErrorsData([]);
       } else {
         setSelectedTitles(data.issues[issueType].map((item) => item.id));
         setSelectedErrors(
@@ -139,6 +200,16 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
             item.issues.map((issue) => issue.id)
           )
         );
+
+        let alldata: any =[];
+
+        data.issues[issueType].forEach((item) => {
+          item.issues.forEach((issue) => {
+            alldata = [...alldata, { id: issue.id, data: item }];
+          })
+        });
+
+        setSelectedErrorsData(alldata);
       }
     }
   };
@@ -181,6 +252,15 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
       args: [elementId],
     });
   };
+
+  function handleClick(
+    childData: {
+      id: string;
+      data: IssueItems;
+    }[]
+  ) {
+    sendDataToParent(childData);
+  }
 
   return (
     <>
@@ -247,7 +327,9 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                           isAllErrorSelected(issue) !== 0 &&
                           isAllErrorSelected(issue) !== issue.issues.length
                         }
-                        onChange={() => handleTitleClick(issue, issue.id)}
+                        onChange={() =>
+                          handleTitleClick(issue, issue.id, parentIndex)
+                        }
                         aria-label={`${issue.failing_technique}`}
                       />
                     </td>
@@ -304,7 +386,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                       <td className="table-cell border border-neutral-200 p-2 w-40">
                         <img
                           src={`data:image/png;base64,${issue.clipBase64}`}
-                          alt={`screenshot-${numberToAlphabet(
+                          alt={`${issueType}-${numberToAlphabet(
                             parentIndex + 1
                           )}${index + 1}`}
                         />
@@ -318,7 +400,9 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                         </section>
                         <button
                           className="absolute h-6 w-6 top-[1px] right-[1px] focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
-                          onClick={() => handleCopyToClipboard(issue.context, issue.id)}
+                          onClick={() =>
+                            handleCopyToClipboard(issue.context, issue.id)
+                          }
                         >
                           <CopyIcon
                             width={24}

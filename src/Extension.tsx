@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Chip, Tab, TabList, TabPanel, Tabs } from "@trail-ui/react";
-import {
-  DownloadIcon,
-  ExportIcon,
-  MinusIcon,
-  TrailIcon,
-} from "@trail-ui/icons";
+import { ExportIcon, MinusIcon, TrailIcon } from "@trail-ui/icons";
 import WebsiteLandmarks from "./WebsiteLandmarks";
 import CheckboxTable from "./CheckboxTable";
 import { TrailAMSVerticalIcon } from "@trail-ui/icons";
+import { DownloadCSV } from "./DownloadCSV";
 
 export interface IssueItems {
   issues: {
@@ -253,6 +249,17 @@ function Extension() {
     postData();
   };
 
+  const [dataFromChild, setDataFromChild] = useState({});
+
+  function handleDataFromChild(
+    data: {
+      id: string;
+      data: IssueItems;
+    }[]
+  ) {
+    setDataFromChild(data);
+  }
+
   return (
     <main className="font-poppins">
       <div className="w-full" aria-label="Trail" role="modal">
@@ -313,19 +320,7 @@ function Extension() {
                   </Tab>
                 </TabList>
                 <div className="flex gap-2">
-                  <Button
-                    className="font-medium"
-                    appearance="text"
-                    endContent={
-                      <DownloadIcon
-                        width={24}
-                        height={24}
-                        aria-label="Download"
-                      />
-                    }
-                  >
-                    CSV
-                  </Button>
+                  <DownloadCSV csvdata={dataFromChild} />
                   <Button
                     className="font-medium"
                     appearance="primary"
@@ -336,16 +331,32 @@ function Extension() {
                 </div>
               </div>
               <TabPanel id="FAIL">
-                <CheckboxTable data={responseData} issueType="errors" />
+                <CheckboxTable
+                  sendDataToParent={handleDataFromChild}
+                  data={responseData}
+                  issueType="errors"
+                />
               </TabPanel>
               <TabPanel id="MANUAL">
-                <CheckboxTable data={responseData} issueType="warnings" />
+                <CheckboxTable
+                  sendDataToParent={handleDataFromChild}
+                  data={responseData}
+                  issueType="warnings"
+                />
               </TabPanel>
               <TabPanel id="PASS">
-                <CheckboxTable data={responseData} issueType="pass" />
+                <CheckboxTable
+                  sendDataToParent={handleDataFromChild}
+                  data={responseData}
+                  issueType="pass"
+                />
               </TabPanel>
               <TabPanel id="BEST-PRACTICE">
-                <CheckboxTable data={responseData} issueType="notices" />
+                <CheckboxTable
+                  sendDataToParent={handleDataFromChild}
+                  data={responseData}
+                  issueType="notices"
+                />
               </TabPanel>
               <TabPanel id="STRUCTURE">
                 <WebsiteLandmarks html={html} />
