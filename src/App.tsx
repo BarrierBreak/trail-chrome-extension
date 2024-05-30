@@ -1,11 +1,11 @@
-import Extension from './Extension'
+import Extension from "./Extension";
 
-function App() {
+const App = () => {
   return (
     <>
       <Extension />
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

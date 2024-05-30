@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button, Checkbox, Chip } from "@trail-ui/react";
-import { ChevronDownIcon, CopyIcon } from "@trail-ui/icons";
+import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
 import { Issues, IssueItems } from "./Extension";
 
 interface CheckboxTableProps {
@@ -15,6 +15,11 @@ interface CheckboxTableProps {
   ) => void;
 }
 
+interface DropdownState {
+  id: string;
+  isExpanded: boolean;
+}
+
 const CheckboxTable = ({
   data,
   issueType,
@@ -24,15 +29,16 @@ const CheckboxTable = ({
 
   const [selectedErrors, setSelectedErrors] = useState<string[]>([]);
   const [selectedErrorsData, setSelectedErrorsData] = useState<
-    { id: string; data: IssueItems }[]
+    { id: string; alt: string; data: IssueItems }[]
   >([]);
 
   const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
   const [issueCount, setIssueCount] = useState<number>(0);
   const [activePopup, setActivePopup] = useState<string>("");
+  const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([]);
 
+  // To count the total number of individual issues
   useEffect(() => {
-    // To count the total number of individual issues
     const totalIssuesCount = () => {
       let count = 0;
       data.issues[issueType].forEach((item) => {
@@ -58,6 +64,52 @@ const CheckboxTable = ({
     }
     return result;
   };
+
+  const screenshotAltText = (issueType: string) => {
+    switch (issueType) {
+      case "errors":
+        return "Fail";
+      case "warnings":
+        return "Manual";
+      case "pass":
+        return "Pass";
+      case "notices":
+        return "BP";
+      default:
+        break;
+    }
+  };
+
+  const updatedStates: DropdownState[] = [];
+
+  useEffect(() => {
+    data.issues[issueType].forEach((item) => {
+      updatedStates.push({ id: item.id, isExpanded: false });
+      setDropdownStates(updatedStates);
+    });
+  }, []);
+
+  const handleDropdownClick = useCallback(
+    (issue: IssueItems, id: string) => {
+      const currentDropdown = dropdownStates.find((item) => item.id === id);
+
+      setDropdownStates((prevStates) => {
+        const updatedStates = prevStates.filter((state) => state.id !== id);
+        updatedStates.push({ id, isExpanded: !currentDropdown?.isExpanded });
+        return updatedStates;
+      });
+
+      issue.issues.forEach((item) => {
+        const issueRows = document.getElementById(item.id);
+        if (issueRows) {
+          currentDropdown?.isExpanded
+            ? (issueRows.style.display = "table-row")
+            : (issueRows.style.display = "none");
+        }
+      });
+    },
+    [dropdownStates]
+  );
 
   // To handle copy to clipboard functionality
   const handleCopyToClipboard = (code: string, id: string) => {
@@ -101,7 +153,7 @@ const CheckboxTable = ({
   };
 
   // To handle individual error checkbox click
-  const handleErrorClick = (id: string, parentIndex: number) => {
+  const handleErrorClick = (id: string, index: number, parentIndex: number) => {
     const isSelected = selectedErrors.includes(id);
 
     if (isSelected) {
@@ -118,7 +170,13 @@ const CheckboxTable = ({
 
       const updatedErrorsData = [
         ...selectedErrorsData,
-        { id: id, data: data.issues[issueType][parentIndex] },
+        {
+          id: id,
+          alt: `${screenshotAltText(issueType)}-${numberToAlphabet(
+            parentIndex + 1
+          )}${index + 1}`,
+          data: data.issues[issueType][parentIndex],
+        },
       ];
       setSelectedErrorsData(updatedErrorsData);
 
@@ -143,12 +201,11 @@ const CheckboxTable = ({
       : [...selectedTitles, titleId];
 
     let updatedErrors: string[] = [...selectedErrors];
-    let updatedErrorsData: { id: string; data: IssueItems }[] = [
+    let updatedErrorsData: { id: string; alt: string; data: IssueItems }[] = [
       ...selectedErrorsData,
     ];
     const allIssueIds = issues.issues.map((item) => item.id);
-
-    let newdata: { id: string; data: IssueItems }[] = [];
+    let newdata: { id: string; alt: string; data: IssueItems }[] = [];
 
     if (isSelected) {
       updatedErrors = updatedErrors.filter((id) => !allIssueIds.includes(id));
@@ -158,16 +215,22 @@ const CheckboxTable = ({
     } else {
       updatedErrors = [...new Set([...updatedErrors, ...allIssueIds])];
 
-      data.issues[issueType][parentIndex].issues.forEach((item) => {
+      data.issues[issueType][parentIndex].issues.forEach((item, index) => {
         newdata = [
           ...newdata,
-          { id: item.id, data: data.issues[issueType][parentIndex] },
+          {
+            id: item.id,
+            alt: `${screenshotAltText(issueType)}-${numberToAlphabet(
+              parentIndex + 1
+            )}${index + 1}`,
+            data: data.issues[issueType][parentIndex],
+          },
         ];
       });
 
       const combinedArray = [...selectedErrorsData, ...newdata];
-      
       const uniqueItems: any = {};
+
       combinedArray.forEach((item) => {
         uniqueItems[item.id] = item;
       });
@@ -201,12 +264,21 @@ const CheckboxTable = ({
           )
         );
 
-        let alldata: any =[];
+        let alldata: any = [];
 
-        data.issues[issueType].forEach((item) => {
-          item.issues.forEach((issue) => {
-            alldata = [...alldata, { id: issue.id, data: item }];
-          })
+        data.issues[issueType].forEach((item, index) => {
+          item.issues.forEach((issue, issueIndex) => {
+            alldata = [
+              ...alldata,
+              {
+                id: issue.id,
+                alt: `${screenshotAltText(issueType)}-${numberToAlphabet(
+                  index + 1
+                )}${issueIndex + 1}`,
+                data: item,
+              },
+            ];
+          });
         });
 
         setSelectedErrorsData(alldata);
@@ -253,38 +325,39 @@ const CheckboxTable = ({
     });
   };
 
-  function handleClick(
+  const handleClick = (
     childData: {
       id: string;
       data: IssueItems;
     }[]
-  ) {
+  ) => {
     sendDataToParent(childData);
-  }
+  };
 
   return (
     <>
       {data.issues[issueType].length ? (
         <>
           <div className="flex items-center justify-between py-4 border-t border-t-neutral-300">
-            <span className="font-semibold text-base">
+            <span className="font-semibold text-lg">
               Level A (Conformance Level)
             </span>
             <Chip
               variant="solid"
               color="purple"
-              size="md"
+              size="lg"
               radius="full"
               children={`${issueCount} ${
                 issueCount === 1 ? "Issue" : "Issues"
               }`}
               classNames={{
+                content: "font-medium",
                 base: "hover:bg-purple-100 active:bg-purple-100",
               }}
             />
           </div>
           <table className="table">
-            <th className="table-header-group font-medium border border-neutral-300 bg-neutral-200 text-left">
+            <th className="table-header-group h-10 font-medium border border-neutral-300 bg-neutral-200 text-left">
               <td className="px-4 py-2 align-middle border border-neutral-300">
                 <Checkbox
                   isSelected={
@@ -299,8 +372,8 @@ const CheckboxTable = ({
                 />
               </td>
               {tableHeaders.map((item) => (
-                <td className="table-cell p-1 h-10 border border-neutral-300 align-middle">
-                  <p className="font-medium text-sm pl-1">{item}</p>
+                <td className="table-cell p-1 border border-neutral-300 align-middle">
+                  <p className="font-medium text-base pl-1">{item}</p>
                 </td>
               ))}
             </th>
@@ -334,37 +407,56 @@ const CheckboxTable = ({
                       />
                     </td>
                     <td
-                      className="table-cell p-2 border border-neutral-200"
+                      className="table-cell p-0 border border-neutral-200"
                       colSpan={4}
                     >
-                      <div className="flex gap-1 items-center justify-between">
-                        <h2 className="font-semibold">
-                          {`${numberToAlphabet(parentIndex + 1)}. ${
-                            issue.failing_technique
-                          } (${issue.issues.length} ${
-                            issue.issues.length === 1 ? "Instance" : "Instances"
-                          })`}
-                        </h2>
-                        <button
-                          className="h-6 w-6 focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
-                          tabIndex={0}
-                        >
-                          <ChevronDownIcon
-                            width={24}
-                            height={24}
-                            aria-label="Accordian"
-                            aria-hidden="false"
-                            role="img"
-                          />
-                        </button>
-                      </div>
+                      <button
+                        aria-expanded={
+                          dropdownStates.find(
+                            (item) => item.id === issue.id && item.isExpanded
+                          )
+                            ? false
+                            : true
+                        }
+                        onClick={() => handleDropdownClick(issue, issue.id)}
+                        className="p-2 w-full focus-visible:outline-focus"
+                      >
+                        <div className="flex gap-1 items-center justify-between">
+                          <p className="text-start font-semibold text-base">
+                            {`${numberToAlphabet(parentIndex + 1)}. ${
+                              issue.failing_technique
+                            } (${issue.issues.length} ${
+                              issue.issues.length === 1
+                                ? "Instance"
+                                : "Instances"
+                            })`}
+                          </p>
+                          <div className="h-6 w-6">
+                            {dropdownStates.find(
+                              (item) => item.id === issue.id && item.isExpanded
+                            ) ? (
+                              <ChevronDownIcon
+                                width={24}
+                                height={24}
+                                className="text-neutral-900"
+                              />
+                            ) : (
+                              <ChevronUpIcon
+                                width={24}
+                                height={24}
+                                className="text-neutral-900"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </button>
                     </td>
                   </tr>
 
                   {issue.issues.map((issue, index) => (
                     <tr
-                      key={issue.id}
-                      className={`${
+                      id={issue.id}
+                      className={`text-base ${
                         selectedErrors.includes(issue.id) ? "bg-purple-50" : ""
                       }`}
                     >
@@ -375,7 +467,7 @@ const CheckboxTable = ({
                         <Checkbox
                           isSelected={selectedErrors.includes(issue.id)}
                           onChange={() =>
-                            handleErrorClick(issue.id, parentIndex)
+                            handleErrorClick(issue.id, index, parentIndex)
                           }
                           aria-label={`${index + 1} ${issue.elementTagName}`}
                         />
@@ -385,21 +477,22 @@ const CheckboxTable = ({
                       </td>
                       <td className="table-cell border border-neutral-200 p-2 w-40">
                         <img
+                          className="h-10"
                           src={`data:image/png;base64,${issue.clipBase64}`}
-                          alt={`${issueType}-${numberToAlphabet(
-                            parentIndex + 1
-                          )}${index + 1}`}
+                          alt={`${screenshotAltText(
+                            issueType
+                          )}-${numberToAlphabet(parentIndex + 1)}${index + 1}`}
                         />
                       </td>
-                      <td className="table-cell p-2 border border-neutral-200 w-[198px] relative font-sourceCode">
+                      <td className="table-cell p-2 pr-[1px] border border-neutral-200 w-[198px] relative font-sourceCode">
                         <section
-                          className="h-20 w-52 overflow-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                          className="h-10 w-[216px] text-sm pr-8 overflow-x-hidden overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                           tabIndex={0}
                         >
                           {issue.context}
                         </section>
                         <button
-                          className="absolute h-6 w-6 top-[1px] right-[1px] focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
+                          className="absolute h-6 w-6 top-[1px] right-2.5 bg-white focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
                           onClick={() =>
                             handleCopyToClipboard(issue.context, issue.id)
                           }
@@ -416,7 +509,7 @@ const CheckboxTable = ({
                           />
                         </button>
                         {activePopup === issue.id && (
-                          <div className="absolute -top-[50%] -right-[30%] bg-purple-100 font-semibold shadow-lg text-purple-600 p-2.5 rounded">
+                          <div className="absolute bottom-[110%] -right-[27%] bg-purple-100 font-semibold shadow-lg text-purple-600 p-2.5 rounded">
                             Copied to Clipboard!
                           </div>
                         )}
@@ -427,7 +520,7 @@ const CheckboxTable = ({
                           isDisabled={!issue.selector}
                           onPress={() => focusElement(issue.selector)}
                         >
-                          Focus
+                          <span className="text-base">Focus</span>
                         </Button>
                       </td>
                     </tr>

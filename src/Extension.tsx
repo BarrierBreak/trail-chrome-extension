@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button, Chip, Tab, TabList, TabPanel, Tabs } from "@trail-ui/react";
-import { ExportIcon, MinusIcon, TrailIcon } from "@trail-ui/icons";
+import { ExportIcon, TrailIcon, TrailAMSVerticalIcon } from "@trail-ui/icons";
 import WebsiteLandmarks from "./WebsiteLandmarks";
 import CheckboxTable from "./CheckboxTable";
-import { TrailAMSVerticalIcon } from "@trail-ui/icons";
-import { DownloadCSV } from "./DownloadCSV";
+import DownloadCSV from "./DownloadCSV";
 
 export interface IssueItems {
   issues: {
@@ -156,12 +155,13 @@ export interface Issues {
   };
 }
 
-function Extension() {
+const Extension = () => {
   const [responseData, setResponseData] = useState<Issues>();
   const [isLoading, setIsLoading] = useState(false);
 
   const [html, setHtml] = useState("");
   const apiKey = localStorage.getItem("authtoken");
+  const [dataFromChild, setDataFromChild] = useState({});
 
   const tabData = [
     { id: "FAIL", label: "Fail", issues: responseData?.issues.errors.length },
@@ -178,8 +178,8 @@ function Extension() {
     },
   ];
 
+  // To scrape HTML source code from current tab of webpage
   useEffect(() => {
-    // To scrape HTML source code from current tab of webpage
     async function getCurrentTabHtmlSource() {
       const [tab] = await chrome.tabs.query({
         active: true,
@@ -241,7 +241,7 @@ function Extension() {
 
   // To handle minimise functionality
   const handleMinimise = () => {
-    window.parent.postMessage("close-button-clicked", "*");
+    window.parent.postMessage("minimise-button-clicked", "*");
   };
 
   // API call
@@ -249,16 +249,14 @@ function Extension() {
     postData();
   };
 
-  const [dataFromChild, setDataFromChild] = useState({});
-
-  function handleDataFromChild(
+  const handleDataFromChild = (
     data: {
       id: string;
       data: IssueItems;
     }[]
-  ) {
+  ) => {
     setDataFromChild(data);
-  }
+  };
 
   return (
     <main className="font-poppins">
@@ -273,103 +271,113 @@ function Extension() {
               aria-hidden="false"
               role="img"
             />
-            <TrailAMSVerticalIcon width={36} height={32} />
-          </div>
-          <Button
-            appearance="default"
-            onPress={handleMinimise}
-            className="px-1 rounded-full focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
-          >
-            <MinusIcon
-              width={24}
-              height={24}
-              role="img"
-              aria-label="Minimise"
-              aria-hidden="false"
+            <TrailAMSVerticalIcon
+              width={36}
+              height={32}
+              className="text-neutral-800"
             />
-          </Button>
+          </div>
+          <button
+            onClick={handleMinimise}
+            className="rounded-full focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="#625D71"
+            >
+              <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM7 11V13H17V11H7Z" />
+            </svg>
+          </button>
         </div>
 
-        <div className="flex h-screen px-6">
+        <div className="flex h-full px-6 pb-6">
           {responseData?.issues ? (
-            <Tabs color="purple" classNames={{ tab: "border-0 py-0 pr-1.5" }}>
-              <div className="flex items-center justify-between h-12 w-[564px] sticky z-[1] bg-white top-14">
-                <TabList>
-                  {tabData.map((tab) => (
-                    <Tab id={tab.id}>
-                      <div className="flex items-center gap-1 text-sm h-12">
-                        <p>{tab.label}</p>
-                        <Chip
-                          variant="solid"
-                          color="purple"
-                          size="md"
-                          radius="full"
-                          children={`${tab.issues}`}
-                          classNames={{
-                            base: "p-0 h-[18px] min-w-7 hover:bg-purple-100 active:bg-purple-100",
-                            content: "text-xs text-center px-2 py-0",
-                          }}
-                        />
+            <div
+              className="before:content-[''] before:h-[1px] before:w-6 before:bg-neutral-300 before:left-0 before:top-[103px] before:fixed
+                        after:content-[''] after:h-[1px] after:w-6 after:bg-neutral-300 after:right-0 after:top-[103px] after:fixed"
+            >
+              <Tabs color="purple" classNames={{ tab: "border-0 py-0 pr-1.5" }}>
+                <div className="flex items-center justify-between h-12 w-[564px] border-b border-neutral-300 sticky z-[1] bg-white top-14">
+                  <TabList>
+                    {tabData.map((tab) => (
+                      <Tab id={tab.id}>
+                        <div className="flex items-center gap-1 text-base h-12">
+                          <p>{tab.label}</p>
+                          <Chip
+                            variant="solid"
+                            color="purple"
+                            size="md"
+                            radius="full"
+                            children={`${tab.issues}`}
+                            classNames={{
+                              base: "p-0 h-[18px] min-w-7 hover:bg-purple-100 active:bg-purple-100",
+                              content: "text-xs text-center px-2 py-0",
+                            }}
+                          />
+                        </div>
+                      </Tab>
+                    ))}
+                    <Tab id="STRUCTURE">
+                      <div className="flex items-center text-base h-12">
+                        <p>Structure</p>
                       </div>
                     </Tab>
-                  ))}
-                  <Tab id="STRUCTURE">
-                    <div className="flex items-center text-sm h-12">
-                      <p>Structure</p>
-                    </div>
-                  </Tab>
-                </TabList>
-                <div className="flex gap-2">
-                  <DownloadCSV csvdata={dataFromChild} />
-                  <Button
-                    className="font-medium"
-                    appearance="primary"
-                    endContent={<ExportIcon width={24} height={24} />}
-                  >
-                    Export
-                  </Button>
+                  </TabList>
+                  <div className="flex gap-2">
+                    <DownloadCSV csvdata={dataFromChild} />
+                    <Button
+                      className="font-medium text-base"
+                      appearance="primary"
+                      endContent={<ExportIcon width={24} height={24} />}
+                    >
+                      Export
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <TabPanel id="FAIL">
-                <CheckboxTable
-                  sendDataToParent={handleDataFromChild}
-                  data={responseData}
-                  issueType="errors"
-                />
-              </TabPanel>
-              <TabPanel id="MANUAL">
-                <CheckboxTable
-                  sendDataToParent={handleDataFromChild}
-                  data={responseData}
-                  issueType="warnings"
-                />
-              </TabPanel>
-              <TabPanel id="PASS">
-                <CheckboxTable
-                  sendDataToParent={handleDataFromChild}
-                  data={responseData}
-                  issueType="pass"
-                />
-              </TabPanel>
-              <TabPanel id="BEST-PRACTICE">
-                <CheckboxTable
-                  sendDataToParent={handleDataFromChild}
-                  data={responseData}
-                  issueType="notices"
-                />
-              </TabPanel>
-              <TabPanel id="STRUCTURE">
-                <WebsiteLandmarks html={html} />
-              </TabPanel>
-            </Tabs>
+                <TabPanel id="FAIL">
+                  <CheckboxTable
+                    sendDataToParent={handleDataFromChild}
+                    data={responseData}
+                    issueType="errors"
+                  />
+                </TabPanel>
+                <TabPanel id="MANUAL">
+                  <CheckboxTable
+                    sendDataToParent={handleDataFromChild}
+                    data={responseData}
+                    issueType="warnings"
+                  />
+                </TabPanel>
+                <TabPanel id="PASS">
+                  <CheckboxTable
+                    sendDataToParent={handleDataFromChild}
+                    data={responseData}
+                    issueType="pass"
+                  />
+                </TabPanel>
+                <TabPanel id="BEST-PRACTICE">
+                  <CheckboxTable
+                    sendDataToParent={handleDataFromChild}
+                    data={responseData}
+                    issueType="notices"
+                  />
+                </TabPanel>
+                <TabPanel id="STRUCTURE">
+                  <WebsiteLandmarks html={html} />
+                </TabPanel>
+              </Tabs>
+            </div>
           ) : (
-            <div className="flex items-center justify-center w-full">
+            <div className="flex items-center justify-center w-full h-screen">
               <Button
                 appearance="primary"
                 onPress={handleTestResults}
                 isLoading={isLoading}
               >
-                Test Website
+                <span className="text-base">Test Website</span>
               </Button>
             </div>
           )}
@@ -377,6 +385,6 @@ function Extension() {
       </div>
     </main>
   );
-}
+};
 
 export default Extension;

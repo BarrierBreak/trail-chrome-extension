@@ -23,7 +23,6 @@ const WebsiteLandmarks = ({ html }: { html: string }) => {
 
   return (
     <div>
-      <h2>Website Landmarks</h2>
       <div>
         {landMarks.map((landmark) => (
           <>

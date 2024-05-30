@@ -15,7 +15,7 @@ const iframe = new DOMParser().parseFromString(
 iframe.src = chrome.runtime.getURL("index.html");
 document.body.insertBefore(iframe, document.body.firstChild.nextSibling);
 
-// To display / hide iframe
+// To display iframe
 extensionBtn.addEventListener("click", () => {
   showIframe();
 });
@@ -34,9 +34,8 @@ extensionBtn.addEventListener("focusout", () => {
     "all 0.5s cubic-bezier( 0.68, -0.55, 0.265, 1.55 )";
 });
 
-//To handle keyboard shortvut to display / hide iframe
+// To handle keyboard shortcut to display / hide iframe
 let keys = {};
-
 window.addEventListener("keydown", (ev) => {
   keys[ev.key] = true;
 });
@@ -53,12 +52,12 @@ window.addEventListener("keyup", () => {
 
 // To minimize iframe
 window.addEventListener("message", (event) => {
-  if (event.data === "close-button-clicked") {
+  if (event.data === "minimise-button-clicked") {
     hideIframe();
   }
 });
 
-// To show button on hover
+// To show button on mouse hover
 extensionBtn.addEventListener("mouseover", () => {
   extensionBtn.style.right = "-41px";
   extensionBtn.style.transition =
@@ -72,7 +71,7 @@ extensionBtn.addEventListener("mouseout", () => {
     "all 0.5s cubic-bezier( 0.68, -0.55, 0.265, 1.55 )";
 });
 
-//Functions to show extension iframe
+// Function to show extension iframe
 function showIframe() {
   extensionBtn.style.top = "1000px";
   extensionBtn.style.transition =
@@ -82,7 +81,7 @@ function showIframe() {
   iframe.focus();
 }
 
-//Functions to hide extension iframe
+// Function to hide extension iframe
 function hideIframe() {
   extensionBtn.style.display = "flex";
   extensionBtn.style.top = "244px";
