@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useState } from "react";
-import { Button, Checkbox, Chip } from "@trail-ui/react";
+import { Button, Checkbox, Chip, IconButton } from "@trail-ui/react";
 import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
 import { Issues, IssueItems } from "./Extension";
 
@@ -25,8 +25,6 @@ const CheckboxTable = ({
   issueType,
   sendDataToParent,
 }: CheckboxTableProps) => {
-  const tableHeaders = ["Element", "Screenshot", "Code", "Action"];
-
   const [selectedErrors, setSelectedErrors] = useState<string[]>([]);
   const [selectedErrorsData, setSelectedErrorsData] = useState<
     { id: string; alt: string; data: IssueItems }[]
@@ -65,7 +63,8 @@ const CheckboxTable = ({
     return result;
   };
 
-  const screenshotAltText = (issueType: string) => {
+  // To get screenshot alt text
+  const getAltText = (issueType: string) => {
     switch (issueType) {
       case "errors":
         return "Fail";
@@ -82,6 +81,7 @@ const CheckboxTable = ({
 
   const updatedStates: DropdownState[] = [];
 
+  // To assign initial state for dropdown
   useEffect(() => {
     data.issues[issueType].forEach((item) => {
       updatedStates.push({ id: item.id, isExpanded: false });
@@ -89,6 +89,7 @@ const CheckboxTable = ({
     });
   }, []);
 
+  // To handle accordion dropdown click
   const handleDropdownClick = useCallback(
     (issue: IssueItems, id: string) => {
       const currentDropdown = dropdownStates.find((item) => item.id === id);
@@ -172,9 +173,9 @@ const CheckboxTable = ({
         ...selectedErrorsData,
         {
           id: id,
-          alt: `${screenshotAltText(issueType)}-${numberToAlphabet(
-            parentIndex + 1
-          )}${index + 1}`,
+          alt: `${getAltText(issueType)}-${numberToAlphabet(parentIndex + 1)}${
+            index + 1
+          }`,
           data: data.issues[issueType][parentIndex],
         },
       ];
@@ -220,7 +221,7 @@ const CheckboxTable = ({
           ...newdata,
           {
             id: item.id,
-            alt: `${screenshotAltText(issueType)}-${numberToAlphabet(
+            alt: `${getAltText(issueType)}-${numberToAlphabet(
               parentIndex + 1
             )}${index + 1}`,
             data: data.issues[issueType][parentIndex],
@@ -272,9 +273,9 @@ const CheckboxTable = ({
               ...alldata,
               {
                 id: issue.id,
-                alt: `${screenshotAltText(issueType)}-${numberToAlphabet(
-                  index + 1
-                )}${issueIndex + 1}`,
+                alt: `${getAltText(issueType)}-${numberToAlphabet(index + 1)}${
+                  issueIndex + 1
+                }`,
                 data: item,
               },
             ];
@@ -285,6 +286,52 @@ const CheckboxTable = ({
       }
     }
   };
+
+  // To convert rgb to hex with opacity
+  function rgbToHexWithOpacity(rgb: string): string {
+    const [r, g, b] = rgb.match(/\d+/g)!.map(Number);
+    const opacity = Math.round(0.05 * 255)
+      .toString(16)
+      .toUpperCase()
+      .padStart(2, "0");
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b)
+      .toString(16)
+      .toUpperCase()
+      .slice(1)}${opacity}`;
+  }
+
+  // To format valus for Attribute column
+  function formatAttributes(input: string): string {
+    const parts = input.split("==");
+    const formattedParts: {
+      "Font-size"?: string;
+      fg?: string;
+      bg?: string;
+      "CC Ratio"?: string;
+    } = {};
+
+    parts.forEach((part) => {
+      const [key, value] = part.split("-");
+      switch (key) {
+        case "fontsize":
+          formattedParts["Font-size"] = `${parseFloat(value).toFixed(2)}px`;
+          break;
+        case "forec":
+          formattedParts["fg"] = rgbToHexWithOpacity(value);
+          break;
+        case "backc":
+          formattedParts["bg"] = rgbToHexWithOpacity(value);
+          break;
+        case "ratio":
+          formattedParts["CC Ratio"] = value;
+          break;
+        default:
+          break;
+      }
+    });
+
+    return `${formattedParts["CC Ratio"]} - ${formattedParts["Font-size"]}\nFG - ${formattedParts["fg"]}\nBG - ${formattedParts["bg"]}`;
+  }
 
   // To focus on element functionality
   const focusElement = async (elementId: string) => {
@@ -338,7 +385,7 @@ const CheckboxTable = ({
     <>
       {data.issues[issueType].length ? (
         <>
-          <div className="flex items-center justify-between py-4 border-t border-t-neutral-300">
+          <div className="flex items-center justify-between py-4">
             <span className="font-semibold text-lg">
               Level A (Conformance Level)
             </span>
@@ -357,9 +404,10 @@ const CheckboxTable = ({
             />
           </div>
           <table className="table">
-            <th className="table-header-group h-10 font-medium border border-neutral-300 bg-neutral-200 text-left">
-              <td className="px-4 py-2 align-middle border border-neutral-300">
+            <th className="table-header-group w-20 h-10 font-medium border border-neutral-300 bg-neutral-100 text-left">
+              <td className="p-0 w-10 align-middle border border-neutral-300">
                 <Checkbox
+                  classNames={{ control: "m-3", base: "p-0 m-0" }}
                   isSelected={
                     selectedTitles.length === data.issues[issueType].length
                   }
@@ -371,11 +419,18 @@ const CheckboxTable = ({
                   aria-label="Select All"
                 />
               </td>
-              {tableHeaders.map((item) => (
-                <td className="table-cell p-1 border border-neutral-300 align-middle">
-                  <p className="font-medium text-base pl-1">{item}</p>
-                </td>
-              ))}
+              <td className="table-cell p-1 w-20 border border-neutral-300 align-middle">
+                <p className="font-medium text-base pl-1">Element</p>
+              </td>
+              <td className="table-cell p-1 w-[140px] border border-neutral-300 align-middle">
+                <p className="font-medium text-base pl-1">Screenshot</p>
+              </td>
+              <td className="table-cell p-1 w-[180px] border border-neutral-300 align-middle">
+                <p className="font-medium text-base pl-1">Code</p>
+              </td>
+              <td className="table-cell p-1 w-[120px] border border-neutral-300 align-middle">
+                <p className="font-medium text-base pl-1">Attribute</p>
+              </td>
             </th>
             <tbody>
               {data.issues[issueType].map((issue, parentIndex) => (
@@ -390,9 +445,10 @@ const CheckboxTable = ({
                   >
                     <td
                       key="selection"
-                      className="px-4 py-2 border border-neutral-200"
+                      className="p-0 w-10 border border-neutral-300"
                     >
                       <Checkbox
+                        classNames={{ control: "m-3", base: "p-0 m-0" }}
                         isSelected={
                           isAllErrorSelected(issue) === issue.issues.length
                         }
@@ -407,7 +463,7 @@ const CheckboxTable = ({
                       />
                     </td>
                     <td
-                      className="table-cell p-0 border border-neutral-200"
+                      className="table-cell p-0 border border-neutral-300"
                       colSpan={4}
                     >
                       <button
@@ -453,75 +509,95 @@ const CheckboxTable = ({
                     </td>
                   </tr>
 
-                  {issue.issues.map((issue, index) => (
+                  {issue.issues.map((issueItem, index) => (
                     <tr
-                      id={issue.id}
+                      id={issueItem.id}
                       className={`text-base ${
-                        selectedErrors.includes(issue.id) ? "bg-purple-50" : ""
+                        selectedErrors.includes(issueItem.id)
+                          ? "bg-purple-50"
+                          : ""
                       }`}
                     >
                       <td
                         key="selection"
-                        className="border border-neutral-200 px-4 py-2 w-10"
+                        className="border border-neutral-300 p-0"
                       >
                         <Checkbox
-                          isSelected={selectedErrors.includes(issue.id)}
+                          classNames={{ control: "m-3", base: "p-0 m-0" }}
+                          isSelected={selectedErrors.includes(issueItem.id)}
                           onChange={() =>
-                            handleErrorClick(issue.id, index, parentIndex)
+                            handleErrorClick(issueItem.id, index, parentIndex)
                           }
-                          aria-label={`${index + 1} ${issue.elementTagName}`}
+                          aria-label={`${index + 1} ${
+                            issueItem.elementTagName
+                          }`}
                         />
                       </td>
-                      <td className="table-cell border border-neutral-200 p-2 w-[100px]">
-                        {` ${index + 1}. <${issue.elementTagName}>`}
+                      <td className="table-cell border border-neutral-300 p-2">
+                        <p className="w-[63px]">
+                          {`${index + 1}. `}
+                          <Button
+                            appearance="link"
+                            spacing="none"
+                            isDisabled={!issueItem.selector}
+                            onPress={() => focusElement(issueItem.selector)}
+                          >
+                            <span className="text-base">
+                              {`<${issueItem.elementTagName}>`}
+                            </span>
+                          </Button>
+                        </p>
                       </td>
-                      <td className="table-cell border border-neutral-200 p-2 w-40">
+                      <td className="table-cell border border-neutral-300 p-2">
                         <img
-                          className="h-10"
-                          src={`data:image/png;base64,${issue.clipBase64}`}
-                          alt={`${screenshotAltText(
-                            issueType
-                          )}-${numberToAlphabet(parentIndex + 1)}${index + 1}`}
+                          className="h-10 w-[123px] object-contain"
+                          src={`data:image/png;base64,${issueItem.clipBase64}`}
+                          alt={`${getAltText(issueType)}-${numberToAlphabet(
+                            parentIndex + 1
+                          )}${index + 1}`}
                         />
                       </td>
-                      <td className="table-cell p-2 pr-[1px] border border-neutral-200 w-[198px] relative font-sourceCode">
+                      <td className="table-cell p-2 pr-[1px] border border-neutral-300 relative font-sourceCode">
                         <section
-                          className="h-10 w-[216px] text-sm pr-8 overflow-x-hidden overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                          className="h-10 w-[170px] text-sm pr-8 overflow-x-hidden overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                           tabIndex={0}
                         >
-                          {issue.context}
+                          {issueItem.context}
                         </section>
-                        <button
-                          className="absolute h-6 w-6 top-[1px] right-2.5 bg-white focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-1"
-                          onClick={() =>
-                            handleCopyToClipboard(issue.context, issue.id)
+
+                        <IconButton
+                          className="absolute top-0.5 right-4"
+                          onPress={() =>
+                            handleCopyToClipboard(
+                              issueItem.context,
+                              issueItem.id
+                            )
                           }
+                          isIconOnly={true}
+                          spacing="compact"
+                          aria-label={`Copy ${index + 1} ${
+                            issueItem.elementTagName
+                          } code to clipboard`}
                         >
                           <CopyIcon
-                            width={24}
-                            height={24}
+                            width={16}
+                            height={16}
                             className="text-neutral-600"
-                            role="img"
-                            aria-label={`Copy ${index + 1} ${
-                              issue.elementTagName
-                            } code to clipboard`}
-                            aria-hidden="false"
                           />
-                        </button>
-                        {activePopup === issue.id && (
+                        </IconButton>
+
+                        {activePopup === issueItem.id && (
                           <div className="absolute bottom-[110%] -right-[27%] bg-purple-100 font-semibold shadow-lg text-purple-600 p-2.5 rounded">
                             Copied to Clipboard!
                           </div>
                         )}
                       </td>
-                      <td className="table-cell p-2 border border-neutral-200 w-[198px] text-center">
-                        <Button
-                          appearance="link"
-                          isDisabled={!issue.selector}
-                          onPress={() => focusElement(issue.selector)}
-                        >
-                          <span className="text-base">Focus</span>
-                        </Button>
+                      <td className="table-cell p-2 border border-neutral-300 text-center">
+                        <pre className="text-xs w-[103px] font-poppins">
+                          {issue.element === "Contrast"
+                            ? formatAttributes(issueItem.message.toString())
+                            : issueItem.message}
+                        </pre>
                       </td>
                     </tr>
                   ))}

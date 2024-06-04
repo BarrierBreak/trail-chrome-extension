@@ -66,8 +66,8 @@ const DownloadCSV = ({ csvdata }) => {
   return (
     <div>
       <Button
-        className="font-medium text-base text-neutral-800"
-        appearance="text"
+        className="text-base text-neutral-800"
+        appearance="default"
         onPress={handleDownload}
         endContent={
           <DownloadIcon

@@ -1,6 +1,19 @@
 import { useEffect, useState } from "react";
-import { Button, Chip, Tab, TabList, TabPanel, Tabs } from "@trail-ui/react";
-import { ExportIcon, TrailIcon, TrailAMSVerticalIcon } from "@trail-ui/icons";
+import {
+  Button,
+  Chip,
+  IconButton,
+  Tab,
+  TabList,
+  TabPanel,
+  Tabs,
+} from "@trail-ui/react";
+import {
+  ExportIcon,
+  TrailIcon,
+  TrailAMSVerticalIcon,
+  MinusIcon,
+} from "@trail-ui/icons";
 import WebsiteLandmarks from "./WebsiteLandmarks";
 import CheckboxTable from "./CheckboxTable";
 import DownloadCSV from "./DownloadCSV";
@@ -277,20 +290,14 @@ const Extension = () => {
               className="text-neutral-800"
             />
           </div>
-          <button
-            onClick={handleMinimise}
-            className="rounded-full focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+          <IconButton
+            appearance="default"
+            isIconOnly={true}
+            onPress={handleMinimise}
+            aria-label="Minimise"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="#625D71"
-            >
-              <path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM7 11V13H17V11H7Z" />
-            </svg>
-          </button>
+            <MinusIcon width={24} height={24} />
+          </IconButton>
         </div>
 
         <div className="flex h-full px-6 pb-6">
@@ -329,7 +336,7 @@ const Extension = () => {
                   <div className="flex gap-2">
                     <DownloadCSV csvdata={dataFromChild} />
                     <Button
-                      className="font-medium text-base"
+                      className="text-base"
                       appearance="primary"
                       endContent={<ExportIcon width={24} height={24} />}
                     >
