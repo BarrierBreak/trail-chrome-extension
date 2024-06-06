@@ -1,10 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 import * as XLSX from "xlsx";
 import { DownloadIcon } from "@trail-ui/icons";
 import { Button } from "@trail-ui/react";
 
 //@ts-expect-error fix
 const DownloadCSV = ({ csvdata }) => {
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const excelData: string[][] = [
+    [
+      "ISSUE VARIABLE",
+      "ELEMENT",
+      "SCREENSHOT",
+      "CODE",
+      "CONFORMANCE LEVEL",
+      "CRITERIA",
+      "SEVERITY",
+    ],
+  ];
+
+  // To remove unwanted characters from url
   const getCleanUrl = (callback: any) => {
     chrome.tabs.query(
       {
@@ -24,20 +39,17 @@ const DownloadCSV = ({ csvdata }) => {
     currentURL = cleanURL;
   });
 
-  const excelData: string[][] = [
-    [
-      "ISSUE VARIABLE",
-      "ELEMENT",
-      "SCREENSHOT",
-      "CODE",
-      "CONFORMANCE LEVEL",
-      "CRITERIA",
-      "SEVERITY",
-    ],
-  ];
-  const handleDownload = () => {
-    let data;
+  // To handle popup functionality
+  const handleShowPopup = () => {
+    setShowPopup(true);
+    setTimeout(() => {
+      setShowPopup(false);
+    }, 3000);
+  };
 
+  // To download CSV file
+  const downloadCSV = () => {
+    let data;
     csvdata.forEach((element: any, index: any) => {
       data = element.data.issues.find(
         (item: any) => item.id === csvdata[index].id
@@ -63,6 +75,12 @@ const DownloadCSV = ({ csvdata }) => {
 
     XLSX.writeFile(workbook, `${currentURL} Report.xlsx`);
   };
+
+  // To handle download click
+  const handleDownload = () => {
+    csvdata.length === 0 ? handleShowPopup() : downloadCSV();
+  };
+
   return (
     <div>
       <Button
@@ -80,6 +98,11 @@ const DownloadCSV = ({ csvdata }) => {
       >
         CSV
       </Button>
+      {showPopup && (
+        <div className="absolute top-[100%] right-[11%] bg-neutral-50 text-neutral-900 border border-neutral-300 text-sm font-medium font-poppins shadow-lg px-3 py-2.5 rounded">
+          No Results Selected!
+        </div>
+      )}
     </div>
   );
 };

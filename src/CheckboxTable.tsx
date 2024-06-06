@@ -288,50 +288,60 @@ const CheckboxTable = ({
   };
 
   // To convert rgb to hex with opacity
-  function rgbToHexWithOpacity(rgb: string): string {
+  const rgbToHexWithOpacity = (rgb: string): string => {
     const [r, g, b] = rgb.match(/\d+/g)!.map(Number);
     const opacity = Math.round(0.05 * 255)
       .toString(16)
-      .toUpperCase()
       .padStart(2, "0");
     return `#${((1 << 24) + (r << 16) + (g << 8) + b)
       .toString(16)
-      .toUpperCase()
       .slice(1)}${opacity}`;
-  }
+  };
 
-  // To format valus for Attribute column
-  function formatAttributes(input: string): string {
+  // To format value for Attribute column
+  const formatAttributes = (input: string): any => {
     const parts = input.split("==");
+
     const formattedParts: {
-      "Font-size"?: string;
-      fg?: string;
-      bg?: string;
-      "CC Ratio"?: string;
+      FontSize?: string;
+      FontWeight?: string;
+      Foreground?: string;
+      Background?: string;
+      Ratio?: string;
     } = {};
 
     parts.forEach((part) => {
       const [key, value] = part.split("-");
       switch (key) {
         case "fontsize":
-          formattedParts["Font-size"] = `${parseFloat(value).toFixed(2)}px`;
+          formattedParts["FontSize"] = `${parseInt(value)}px`;
+          break;
+        case "fontweight":
+          formattedParts["FontWeight"] = parseInt(value) >= 700 ? "Bold" : "";
           break;
         case "forec":
-          formattedParts["fg"] = rgbToHexWithOpacity(value);
+          formattedParts["Foreground"] = rgbToHexWithOpacity(value);
           break;
         case "backc":
-          formattedParts["bg"] = rgbToHexWithOpacity(value);
+          formattedParts["Background"] = rgbToHexWithOpacity(value);
           break;
         case "ratio":
-          formattedParts["CC Ratio"] = value;
+          formattedParts["Ratio"] =
+            parseFloat(parseFloat(value.slice(0, -2)).toFixed(2)) + ":1";
           break;
         default:
           break;
       }
     });
 
-    return `${formattedParts["CC Ratio"]} - ${formattedParts["Font-size"]}\nFG - ${formattedParts["fg"]}\nBG - ${formattedParts["bg"]}`;
-  }
+    const fontSize = formattedParts["FontSize"];
+    const fontWeight = formattedParts["FontWeight"];
+    const fg = formattedParts["Foreground"];
+    const bg = formattedParts["Background"];
+    const ratio = formattedParts["Ratio"];
+
+    return { fontSize, fontWeight, fg, bg, ratio };
+  };
 
   // To focus on element functionality
   const focusElement = async (elementId: string) => {
@@ -425,10 +435,10 @@ const CheckboxTable = ({
               <td className="table-cell p-1 w-[140px] border border-neutral-300 align-middle">
                 <p className="font-medium text-base pl-1">Screenshot</p>
               </td>
-              <td className="table-cell p-1 w-[180px] border border-neutral-300 align-middle">
+              <td className="table-cell p-1 w-[175px] border border-neutral-300 align-middle">
                 <p className="font-medium text-base pl-1">Code</p>
               </td>
-              <td className="table-cell p-1 w-[120px] border border-neutral-300 align-middle">
+              <td className="table-cell p-1 w-[125px] border border-neutral-300 align-middle">
                 <p className="font-medium text-base pl-1">Attribute</p>
               </td>
             </th>
@@ -533,7 +543,7 @@ const CheckboxTable = ({
                           }`}
                         />
                       </td>
-                      <td className="table-cell border border-neutral-300 p-2">
+                      <td className="table-cell border border-neutral-300 text-sm p-2">
                         <p className="w-[63px]">
                           {`${index + 1}. `}
                           <Button
@@ -542,13 +552,11 @@ const CheckboxTable = ({
                             isDisabled={!issueItem.selector}
                             onPress={() => focusElement(issueItem.selector)}
                           >
-                            <span className="text-base">
-                              {`<${issueItem.elementTagName}>`}
-                            </span>
+                            <span>{`<${issueItem.elementTagName}>`}</span>
                           </Button>
                         </p>
                       </td>
-                      <td className="table-cell border border-neutral-300 p-2">
+                      <td className="table-cell border text-sm border-neutral-300 p-2">
                         <img
                           className="h-10 w-[123px] object-contain"
                           src={`data:image/png;base64,${issueItem.clipBase64}`}
@@ -559,7 +567,7 @@ const CheckboxTable = ({
                       </td>
                       <td className="table-cell p-2 pr-[1px] border border-neutral-300 relative font-sourceCode">
                         <section
-                          className="h-10 w-[170px] text-sm pr-8 overflow-x-hidden overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                          className="h-14 w-[165px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                           tabIndex={0}
                         >
                           {issueItem.context}
@@ -587,17 +595,66 @@ const CheckboxTable = ({
                         </IconButton>
 
                         {activePopup === issueItem.id && (
-                          <div className="absolute bottom-[110%] -right-[27%] bg-purple-100 font-semibold shadow-lg text-purple-600 p-2.5 rounded">
+                          <div className="absolute bottom-[110%] -right-[26%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded">
                             Copied to Clipboard!
                           </div>
                         )}
                       </td>
-                      <td className="table-cell p-2 border border-neutral-300 text-center">
-                        <pre className="text-xs w-[103px] font-poppins">
-                          {issue.element === "Contrast"
-                            ? formatAttributes(issueItem.message.toString())
-                            : issueItem.message}
-                        </pre>
+                      <td className="table-cell p-2 border border-neutral-300">
+                        <p className="text-sm w-[108px] text-left font-poppins">
+                          <p>
+                            {issueItem.message.split("==").length === 1 ? (
+                              issueItem.message
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                <div>
+                                  <span className="font-semibold">
+                                    {formatAttributes(issueItem.message).ratio}{" "}
+                                  </span>
+                                  <span>
+                                    -{" "}
+                                    {
+                                      formatAttributes(issueItem.message)
+                                        .fontSize
+                                    }{" "}
+                                    {
+                                      formatAttributes(issueItem.message)
+                                        .fontWeight
+                                    }
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <div
+                                    title="Foreground Color"
+                                    className="w-3.5 h-3.5 inline-block border border-neutral-300"
+                                    style={{
+                                      backgroundColor: `${formatAttributes(
+                                        issueItem.message
+                                      ).fg.slice(0, 7)}`,
+                                    }}
+                                  ></div>
+                                  <span>
+                                    {formatAttributes(issueItem.message).fg}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <div
+                                    title="Background Color"
+                                    className="w-3.5 h-3.5 inline-block border border-neutral-300"
+                                    style={{
+                                      backgroundColor: `${formatAttributes(
+                                        issueItem.message
+                                      ).bg.slice(0, 7)}`,
+                                    }}
+                                  ></div>
+                                  <span>
+                                    {formatAttributes(issueItem.message).bg}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </p>
+                        </p>
                       </td>
                     </tr>
                   ))}
