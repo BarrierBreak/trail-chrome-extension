@@ -53,12 +53,136 @@ window.addEventListener("keyup", () => {
   keys = {};
 });
 
-// To minimize iframe
 window.addEventListener("message", (event) => {
+  // To minimize iframe
   if (event.data === "minimise-button-clicked") {
     hideIframe();
   }
+
+  // To inject tab order labels
+  if (event.data === "show-tab-order") {
+    injectTabOrderLabels();
+  }
+
+  if (event.data === "hide-tab-order") {
+    const tabOrderLabels = document.querySelectorAll(".tab-order-label");
+    tabOrderLabels.forEach((label) => label.remove());
+
+    const svgContainer = document.querySelector("#svg-container");
+    if (svgContainer) {
+      svgContainer.remove();
+    }
+  }
 });
+
+// Function to get all focusable elements
+function getFocusableElements() {
+  const focusableSelectors = `a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"]), [contenteditable], audio[controls], video[controls], details, summary, map`;
+
+  const focusableElements = document.querySelectorAll(focusableSelectors);
+  function isVisible(element) {
+    return (
+      !!(
+        element.offsetWidth ||
+        element.offsetHeight ||
+        element.getClientRects().length
+      ) &&
+      window.getComputedStyle(element).visibility !== "hidden" &&
+      element.id !== "trail-btn" &&
+      element.id !== "trail-iframe"
+    );
+  }
+
+  // Convert NodeList to Array and filter out non-visible elements
+  const visibleFocusableElements =
+    Array.from(focusableElements).filter(isVisible);
+  return Array.from(visibleFocusableElements);
+}
+
+// Function to inject labels indicating tab order
+const labelPositions = [];
+function injectTabOrderLabels() {
+  const focusableElements = getFocusableElements();
+  Array.from(focusableElements).forEach((element, index) => {
+    const label = document.createElement("span");
+    label.className = "tab-order-label";
+    label.textContent = index + 1;
+    label.style.position = "absolute";
+    label.style.display = "flex";
+    label.style.justifyContent = "center";
+    label.style.alignItems = "center";
+    label.style.backgroundColor = "#5928ed";
+    label.style.color = "white";
+    label.style.border = "2px solid white";
+    label.style.fontSize = "12px";
+    label.style.fontWeight = "bold";
+    label.style.width = "32px";
+    label.style.height = "32px";
+    label.style.borderRadius = "50%";
+    label.style.zIndex = "100000";
+
+    if (element.nextSibling) {
+      element.parentNode.insertBefore(label, element.nextSibling);
+    } else {
+      element.parentNode.appendChild(label);
+    }
+
+    const elementRect = element.getBoundingClientRect();
+    const labelRect = label.getBoundingClientRect();
+
+    if (elementRect.x + elementRect.width < 32 || labelRect.x < 32) {
+      label.style.transform = "translateX(0%)";
+    } else {
+      label.style.transform = "translate(-50%, -50%)";
+    }
+
+    if (elementRect.y + elementRect.height < 32 || labelRect.y < 32) {
+      label.style.transform = "translateY(0%)";
+    } else {
+      label.style.transform = "translate(-50%, -50%)";
+    }
+
+    labelPositions.push({
+      element: label,
+      x: labelRect.left,
+      y: labelRect.top,
+    });
+  });
+  drawLines(labelPositions);
+}
+
+function drawLines(positions) {
+  const svgContainer = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg"
+  );
+  svgContainer.setAttribute("id", "svg-container");
+  svgContainer.style.width = "100%";
+  svgContainer.style.height = `${document.documentElement.scrollHeight}px`;
+  svgContainer.style.position = "absolute";
+  svgContainer.style.top = "0";
+  svgContainer.style.left = "0";
+  svgContainer.style.pointerEvents = "none";
+  svgContainer.style.zIndex = "999";
+  document.body.appendChild(svgContainer);
+
+  positions.forEach((pos, index) => {
+    if (index < positions.length - 1) {
+      const line = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "line"
+      );
+      line.setAttribute("x1", pos.x);
+      line.setAttribute("y1", pos.y);
+      line.setAttribute("x2", positions[index + 1].x);
+      line.setAttribute("y2", positions[index + 1].y);
+      line.setAttribute("stroke", "#5928ed");
+      line.setAttribute("opacity", "0.5");
+      line.setAttribute("stroke-width", "5");
+      svgContainer.appendChild(line);
+    }
+  });
+}
 
 // To show button on mouse hover
 extensionBtn.addEventListener("mouseover", () => {

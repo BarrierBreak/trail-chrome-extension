@@ -20,6 +20,17 @@ interface DropdownState {
   isExpanded: boolean;
 }
 
+// To convert rgb to hex with opacity
+export const rgbToHexWithOpacity = (rgb: string): string => {
+  const [r, g, b] = rgb.match(/\d+/g)!.map(Number);
+  const opacity = Math.round(0.05 * 255)
+    .toString(16)
+    .padStart(2, "0");
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b)
+    .toString(16)
+    .slice(1)}${opacity}`;
+};
+
 const CheckboxTable = ({
   data,
   issueType,
@@ -287,17 +298,6 @@ const CheckboxTable = ({
     }
   };
 
-  // To convert rgb to hex with opacity
-  const rgbToHexWithOpacity = (rgb: string): string => {
-    const [r, g, b] = rgb.match(/\d+/g)!.map(Number);
-    const opacity = Math.round(0.05 * 255)
-      .toString(16)
-      .padStart(2, "0");
-    return `#${((1 << 24) + (r << 16) + (g << 8) + b)
-      .toString(16)
-      .slice(1)}${opacity}`;
-  };
-
   // To format value for Attribute column
   const formatAttributes = (input: string): any => {
     const parts = input.split("==");
@@ -413,255 +413,258 @@ const CheckboxTable = ({
               }}
             />
           </div>
-          <table className="table">
-            <th className="table-header-group w-20 h-10 font-medium border border-neutral-300 bg-neutral-100 text-left">
-              <td className="p-0 w-10 align-middle border border-neutral-300">
-                <Checkbox
-                  classNames={{ control: "m-3", base: "p-0 m-0" }}
-                  isSelected={
-                    selectedTitles.length === data.issues[issueType].length
-                  }
-                  isIndeterminate={
-                    selectedTitles.length > 0 &&
-                    selectedTitles.length !== data.issues[issueType].length
-                  }
-                  onChange={() => handleHeaderClick()}
-                  aria-label="Select All"
-                />
-              </td>
-              <td className="table-cell p-1 w-20 border border-neutral-300 align-middle">
-                <p className="font-medium text-base pl-1">Element</p>
-              </td>
-              <td className="table-cell p-1 w-[140px] border border-neutral-300 align-middle">
-                <p className="font-medium text-base pl-1">Screenshot</p>
-              </td>
-              <td className="table-cell p-1 w-[175px] border border-neutral-300 align-middle">
-                <p className="font-medium text-base pl-1">Code</p>
-              </td>
-              <td className="table-cell p-1 w-[125px] border border-neutral-300 align-middle">
-                <p className="font-medium text-base pl-1">Attribute</p>
-              </td>
-            </th>
-            <tbody>
-              {data.issues[issueType].map((issue, parentIndex) => (
-                <>
-                  <tr
-                    className={`${
-                      selectedTitles.includes(issue.id) ||
-                      isAllErrorSelected(issue) === issue.issues.length
-                        ? "bg-purple-50"
-                        : "bg-neutral-50"
-                    }`}
-                  >
-                    <td
-                      key="selection"
-                      className="p-0 w-10 border border-neutral-300"
-                    >
-                      <Checkbox
-                        classNames={{ control: "m-3", base: "p-0 m-0" }}
-                        isSelected={
-                          isAllErrorSelected(issue) === issue.issues.length
-                        }
-                        isIndeterminate={
-                          isAllErrorSelected(issue) !== 0 &&
-                          isAllErrorSelected(issue) !== issue.issues.length
-                        }
-                        onChange={() =>
-                          handleTitleClick(issue, issue.id, parentIndex)
-                        }
-                        aria-label={`${issue.failing_technique}`}
-                      />
-                    </td>
-                    <td
-                      className="table-cell p-0 border border-neutral-300"
-                      colSpan={4}
-                    >
-                      <button
-                        aria-expanded={
-                          dropdownStates.find(
-                            (item) => item.id === issue.id && item.isExpanded
-                          )
-                            ? false
-                            : true
-                        }
-                        onClick={() => handleDropdownClick(issue, issue.id)}
-                        className="p-2 w-full focus-visible:outline-focus"
-                      >
-                        <div className="flex gap-1 items-center justify-between">
-                          <p className="text-start font-semibold text-base">
-                            {`${numberToAlphabet(parentIndex + 1)}. ${
-                              issue.failing_technique
-                            } (${issue.issues.length} ${
-                              issue.issues.length === 1
-                                ? "Instance"
-                                : "Instances"
-                            })`}
-                          </p>
-                          <div className="h-6 w-6">
-                            {dropdownStates.find(
-                              (item) => item.id === issue.id && item.isExpanded
-                            ) ? (
-                              <ChevronDownIcon
-                                width={24}
-                                height={24}
-                                className="text-neutral-900"
-                              />
-                            ) : (
-                              <ChevronUpIcon
-                                width={24}
-                                height={24}
-                                className="text-neutral-900"
-                              />
-                            )}
-                          </div>
-                        </div>
-                      </button>
-                    </td>
-                  </tr>
-
-                  {issue.issues.map((issueItem, index) => (
+          <div className="overflow-hidden rounded border border-neutral-300">
+            <table className="table">
+              <th className="table-header-group w-20 h-10 font-medium border-b border-neutral-300 bg-neutral-100 text-left">
+                <td className="p-0 w-10 align-middle border-r border-neutral-300">
+                  <Checkbox
+                    classNames={{ control: "m-3", base: "p-0 m-0" }}
+                    isSelected={
+                      selectedTitles.length === data.issues[issueType].length
+                    }
+                    isIndeterminate={
+                      selectedTitles.length > 0 &&
+                      selectedTitles.length !== data.issues[issueType].length
+                    }
+                    onChange={() => handleHeaderClick()}
+                    aria-label="Select All"
+                  />
+                </td>
+                <td className="table-cell p-1 w-20 align-middle border-r border-neutral-300">
+                  <p className="font-medium text-base pl-1">Element</p>
+                </td>
+                <td className="table-cell p-1 w-[140px] align-middle border-r border-neutral-300">
+                  <p className="font-medium text-base pl-1">Screenshot</p>
+                </td>
+                <td className="table-cell p-1 w-[177px] align-middle border-r border-neutral-300">
+                  <p className="font-medium text-base pl-1">Code</p>
+                </td>
+                <td className="table-cell p-1 w-[125px] align-middle">
+                  <p className="font-medium text-base pl-1">Attribute</p>
+                </td>
+              </th>
+              <tbody>
+                {data.issues[issueType].map((issue, parentIndex) => (
+                  <>
                     <tr
-                      id={issueItem.id}
-                      className={`text-base ${
-                        selectedErrors.includes(issueItem.id)
+                      className={`border-b border-neutral-300 ${
+                        selectedTitles.includes(issue.id) ||
+                        isAllErrorSelected(issue) === issue.issues.length
                           ? "bg-purple-50"
-                          : ""
+                          : "bg-neutral-50"
                       }`}
                     >
                       <td
                         key="selection"
-                        className="border border-neutral-300 p-0"
+                        className="p-0 w-10 border-r border-b border-neutral-300"
                       >
                         <Checkbox
                           classNames={{ control: "m-3", base: "p-0 m-0" }}
-                          isSelected={selectedErrors.includes(issueItem.id)}
+                          isSelected={
+                            isAllErrorSelected(issue) === issue.issues.length
+                          }
+                          isIndeterminate={
+                            isAllErrorSelected(issue) !== 0 &&
+                            isAllErrorSelected(issue) !== issue.issues.length
+                          }
                           onChange={() =>
-                            handleErrorClick(issueItem.id, index, parentIndex)
+                            handleTitleClick(issue, issue.id, parentIndex)
                           }
-                          aria-label={`${index + 1} ${
-                            issueItem.elementTagName
-                          }`}
+                          aria-label={`${issue.failing_technique}`}
                         />
                       </td>
-                      <td className="table-cell border border-neutral-300 text-sm p-2">
-                        <p className="w-[63px]">
-                          {`${index + 1}. `}
-                          <Button
-                            appearance="link"
-                            spacing="none"
-                            isDisabled={!issueItem.selector}
-                            onPress={() => focusElement(issueItem.selector)}
-                          >
-                            <span>{`<${issueItem.elementTagName}>`}</span>
-                          </Button>
-                        </p>
-                      </td>
-                      <td className="table-cell border text-sm border-neutral-300 p-2">
-                        <img
-                          className="h-10 w-[123px] object-contain"
-                          src={`data:image/png;base64,${issueItem.clipBase64}`}
-                          alt={`${getAltText(issueType)}-${numberToAlphabet(
-                            parentIndex + 1
-                          )}${index + 1}`}
-                        />
-                      </td>
-                      <td className="table-cell p-2 pr-[1px] border border-neutral-300 relative font-sourceCode">
-                        <section
-                          className="h-14 w-[165px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
-                          tabIndex={0}
-                        >
-                          {issueItem.context}
-                        </section>
-
-                        <IconButton
-                          className="absolute top-0.5 right-4"
-                          onPress={() =>
-                            handleCopyToClipboard(
-                              issueItem.context,
-                              issueItem.id
+                      <td className="table-cell p-0" colSpan={4}>
+                        <button
+                          aria-expanded={
+                            dropdownStates.find(
+                              (item) => item.id === issue.id && item.isExpanded
                             )
+                              ? false
+                              : true
                           }
-                          isIconOnly={true}
-                          spacing="compact"
-                          aria-label={`Copy ${index + 1} ${
-                            issueItem.elementTagName
-                          } code to clipboard`}
+                          onClick={() => handleDropdownClick(issue, issue.id)}
+                          className="p-2 w-full focus-visible:outline-focus"
                         >
-                          <CopyIcon
-                            width={16}
-                            height={16}
-                            className="text-neutral-600"
-                          />
-                        </IconButton>
-
-                        {activePopup === issueItem.id && (
-                          <div className="absolute bottom-[110%] -right-[26%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded">
-                            Copied to Clipboard!
+                          <div className="flex gap-1 items-center justify-between">
+                            <p className="text-start font-semibold text-base">
+                              {`${numberToAlphabet(parentIndex + 1)}. ${
+                                issue.failing_technique
+                              } (${issue.issues.length} ${
+                                issue.issues.length === 1
+                                  ? "Instance"
+                                  : "Instances"
+                              })`}
+                            </p>
+                            <div className="h-6 w-6">
+                              {dropdownStates.find(
+                                (item) =>
+                                  item.id === issue.id && item.isExpanded
+                              ) ? (
+                                <ChevronDownIcon
+                                  width={24}
+                                  height={24}
+                                  className="text-neutral-900"
+                                />
+                              ) : (
+                                <ChevronUpIcon
+                                  width={24}
+                                  height={24}
+                                  className="text-neutral-900"
+                                />
+                              )}
+                            </div>
                           </div>
-                        )}
-                      </td>
-                      <td className="table-cell p-2 border border-neutral-300">
-                        <p className="text-sm w-[108px] text-left font-poppins">
-                          <p>
-                            {issueItem.message.split("==").length === 1 ? (
-                              issueItem.message
-                            ) : (
-                              <div className="flex flex-col gap-1">
-                                <div>
-                                  <span className="font-semibold">
-                                    {formatAttributes(issueItem.message).ratio}{" "}
-                                  </span>
-                                  <span>
-                                    -{" "}
-                                    {
-                                      formatAttributes(issueItem.message)
-                                        .fontSize
-                                    }{" "}
-                                    {
-                                      formatAttributes(issueItem.message)
-                                        .fontWeight
-                                    }
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <div
-                                    title="Foreground Color"
-                                    className="w-3.5 h-3.5 inline-block border border-neutral-300"
-                                    style={{
-                                      backgroundColor: `${formatAttributes(
-                                        issueItem.message
-                                      ).fg.slice(0, 7)}`,
-                                    }}
-                                  ></div>
-                                  <span>
-                                    {formatAttributes(issueItem.message).fg}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <div
-                                    title="Background Color"
-                                    className="w-3.5 h-3.5 inline-block border border-neutral-300"
-                                    style={{
-                                      backgroundColor: `${formatAttributes(
-                                        issueItem.message
-                                      ).bg.slice(0, 7)}`,
-                                    }}
-                                  ></div>
-                                  <span>
-                                    {formatAttributes(issueItem.message).bg}
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-                          </p>
-                        </p>
+                        </button>
                       </td>
                     </tr>
-                  ))}
-                </>
-              ))}
-            </tbody>
-          </table>
+
+                    {issue.issues.map((issueItem, index) => (
+                      <tr
+                        id={issueItem.id}
+                        className={`text-base border-b border-neutral-300 last:border-none ${
+                          selectedErrors.includes(issueItem.id)
+                            ? "bg-purple-50"
+                            : ""
+                        }`}
+                      >
+                        <td
+                          key="selection"
+                          className="border-r border-neutral-300 p-0"
+                        >
+                          <Checkbox
+                            classNames={{ control: "m-3", base: "p-0 m-0" }}
+                            isSelected={selectedErrors.includes(issueItem.id)}
+                            onChange={() =>
+                              handleErrorClick(issueItem.id, index, parentIndex)
+                            }
+                            aria-label={`${index + 1} ${
+                              issueItem.elementTagName
+                            }`}
+                          />
+                        </td>
+                        <td className="table-cell border-r border-neutral-300 text-sm p-2">
+                          <p className="w-[63px]">
+                            {`${index + 1}. `}
+                            <Button
+                              appearance="link"
+                              spacing="none"
+                              isDisabled={!issueItem.selector}
+                              onPress={() => focusElement(issueItem.selector)}
+                            >
+                              <span>{`<${issueItem.elementTagName}>`}</span>
+                            </Button>
+                          </p>
+                        </td>
+                        <td className="table-cell text-sm border-r border-neutral-300 p-2">
+                          <img
+                            className="h-10 w-[123px] object-contain"
+                            src={`data:image/png;base64,${issueItem.clipBase64}`}
+                            alt={`${getAltText(issueType)}-${numberToAlphabet(
+                              parentIndex + 1
+                            )}${index + 1}`}
+                          />
+                        </td>
+                        <td className="table-cell p-2 pr-[1px] border-r border-neutral-300 relative font-sourceCode">
+                          <section
+                            className="h-14 w-[167px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                            tabIndex={0}
+                          >
+                            {issueItem.context}
+                          </section>
+
+                          <IconButton
+                            className="absolute top-0.5 right-4"
+                            onPress={() =>
+                              handleCopyToClipboard(
+                                issueItem.context,
+                                issueItem.id
+                              )
+                            }
+                            isIconOnly={true}
+                            spacing="compact"
+                            aria-label={`Copy ${index + 1} ${
+                              issueItem.elementTagName
+                            } code to clipboard`}
+                          >
+                            <CopyIcon
+                              width={16}
+                              height={16}
+                              className="text-neutral-600"
+                            />
+                          </IconButton>
+
+                          {activePopup === issueItem.id && (
+                            <div className="absolute bottom-[110%] -right-[26%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded">
+                              Copied to Clipboard!
+                            </div>
+                          )}
+                        </td>
+                        <td className="table-cell p-2 ">
+                          <p className="text-sm w-[108px] text-left font-poppins break-words">
+                            <p>
+                              {issueItem.message.split("==").length === 1 ? (
+                                issueItem.message
+                              ) : (
+                                <div className="flex flex-col gap-1">
+                                  <div>
+                                    <span className="font-semibold">
+                                      {
+                                        formatAttributes(issueItem.message)
+                                          .ratio
+                                      }{" "}
+                                    </span>
+                                    <span>
+                                      -{" "}
+                                      {
+                                        formatAttributes(issueItem.message)
+                                          .fontSize
+                                      }{" "}
+                                      {
+                                        formatAttributes(issueItem.message)
+                                          .fontWeight
+                                      }
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div
+                                      title="Foreground Color"
+                                      className="w-3.5 h-3.5 inline-block border border-neutral-300"
+                                      style={{
+                                        backgroundColor: `${formatAttributes(
+                                          issueItem.message
+                                        ).fg.slice(0, 7)}`,
+                                      }}
+                                    ></div>
+                                    <span>
+                                      {formatAttributes(issueItem.message).fg}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div
+                                      title="Background Color"
+                                      className="w-3.5 h-3.5 inline-block border border-neutral-300"
+                                      style={{
+                                        backgroundColor: `${formatAttributes(
+                                          issueItem.message
+                                        ).bg.slice(0, 7)}`,
+                                      }}
+                                    ></div>
+                                    <span>
+                                      {formatAttributes(issueItem.message).bg}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </p>
+                          </p>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       ) : (
         <div className="h-[600px] flex items-center justify-center">

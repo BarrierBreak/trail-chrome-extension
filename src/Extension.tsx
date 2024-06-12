@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import {
   Button,
   Chip,
   IconButton,
+  Switch,
   Tab,
   TabList,
   TabPanel,
@@ -171,6 +173,7 @@ export interface Issues {
 const Extension = () => {
   const [responseData, setResponseData] = useState<Issues>();
   const [isLoading, setIsLoading] = useState(false);
+  const [isToggleSelected, setIsToggleSelected] = useState<boolean>(false);
 
   const [html, setHtml] = useState("");
   const apiKey = localStorage.getItem("authtoken");
@@ -252,6 +255,14 @@ const Extension = () => {
       });
   };
 
+  // To handle tab order
+  const handleTabOrder = () => {
+    let msg: string;
+    setIsToggleSelected(!isToggleSelected);
+    isToggleSelected ? (msg = "hide-tab-order") : (msg = "show-tab-order");
+    window.parent.postMessage(msg, "*");
+  };
+
   // To handle minimise functionality
   const handleMinimise = () => {
     window.parent.postMessage("minimise-button-clicked", "*");
@@ -290,14 +301,30 @@ const Extension = () => {
               className="text-neutral-800"
             />
           </div>
-          <IconButton
-            appearance="default"
-            isIconOnly={true}
-            onPress={handleMinimise}
-            aria-label="Minimise"
-          >
-            <MinusIcon width={24} height={24} />
-          </IconButton>
+          <div className="flex gap-4">
+            {responseData?.issues && (
+              <div className="flex items-center gap-2">
+                <p className="text-neutral-600 text-base">Tab Order</p>
+                <Switch
+                  size="sm"
+                  isSelected={isToggleSelected}
+                  onChange={handleTabOrder}
+                  classNames={{ wrapper: "mr-0" }}
+                />
+                <p className="text-neutral-600 text-base">
+                  {isToggleSelected ? "ON" : "OFF"}
+                </p>
+              </div>
+            )}
+            <IconButton
+              appearance="default"
+              isIconOnly={true}
+              onPress={handleMinimise}
+              aria-label="Minimise"
+            >
+              <MinusIcon width={24} height={24} />
+            </IconButton>
+          </div>
         </div>
 
         <div className="flex h-full px-6 pb-6">

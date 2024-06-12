@@ -3,6 +3,7 @@ import { useState } from "react";
 import * as XLSX from "xlsx";
 import { DownloadIcon } from "@trail-ui/icons";
 import { Button } from "@trail-ui/react";
+import { rgbToHexWithOpacity } from "./CheckboxTable";
 
 //@ts-expect-error fix
 const DownloadCSV = ({ csvdata }) => {
@@ -13,6 +14,7 @@ const DownloadCSV = ({ csvdata }) => {
       "ELEMENT",
       "SCREENSHOT",
       "CODE",
+      "ATTRIBUTE",
       "CONFORMANCE LEVEL",
       "CRITERIA",
       "SEVERITY",
@@ -54,12 +56,53 @@ const DownloadCSV = ({ csvdata }) => {
       data = element.data.issues.find(
         (item: any) => item.id === csvdata[index].id
       );
+      const formattedParts: {
+        FontSize?: string;
+        FontWeight?: string;
+        Foreground?: string;
+        Background?: string;
+        Ratio?: string;
+      } = {};
+
+      if (data.message.split("==").length > 1) {
+        const parts = data.message.split("==");
+        parts.forEach((part: any) => {
+          const [key, value] = part.split("-");
+          switch (key) {
+            case "fontsize":
+              formattedParts["FontSize"] = `${parseInt(value)}px`;
+              break;
+            case "fontweight":
+              formattedParts["FontWeight"] =
+                parseInt(value) >= 700 ? "Bold" : "Normal";
+              break;
+            case "forec":
+              formattedParts["Foreground"] = rgbToHexWithOpacity(value);
+              break;
+            case "backc":
+              formattedParts["Background"] = rgbToHexWithOpacity(value);
+              break;
+            case "ratio":
+              formattedParts["Ratio"] =
+                parseFloat(parseFloat(value.slice(0, -2)).toFixed(2)) + ":1";
+              break;
+            default:
+              break;
+          }
+        });
+      }
+
+      const attribute =
+        data.message.split("==").length <= 1
+          ? data.message
+          : `Font-size: ${formattedParts["FontSize"]}, Font-weight: ${formattedParts["FontWeight"]}, Foreground Color: ${formattedParts["Foreground"]}, Background Color: ${formattedParts["Background"]}, Ratio: ${formattedParts["Ratio"]}`;
 
       const dataformat = [
         element.data.failing_technique,
         data.elementTagName,
         element.alt,
         data.context.substring(0, 300),
+        attribute,
         element.data.conformance_level,
         element.data.criteria_name,
         element.data.severity,
