@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import {
   Button,
+  Checkbox,
   Chip,
   IconButton,
   Switch,
@@ -174,6 +175,7 @@ const Extension = () => {
   const [responseData, setResponseData] = useState<Issues>();
   const [isLoading, setIsLoading] = useState(false);
   const [isToggleSelected, setIsToggleSelected] = useState<boolean>(false);
+  const [isCheckboxSelected, setIsCheckboxSelected] = useState<boolean>(false);
 
   const [html, setHtml] = useState("");
   const apiKey = localStorage.getItem("authtoken");
@@ -217,6 +219,40 @@ const Extension = () => {
 
     getCurrentTabHtmlSource();
   }, []);
+
+  const postURL = () => {
+    chrome.tabs.query(
+      {
+        active: true,
+        currentWindow: true,
+      },
+      async function (tabs) {
+        const tabURL = tabs[0].url;
+        await fetch("https://trail-api.barrierbreak.com/api/audit", {
+          method: "POST",
+          headers: {
+            Accept: "*/*",
+            "User-Agent": "BarrierBreak Client (https://www.barrierbreak.com)",
+            "x-api-key": `${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            url: tabURL,
+            element: "all",
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("URL:", data);
+            setResponseData(data);
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    );
+  };
 
   const postData = async () => {
     setIsLoading(true);
@@ -271,6 +307,9 @@ const Extension = () => {
   // API call
   const handleTestResults = () => {
     postData();
+    if (isCheckboxSelected === true) {
+      postURL();
+    }
   };
 
   const handleDataFromChild = (
@@ -405,7 +444,13 @@ const Extension = () => {
               </Tabs>
             </div>
           ) : (
-            <div className="flex items-center justify-center w-full h-screen">
+            <div className="flex flex-col items-center justify-center gap-4 w-full h-screen">
+              <Checkbox
+                isSelected={isCheckboxSelected}
+                onChange={setIsCheckboxSelected}
+              >
+                Does this page have a login?
+              </Checkbox>
               <Button
                 appearance="primary"
                 onPress={handleTestResults}

@@ -14,7 +14,7 @@ document.body.insertBefore(extensionBtn, document.body.firstChild);
 
 // To inject Trail extension iframe on load
 const iframe = new DOMParser().parseFromString(
-  "<iframe id='trail-iframe' title='trail-extension' allow='clipboard-write' style = 'width: 0px !important; height: 100vh; position: fixed; top: 0; right: 0; border-radius: 5px; z-index: 999999; box-shadow: -8px 0px 24px 0px rgba(0, 0, 0, 0.12);'></iframe>",
+  "<iframe id='trail-iframe' title='trail-extension' allow='clipboard-write' style = 'width: 0px !important; height: 100vh; position: fixed; top: 0; right: 0; border: none; border-radius: 5px; z-index: 999999; box-shadow: -8px 0px 24px 0px rgba(0, 0, 0, 0.12);'></iframe>",
   "text/html"
 ).body.firstElementChild;
 iframe.src = chrome.runtime.getURL("index.html");
@@ -183,6 +183,23 @@ function drawLines(positions) {
     }
   });
 }
+
+// function updateLines() {
+//   const svgLines = document.querySelectorAll("#svg-container line");
+//   svgLines.forEach(line => {
+//     line.remove();
+//   })
+//   labelPositions.forEach(pos => {
+//     const rect = pos.element.getBoundingClientRect();
+//     pos.x = rect.left + (rect.width / 2);
+//     pos.y = rect.top + (rect.height / 2);
+//   });
+//   drawLines(labelPositions);
+// }
+
+// window.addEventListener('resize', () => {
+//   updateLines();
+// });
 
 // To show button on mouse hover
 extensionBtn.addEventListener("mouseover", () => {

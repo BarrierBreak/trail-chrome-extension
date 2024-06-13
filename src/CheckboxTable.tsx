@@ -126,7 +126,7 @@ const CheckboxTable = ({
   // To handle copy to clipboard functionality
   const handleCopyToClipboard = (code: string, id: string) => {
     navigator.clipboard.writeText(code).then(() => {
-      console.log("Code copied successfully");
+      // console.log("Code copied successfully");
       handleShowPopup(id);
     });
   };
@@ -345,7 +345,7 @@ const CheckboxTable = ({
 
   // To focus on element functionality
   const focusElement = async (elementId: string) => {
-    console.log("Focus Element ID :---", elementId);
+    // console.log("Focus Element ID :---", elementId);
     const [tab] = await chrome.tabs.query({
       active: true,
       currentWindow: true,
