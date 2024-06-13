@@ -221,6 +221,8 @@ const Extension = () => {
   }, []);
 
   const postURL = () => {
+    setIsLoading(true);
+
     chrome.tabs.query(
       {
         active: true,
@@ -306,10 +308,7 @@ const Extension = () => {
 
   // API call
   const handleTestResults = () => {
-    postData();
-    if (isCheckboxSelected === true) {
-      postURL();
-    }
+    isCheckboxSelected ? postData() : postURL();
   };
 
   const handleDataFromChild = (

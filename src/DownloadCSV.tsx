@@ -67,7 +67,7 @@ const DownloadCSV = ({ csvdata }) => {
       if (data.message.split("==").length > 1) {
         const parts = data.message.split("==");
         parts.forEach((part: any) => {
-          const [key, value] = part.split("-");
+          const [key, value] = part.split("--");
           switch (key) {
             case "fontsize":
               formattedParts["FontSize"] = `${parseInt(value)}px`;

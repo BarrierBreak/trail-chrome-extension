@@ -21,7 +21,7 @@ interface DropdownState {
 }
 
 // To convert rgb to hex with opacity
-export const rgbToHexWithOpacity = (rgb: string): string => {
+export function rgbToHexWithOpacity(rgb: string): string {
   const [r, g, b] = rgb.match(/\d+/g)!.map(Number);
   const opacity = Math.round(0.05 * 255)
     .toString(16)
@@ -29,7 +29,7 @@ export const rgbToHexWithOpacity = (rgb: string): string => {
   return `#${((1 << 24) + (r << 16) + (g << 8) + b)
     .toString(16)
     .slice(1)}${opacity}`;
-};
+}
 
 const CheckboxTable = ({
   data,
@@ -311,7 +311,7 @@ const CheckboxTable = ({
     } = {};
 
     parts.forEach((part) => {
-      const [key, value] = part.split("-");
+      const [key, value] = part.split("--");
       switch (key) {
         case "fontsize":
           formattedParts["FontSize"] = `${parseInt(value)}px`;
@@ -381,6 +381,12 @@ const CheckboxTable = ({
       args: [elementId],
     });
   };
+
+// data.issues[issueType].forEach((item) => {
+//   item.issues.forEach((issue) => {
+//     console.log("issue", issue.message);
+//   })
+// })
 
   const handleClick = (
     childData: {
@@ -556,13 +562,17 @@ const CheckboxTable = ({
                           </p>
                         </td>
                         <td className="table-cell text-sm border-r border-neutral-300 p-2">
-                          <img
-                            className="h-10 w-[123px] object-contain"
-                            src={`data:image/png;base64,${issueItem.clipBase64}`}
-                            alt={`${getAltText(issueType)}-${numberToAlphabet(
-                              parentIndex + 1
-                            )}${index + 1}`}
-                          />
+                          {issueItem.clipBase64 === "" ? (
+                            <p className="text-center">No Image</p>
+                          ) : (
+                            <img
+                              className="h-10 w-[123px] object-contain"
+                              src={`data:image/png;base64,${issueItem.clipBase64}`}
+                              alt={`${getAltText(issueType)}-${numberToAlphabet(
+                                parentIndex + 1
+                              )}${index + 1}`}
+                            />
+                          )}
                         </td>
                         <td className="table-cell p-2 pr-[1px] border-r border-neutral-300 relative font-sourceCode">
                           <section
@@ -600,9 +610,11 @@ const CheckboxTable = ({
                           )}
                         </td>
                         <td className="table-cell p-2 ">
-                          <p className="text-sm w-[108px] text-left font-poppins break-words">
-                            <p>
-                              {issueItem.message.split("==").length === 1 ? (
+                            <section
+                              className="w-[108px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                              tabIndex={0}
+                            >
+                              {issue.element !== "Contrast" ? (
                                 issueItem.message
                               ) : (
                                 <div className="flex flex-col gap-1">
@@ -632,7 +644,7 @@ const CheckboxTable = ({
                                       style={{
                                         backgroundColor: `${formatAttributes(
                                           issueItem.message
-                                        ).fg.slice(0, 7)}`,
+                                        ).fg}`,
                                       }}
                                     ></div>
                                     <span>
@@ -646,7 +658,7 @@ const CheckboxTable = ({
                                       style={{
                                         backgroundColor: `${formatAttributes(
                                           issueItem.message
-                                        ).bg.slice(0, 7)}`,
+                                        ).bg}`,
                                       }}
                                     ></div>
                                     <span>
@@ -655,8 +667,7 @@ const CheckboxTable = ({
                                   </div>
                                 </div>
                               )}
-                            </p>
-                          </p>
+                            </section>
                         </td>
                       </tr>
                     ))}
