@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@crxjs/vite-plugin": "^1.0.14",
-    "@trail-ui/icons": "^1.0.9",
-    "@trail-ui/react": "^1.1.11",
-    "@trail-ui/theme": "^1.1.11",
+    "@trail-ui/icons": "^1.0.10",
+    "@trail-ui/react": "^1.1.12",
+    "@trail-ui/theme": "^1.1.12",
     "framer-motion": "^11.1.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
