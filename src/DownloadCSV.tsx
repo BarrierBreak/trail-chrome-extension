@@ -3,7 +3,7 @@ import { useState } from "react";
 import * as XLSX from "xlsx";
 import { DownloadIcon } from "@trail-ui/icons";
 import { Button } from "@trail-ui/react";
-import { rgbToHexWithOpacity } from "./CheckboxTable";
+import { rgbaToHex } from "./utils";
 
 //@ts-expect-error fix
 const DownloadCSV = ({ csvdata }) => {
@@ -64,32 +64,33 @@ const DownloadCSV = ({ csvdata }) => {
         Ratio?: string;
       } = {};
 
-      if (data.message.split("==").length > 1) {
-        const parts = data.message.split("==");
-        parts.forEach((part: any) => {
-          const [key, value] = part.split("--");
-          switch (key) {
-            case "fontsize":
-              formattedParts["FontSize"] = `${parseInt(value)}px`;
-              break;
-            case "fontweight":
-              formattedParts["FontWeight"] =
-                parseInt(value) >= 700 ? "Bold" : "Normal";
-              break;
-            case "forec":
-              formattedParts["Foreground"] = rgbToHexWithOpacity(value);
-              break;
-            case "backc":
-              formattedParts["Background"] = rgbToHexWithOpacity(value);
-              break;
-            case "ratio":
-              formattedParts["Ratio"] =
-                parseFloat(parseFloat(value.slice(0, -2)).toFixed(2)) + ":1";
-              break;
-            default:
-              break;
-          }
-        });
+      const regex = /(\w+)--([^=]+)/g;
+      let match;
+
+      while ((match = regex.exec(data.message)) !== null) {
+        const key = match[1];
+        const value = match[2];
+        switch (key) {
+          case "fontsize":
+            formattedParts["FontSize"] = `${parseInt(value)}px`;
+            break;
+          case "fontweight":
+            formattedParts["FontWeight"] =
+              parseInt(value) >= 700 ? "Bold" : "Normal";
+            break;
+          case "forec":
+            formattedParts["Foreground"] = rgbaToHex(value);
+            break;
+          case "backc":
+            formattedParts["Background"] = rgbaToHex(value);
+            break;
+          case "ratio":
+            formattedParts["Ratio"] =
+              parseFloat(parseFloat(value.slice(0, -2)).toFixed(2)) + ":1";
+            break;
+          default:
+            break;
+        }
       }
 
       const attribute =

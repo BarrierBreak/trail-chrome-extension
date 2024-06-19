@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button, Checkbox, Chip, IconButton } from "@trail-ui/react";
 import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
 import { Issues, IssueItems } from "./Extension";
+import { numberToAlphabet, getAltText, formatInput } from "./utils";
 
 interface CheckboxTableProps {
   data: Issues;
@@ -18,17 +19,6 @@ interface CheckboxTableProps {
 interface DropdownState {
   id: string;
   isExpanded: boolean;
-}
-
-// To convert rgb to hex with opacity
-export function rgbToHexWithOpacity(rgb: string): string {
-  const [r, g, b] = rgb.match(/\d+/g)!.map(Number);
-  const opacity = Math.round(0.05 * 255)
-    .toString(16)
-    .padStart(2, "0");
-  return `#${((1 << 24) + (r << 16) + (g << 8) + b)
-    .toString(16)
-    .slice(1)}${opacity}`;
 }
 
 const CheckboxTable = ({
@@ -58,37 +48,6 @@ const CheckboxTable = ({
 
     totalIssuesCount();
   }, [data, issueType]);
-
-  // To get corresponding alphabet character for from number
-  const numberToAlphabet = (num: number): string => {
-    if (num < 1) {
-      console.error("Number must be greater than or equal to 1");
-    }
-
-    let result = "";
-    while (num > 0) {
-      const remainder = (num - 1) % 26;
-      result = String.fromCharCode(65 + remainder) + result;
-      num = Math.floor((num - 1) / 26);
-    }
-    return result;
-  };
-
-  // To get screenshot alt text
-  const getAltText = (issueType: string) => {
-    switch (issueType) {
-      case "errors":
-        return "Fail";
-      case "warnings":
-        return "Manual";
-      case "pass":
-        return "Pass";
-      case "notices":
-        return "BP";
-      default:
-        break;
-    }
-  };
 
   const updatedStates: DropdownState[] = [];
 
@@ -298,51 +257,6 @@ const CheckboxTable = ({
     }
   };
 
-  // To format value for Attribute column
-  const formatAttributes = (input: string): any => {
-    const parts = input.split("==");
-
-    const formattedParts: {
-      FontSize?: string;
-      FontWeight?: string;
-      Foreground?: string;
-      Background?: string;
-      Ratio?: string;
-    } = {};
-
-    parts.forEach((part) => {
-      const [key, value] = part.split("--");
-      switch (key) {
-        case "fontsize":
-          formattedParts["FontSize"] = `${parseInt(value)}px`;
-          break;
-        case "fontweight":
-          formattedParts["FontWeight"] = parseInt(value) >= 700 ? "Bold" : "";
-          break;
-        case "forec":
-          formattedParts["Foreground"] = rgbToHexWithOpacity(value);
-          break;
-        case "backc":
-          formattedParts["Background"] = rgbToHexWithOpacity(value);
-          break;
-        case "ratio":
-          formattedParts["Ratio"] =
-            parseFloat(parseFloat(value.slice(0, -2)).toFixed(2)) + ":1";
-          break;
-        default:
-          break;
-      }
-    });
-
-    const fontSize = formattedParts["FontSize"];
-    const fontWeight = formattedParts["FontWeight"];
-    const fg = formattedParts["Foreground"];
-    const bg = formattedParts["Background"];
-    const ratio = formattedParts["Ratio"];
-
-    return { fontSize, fontWeight, fg, bg, ratio };
-  };
-
   // To focus on element functionality
   const focusElement = async (elementId: string) => {
     // console.log("Focus Element ID :---", elementId);
@@ -381,12 +295,6 @@ const CheckboxTable = ({
       args: [elementId],
     });
   };
-
-// data.issues[issueType].forEach((item) => {
-//   item.issues.forEach((issue) => {
-//     console.log("issue", issue.message);
-//   })
-// })
 
   const handleClick = (
     childData: {
@@ -610,64 +518,55 @@ const CheckboxTable = ({
                           )}
                         </td>
                         <td className="table-cell p-2 ">
-                            <section
-                              className="w-[108px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
-                              tabIndex={0}
-                            >
-                              {issue.element !== "Contrast" ? (
-                                issueItem.message
-                              ) : (
-                                <div className="flex flex-col gap-1">
-                                  <div>
-                                    <span className="font-semibold">
-                                      {
-                                        formatAttributes(issueItem.message)
-                                          .ratio
-                                      }{" "}
-                                    </span>
-                                    <span>
-                                      -{" "}
-                                      {
-                                        formatAttributes(issueItem.message)
-                                          .fontSize
-                                      }{" "}
-                                      {
-                                        formatAttributes(issueItem.message)
-                                          .fontWeight
-                                      }
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <div
-                                      title="Foreground Color"
-                                      className="w-3.5 h-3.5 inline-block border border-neutral-300"
-                                      style={{
-                                        backgroundColor: `${formatAttributes(
-                                          issueItem.message
-                                        ).fg}`,
-                                      }}
-                                    ></div>
-                                    <span>
-                                      {formatAttributes(issueItem.message).fg}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <div
-                                      title="Background Color"
-                                      className="w-3.5 h-3.5 inline-block border border-neutral-300"
-                                      style={{
-                                        backgroundColor: `${formatAttributes(
-                                          issueItem.message
-                                        ).bg}`,
-                                      }}
-                                    ></div>
-                                    <span>
-                                      {formatAttributes(issueItem.message).bg}
-                                    </span>
-                                  </div>
+                          <section
+                            className="w-[108px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                            tabIndex={0}
+                          >
+                            {issue.element === "Contrast" &&
+                            issue.code !== "BB10575" ? (
+                              <div className="flex flex-col gap-1">
+                                <div>
+                                  <span className="font-semibold">
+                                    {formatInput(issueItem.message).ratio}{" "}
+                                  </span>
+                                  <span>
+                                    - {formatInput(issueItem.message).fontsize}{" "}
+                                    {formatInput(issueItem.message).fontweight}
+                                  </span>
                                 </div>
-                              )}
-                            </section>
+                                <div className="flex items-center gap-1">
+                                  <div
+                                    title="Foreground Color"
+                                    className="w-3.5 h-3.5 inline-block border border-neutral-300 bg-red"
+                                    style={{
+                                      backgroundColor: `${formatInput(
+                                        issueItem.message
+                                      ).fg.substring(0, 7)}`,
+                                    }}
+                                  ></div>
+                                  <span>
+                                    {formatInput(issueItem.message).fg}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <div
+                                    title="Background Color"
+                                    className="w-3.5 h-3.5 inline-block border border-neutral-300"
+                                    style={{
+                                      backgroundColor: `${formatInput(
+                                        issueItem.message
+                                      ).bg.substring(0, 7)}`,
+                                    }}
+                                  ></div>
+                                  <span>
+                                    {formatInput(issueItem.message).bg}
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              issueItem.message.toString()
+                            )}
+                          </section>
                         </td>
                       </tr>
                     ))}
