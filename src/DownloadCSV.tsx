@@ -2,7 +2,7 @@
 import { useState } from "react";
 import * as XLSX from "xlsx";
 import { DownloadIcon } from "@trail-ui/icons";
-import { Button } from "@trail-ui/react";
+import { IconButton } from "@trail-ui/react";
 import { rgbaToHex } from "./utils";
 
 //@ts-expect-error fix
@@ -128,21 +128,14 @@ const DownloadCSV = ({ csvdata }) => {
 
   return (
     <div>
-      <Button
-        className="text-base text-neutral-800"
-        appearance="default"
+      <IconButton
+        appearance="text"
+        isIconOnly={true}
         onPress={handleDownload}
-        endContent={
-          <DownloadIcon
-            width={24}
-            height={24}
-            aria-label="Download"
-            className="text-neutral-800"
-          />
-        }
+        aria-label="Download"
       >
-        CSV
-      </Button>
+        <DownloadIcon width={24} height={24} className="text-neutral-800" />
+      </IconButton>
       {showPopup && (
         <div className="absolute top-[100%] right-[11%] bg-neutral-50 text-neutral-900 border border-neutral-300 text-sm font-medium font-poppins shadow-lg px-3 py-2.5 rounded">
           No Results Selected!

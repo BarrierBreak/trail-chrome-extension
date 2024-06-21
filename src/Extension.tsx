@@ -11,7 +11,6 @@ import {
   Tabs,
 } from "@trail-ui/react";
 import {
-  ExportIcon,
   TrailIcon,
   TrailAMSVerticalIcon,
   MinusIcon,
@@ -179,6 +178,8 @@ const Extension = () => {
   const [isListSelected, setIsListSelected] = useState<boolean>(false);
   const [isLandmarkSelected, setIsLandmarkSelected] = useState<boolean>(false);
   const [isAltTextSelected, setIsAltTextSelected] = useState<boolean>(false);
+  const [isLinkSelected, setIsLinkSelected] = useState<boolean>(false);
+  // const [isFormSelected, setIsFormSelected] = useState<boolean>(false);
 
   const [html, setHtml] = useState("");
   const apiKey = localStorage.getItem("authtoken");
@@ -225,7 +226,6 @@ const Extension = () => {
 
   // const postURL = () => {
   //   setIsLoading(true);
-
   //   chrome.tabs.query(
   //     {
   //       active: true,
@@ -328,6 +328,22 @@ const Extension = () => {
     window.parent.postMessage(msg, "*");
   };
 
+  // To handle links
+  const handleLinks = () => {
+    let msg: string;
+    setIsLinkSelected(!isLinkSelected);
+    isLinkSelected ? (msg = "hide-links") : (msg = "show-links");
+    window.parent.postMessage(msg, "*");
+  };
+
+  // To handle forms
+  // const handleForms = () => {
+  //   let msg: string;
+  //   setIsFormSelected(!isFormSelected);
+  //   isFormSelected ? (msg = "hide-forms") : (msg = "show-forms");
+  //   window.parent.postMessage(msg, "*");
+  // };
+
   // To handle headings
   const handleHeading = () => {
     let msg: string;
@@ -415,10 +431,26 @@ const Extension = () => {
                     Alt Text
                   </Checkbox>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    isSelected={isLinkSelected}
+                    onChange={handleLinks}
+                  >
+                    Links
+                  </Checkbox>
+                </div>
+                {/* <div className="flex items-center gap-2">
+                  <Checkbox
+                    isSelected={isFormSelected}
+                    onChange={handleForms}
+                  >
+                    Form
+                  </Checkbox>
+                </div> */}
               </div>
             }
             <IconButton
-              appearance="default"
+              appearance="text"
               isIconOnly={true}
               onPress={handleMinimise}
               aria-label="Minimise"
@@ -461,15 +493,8 @@ const Extension = () => {
                       </div>
                     </Tab>
                   </TabList>
-                  <div className="flex gap-2">
+                  <div>
                     <DownloadCSV csvdata={dataFromChild} />
-                    <Button
-                      className="text-base"
-                      appearance="primary"
-                      endContent={<ExportIcon width={24} height={24} />}
-                    >
-                      Export
-                    </Button>
                   </div>
                 </div>
                 <TabPanel id="FAIL">

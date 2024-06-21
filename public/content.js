@@ -254,8 +254,8 @@ function showHeadings() {
     // make the heading label show at start of textContent and end of textContent
     const headingLabel = document.createElement("strong");
     headingLabel.className = "heading-label";
-    // headingLabel.style.backgroundColor = "#5928ed";
-    // headingLabel.style.color = "white";
+    headingLabel.style.backgroundColor = "#5928ed";
+    headingLabel.style.color = "white";
     headingLabel.style.padding = "2px 4px";
     headingLabel.style.margin = "4px";
     headingLabel.style.fontSize = "12px";
@@ -272,7 +272,7 @@ function showHeadings() {
     //   headingLabel.style.backgroundColor = "#d20000";
     //   headingLabel.style.color = "#fefefe";
     // }
-    
+
     // if(headingLabel.textContent === "<h2>") {
     //   headingLabel.style.backgroundColor = "#0000ff";
     //   headingLabel.style.color = "#fefefe";
@@ -454,3 +454,69 @@ window.addEventListener("message", (event) => {
     hideAltText();
   }
 });
+
+function showLinks() {
+  const links = document.querySelectorAll("a");
+
+  links.forEach((link) => {
+    const startLabel = document.createElement("strong");
+    startLabel.className = "link-label";
+    startLabel.style.backgroundColor = "#5928ed";
+    startLabel.style.color = "white";
+    startLabel.style.padding = "2px";
+    startLabel.style.fontSize = "small";
+    startLabel.style.fontWeight = "bold";
+    startLabel.style.borderRadius = "4px";
+    startLabel.style.zIndex = "100000";
+    startLabel.textContent = `<${link.tagName.toLowerCase()}>`;
+
+    link.prepend(startLabel);
+
+    const endLabel = startLabel.cloneNode(true);
+    endLabel.textContent = `</${link.tagName.toLowerCase()}>`;
+
+    link.appendChild(endLabel);
+  });
+}
+
+function hideLinks() {
+  const linkLabels = document.querySelectorAll(".link-label");
+  linkLabels.forEach((label) => label.remove());
+}
+
+window.addEventListener("message", (event) => {
+  if (event.data === "show-links") {
+    showLinks();
+  }
+
+  if (event.data === "hide-links") {
+    hideLinks();
+  }
+});
+
+// function showForms() {
+//   const formElements = document.querySelectorAll("form, input, select, textarea, button");
+
+//   formElements.forEach((formElement) => {
+//     const startLabel = document.createElement("strong");
+//     startLabel.className = "form-element-label";
+//     startLabel.style.backgroundColor = "#5928ed";
+//     startLabel.style.color = "white";
+//     startLabel.style.padding = "2px";
+//     startLabel.style.fontSize = "small";
+//     startLabel.style.fontWeight = "bold";
+//     startLabel.style.borderRadius = "4px";
+//     startLabel.style.zIndex = "100000";
+//     startLabel.style.position = "absolute";
+//     startLabel.style.transform = "translateY(-100%)";
+//     startLabel.textContent = `<${formElement.tagName.toLowerCase()}>`;
+
+//     formElement.style.position = "relative";
+//     formElement.prepend(startLabel);
+
+//     const endLabel = startLabel.cloneNode(true);
+//     endLabel.textContent = `</${formElement.tagName.toLowerCase()}>`;
+//     endLabel.style.transform = "translateY(100%)";
+//     formElement.appendChild(endLabel);
+//   });
+// }
