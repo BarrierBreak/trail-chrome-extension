@@ -582,7 +582,8 @@ const CheckboxTable = ({
                               tabIndex={0}
                             >
                               {issue.element === "Contrast" &&
-                              issue.code !== "BB10575" ? (
+                              issue.code !== "BB10575" &&
+                              issue.code !== "BB10615" ? (
                                 <div className="flex flex-col gap-1">
                                   <div>
                                     <span className="font-semibold">
