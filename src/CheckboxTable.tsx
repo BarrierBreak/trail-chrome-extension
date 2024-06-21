@@ -36,6 +36,19 @@ const CheckboxTable = ({
   const [activePopup, setActivePopup] = useState<string>("");
   const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([]);
 
+  // const [levelA, setLevelA] = useState<any[]>([]);
+  // const [levelAA, setLevelAA] = useState<any[]>([]);
+  // const [levelAAA, setLevelAAA] = useState<Issues[]>([]);
+  // const [level508, setLevel508] = useState<Issues[]>([]);
+  // const [levelBestPractices, setLevelBestPractices] = useState<Issues[]>(
+  //   []
+  // );
+
+  // const conformanceLevels = [
+  //   levelA,
+  //   levelAA
+  // ];
+
   // To count the total number of individual issues
   useEffect(() => {
     const totalIssuesCount = () => {
@@ -47,14 +60,43 @@ const CheckboxTable = ({
     };
 
     totalIssuesCount();
+
+    // data.issues[issueType].forEach((element) => {
+    // console.log("element", element);
+
+    // if (element.conformance_level === "A") {
+    //   console.log("element A", element);
+
+    //   setLevelA((prev) => [...prev, element]);
+    // } else if (element.conformance_level === "AA") {
+    //   console.log("element AA", element);
+    //   setLevelAA((prev) => [...prev, element]);
+    // }
+    //   setLevelAA((prev) => [...prev, element]);
+    // } else if (element.conformance_level === "AAA") {
+    //   setLevelAAA((prev) => [...prev, element]);
+    // } else if (element.conformance_level === "508") {
+    //   setLevel508((prev) => [...prev, element]);
+    // } else if (element.conformance_level === "Best Practices") {
+    //   setLevelBestPractices((prev) => [...prev, element]);
+    // }
+    // });
   }, [data, issueType]);
+
+  // console.log("conformanceLevels", conformanceLevels);
+
+  // console.log("levelA", levelA);
+  // console.log("levelAA", levelAA);
+  // console.log("levelAAA", levelAAA);
+  // console.log("level508", level508);
+  // console.log("levelBestPractices", levelBestPractices);
 
   const updatedStates: DropdownState[] = [];
 
   // To assign initial state for dropdown
   useEffect(() => {
     data.issues[issueType].forEach((item) => {
-      updatedStates.push({ id: item.id, isExpanded: false });
+      updatedStates.push({ id: item.id, isExpanded: true });
       setDropdownStates(updatedStates);
     });
   }, []);
@@ -257,9 +299,15 @@ const CheckboxTable = ({
     }
   };
 
+  // levelAA.forEach((item) => {
+  //   console.log(item.conformance_level);
+  // })
+
   // To focus on element functionality
   const focusElement = async (elementId: string) => {
-    // console.log("Focus Element ID :---", elementId);
+    console.log("Focus Element ID :---", elementId);
+    window.parent.postMessage("minimise-button-clicked", "*");
+
     const [tab] = await chrome.tabs.query({
       active: true,
       currentWindow: true,
@@ -309,272 +357,291 @@ const CheckboxTable = ({
     <>
       {data.issues[issueType].length ? (
         <>
-          <div className="flex items-center justify-between py-4">
-            <span className="font-semibold text-lg">
-              Level A (Conformance Level)
-            </span>
-            <Chip
-              variant="solid"
-              color="purple"
-              size="lg"
-              radius="full"
-              children={`${issueCount} ${
-                issueCount === 1 ? "Issue" : "Issues"
-              }`}
-              classNames={{
-                content: "font-medium",
-                base: "hover:bg-purple-100 active:bg-purple-100",
-              }}
-            />
-          </div>
-          <div className="overflow-hidden rounded border border-neutral-300">
-            <table className="table">
-              <th className="table-header-group w-20 h-10 font-medium border-b border-neutral-300 bg-neutral-100 text-left">
-                <td className="p-0 w-10 align-middle border-r border-neutral-300">
-                  <Checkbox
-                    classNames={{ control: "m-3", base: "p-0 m-0" }}
-                    isSelected={
-                      selectedTitles.length === data.issues[issueType].length
-                    }
-                    isIndeterminate={
-                      selectedTitles.length > 0 &&
-                      selectedTitles.length !== data.issues[issueType].length
-                    }
-                    onChange={() => handleHeaderClick()}
-                    aria-label="Select All"
-                  />
-                </td>
-                <td className="table-cell p-1 w-20 align-middle border-r border-neutral-300">
-                  <p className="font-medium text-base pl-1">Element</p>
-                </td>
-                <td className="table-cell p-1 w-[140px] align-middle border-r border-neutral-300">
-                  <p className="font-medium text-base pl-1">Screenshot</p>
-                </td>
-                <td className="table-cell p-1 w-[177px] align-middle border-r border-neutral-300">
-                  <p className="font-medium text-base pl-1">Code</p>
-                </td>
-                <td className="table-cell p-1 w-[125px] align-middle">
-                  <p className="font-medium text-base pl-1">Attribute</p>
-                </td>
-              </th>
-              <tbody>
-                {data.issues[issueType].map((issue, parentIndex) => (
-                  <>
-                    <tr
-                      className={`border-b border-neutral-300 ${
-                        selectedTitles.includes(issue.id) ||
-                        isAllErrorSelected(issue) === issue.issues.length
-                          ? "bg-purple-50"
-                          : "bg-neutral-50"
-                      }`}
-                    >
-                      <td
-                        key="selection"
-                        className="p-0 w-10 border-r border-b border-neutral-300"
-                      >
-                        <Checkbox
-                          classNames={{ control: "m-3", base: "p-0 m-0" }}
-                          isSelected={
-                            isAllErrorSelected(issue) === issue.issues.length
-                          }
-                          isIndeterminate={
-                            isAllErrorSelected(issue) !== 0 &&
-                            isAllErrorSelected(issue) !== issue.issues.length
-                          }
-                          onChange={() =>
-                            handleTitleClick(issue, issue.id, parentIndex)
-                          }
-                          aria-label={`${issue.failing_technique}`}
-                        />
-                      </td>
-                      <td className="table-cell p-0" colSpan={4}>
-                        <button
-                          aria-expanded={
-                            dropdownStates.find(
-                              (item) => item.id === issue.id && item.isExpanded
-                            )
-                              ? false
-                              : true
-                          }
-                          onClick={() => handleDropdownClick(issue, issue.id)}
-                          className="p-2 w-full focus-visible:outline-focus"
-                        >
-                          <div className="flex gap-1 items-center justify-between">
-                            <p className="text-start font-semibold text-base">
-                              {`${numberToAlphabet(parentIndex + 1)}. ${
-                                issue.failing_technique
-                              } (${issue.issues.length} ${
-                                issue.issues.length === 1
-                                  ? "Instance"
-                                  : "Instances"
-                              })`}
-                            </p>
-                            <div className="h-6 w-6">
-                              {dropdownStates.find(
-                                (item) =>
-                                  item.id === issue.id && item.isExpanded
-                              ) ? (
-                                <ChevronDownIcon
-                                  width={24}
-                                  height={24}
-                                  className="text-neutral-900"
-                                />
-                              ) : (
-                                <ChevronUpIcon
-                                  width={24}
-                                  height={24}
-                                  className="text-neutral-900"
-                                />
-                              )}
-                            </div>
-                          </div>
-                        </button>
-                      </td>
-                    </tr>
+          {/* {conformanceLevels.map(level=>{
+          level.forEach((issue) => { */}
 
-                    {issue.issues.map((issueItem, index) => (
+          <>
+            <div className="flex items-center justify-between py-4">
+              <span className="font-semibold text-lg">
+                Level A (Conformance Level)
+              </span>
+              <Chip
+                variant="solid"
+                color="purple"
+                size="lg"
+                radius="full"
+                children={`${issueCount} ${
+                  issueCount === 1 ? "Issue" : "Issues"
+                }`}
+                classNames={{
+                  content: "font-medium",
+                  base: "hover:bg-purple-100 active:bg-purple-100",
+                }}
+              />
+            </div>
+            <div className="overflow-hidden rounded border border-neutral-300">
+              <table className="table">
+                <th className="table-header-group w-20 h-10 font-medium border-b border-neutral-300 bg-neutral-100 text-left">
+                  <td className="p-0 w-10 align-middle border-r border-neutral-300">
+                    <Checkbox
+                      classNames={{ control: "m-3", base: "p-0 m-0" }}
+                      isSelected={
+                        selectedTitles.length === data.issues[issueType].length
+                      }
+                      isIndeterminate={
+                        selectedTitles.length > 0 &&
+                        selectedTitles.length !== data.issues[issueType].length
+                      }
+                      onChange={() => handleHeaderClick()}
+                      aria-label="Select All"
+                    />
+                  </td>
+                  <td className="table-cell p-1 w-20 align-middle border-r border-neutral-300">
+                    <p className="font-medium text-base pl-1">Element</p>
+                  </td>
+                  <td className="table-cell p-1 w-[140px] align-middle border-r border-neutral-300">
+                    <p className="font-medium text-base pl-1">Screenshot</p>
+                  </td>
+                  <td className="table-cell p-1 w-[177px] align-middle border-r border-neutral-300">
+                    <p className="font-medium text-base pl-1">Code</p>
+                  </td>
+                  <td className="table-cell p-1 w-[125px] align-middle">
+                    <p className="font-medium text-base pl-1">Attribute</p>
+                  </td>
+                </th>
+                <tbody>
+                  {data.issues[issueType].map((issue, parentIndex) => (
+                    <>
                       <tr
-                        id={issueItem.id}
-                        className={`text-base border-b border-neutral-300 last:border-none ${
-                          selectedErrors.includes(issueItem.id)
+                        className={`border-b border-neutral-300 ${
+                          selectedTitles.includes(issue.id) ||
+                          isAllErrorSelected(issue) === issue.issues.length
                             ? "bg-purple-50"
-                            : ""
+                            : "bg-neutral-50"
                         }`}
                       >
                         <td
                           key="selection"
-                          className="border-r border-neutral-300 p-0"
+                          className="p-0 w-10 border-r border-b border-neutral-300"
                         >
                           <Checkbox
                             classNames={{ control: "m-3", base: "p-0 m-0" }}
-                            isSelected={selectedErrors.includes(issueItem.id)}
-                            onChange={() =>
-                              handleErrorClick(issueItem.id, index, parentIndex)
+                            isSelected={
+                              isAllErrorSelected(issue) === issue.issues.length
                             }
-                            aria-label={`${index + 1} ${
-                              issueItem.elementTagName
-                            }`}
+                            isIndeterminate={
+                              isAllErrorSelected(issue) !== 0 &&
+                              isAllErrorSelected(issue) !== issue.issues.length
+                            }
+                            onChange={() =>
+                              handleTitleClick(issue, issue.id, parentIndex)
+                            }
+                            aria-label={`${issue.failing_technique}`}
                           />
                         </td>
-                        <td className="table-cell border-r border-neutral-300 text-sm p-2">
-                          <p className="w-[63px]">
-                            {`${index + 1}. `}
-                            <Button
-                              appearance="link"
-                              spacing="none"
-                              isDisabled={!issueItem.selector}
-                              onPress={() => focusElement(issueItem.selector)}
-                            >
-                              <span>{`<${issueItem.elementTagName}>`}</span>
-                            </Button>
-                          </p>
-                        </td>
-                        <td className="table-cell text-sm border-r border-neutral-300 p-2">
-                          {issueItem.clipBase64 === "" ? (
-                            <p className="text-center">No Image</p>
-                          ) : (
-                            <img
-                              className="h-10 w-[123px] object-contain"
-                              src={`data:image/png;base64,${issueItem.clipBase64}`}
-                              alt={`${getAltText(issueType)}-${numberToAlphabet(
-                                parentIndex + 1
-                              )}${index + 1}`}
-                            />
-                          )}
-                        </td>
-                        <td className="table-cell p-2 pr-[1px] border-r border-neutral-300 relative font-sourceCode">
-                          <section
-                            className="h-14 w-[167px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
-                            tabIndex={0}
-                          >
-                            {issueItem.context}
-                          </section>
-
-                          <IconButton
-                            className="absolute top-0.5 right-4"
-                            onPress={() =>
-                              handleCopyToClipboard(
-                                issueItem.context,
-                                issueItem.id
+                        <td className="table-cell p-0" colSpan={4}>
+                          <button
+                            aria-expanded={
+                              dropdownStates.find(
+                                (item) =>
+                                  item.id === issue.id && item.isExpanded
                               )
+                                ? false
+                                : true
                             }
-                            isIconOnly={true}
-                            spacing="compact"
-                            aria-label={`Copy ${index + 1} ${
-                              issueItem.elementTagName
-                            } code to clipboard`}
+                            onClick={() => handleDropdownClick(issue, issue.id)}
+                            className="p-2 w-full focus-visible:outline-focus"
                           >
-                            <CopyIcon
-                              width={16}
-                              height={16}
-                              className="text-neutral-600"
-                            />
-                          </IconButton>
-
-                          {activePopup === issueItem.id && (
-                            <div className="absolute bottom-[110%] -right-[26%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded">
-                              Copied to Clipboard!
-                            </div>
-                          )}
-                        </td>
-                        <td className="table-cell p-2 ">
-                          <section
-                            className="w-[108px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
-                            tabIndex={0}
-                          >
-                            {issue.element === "Contrast" &&
-                            issue.code !== "BB10575" ? (
-                              <div className="flex flex-col gap-1">
-                                <div>
-                                  <span className="font-semibold">
-                                    {formatInput(issueItem.message).ratio}{" "}
-                                  </span>
-                                  <span>
-                                    - {formatInput(issueItem.message).fontsize}{" "}
-                                    {formatInput(issueItem.message).fontweight}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <div
-                                    title="Foreground Color"
-                                    className="w-3.5 h-3.5 inline-block border border-neutral-300 bg-red"
-                                    style={{
-                                      backgroundColor: `${formatInput(
-                                        issueItem.message
-                                      ).fg.substring(0, 7)}`,
-                                    }}
-                                  ></div>
-                                  <span>
-                                    {formatInput(issueItem.message).fg}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <div
-                                    title="Background Color"
-                                    className="w-3.5 h-3.5 inline-block border border-neutral-300"
-                                    style={{
-                                      backgroundColor: `${formatInput(
-                                        issueItem.message
-                                      ).bg.substring(0, 7)}`,
-                                    }}
-                                  ></div>
-                                  <span>
-                                    {formatInput(issueItem.message).bg}
-                                  </span>
-                                </div>
+                            <div className="flex gap-1 items-center justify-between">
+                              <p className="text-start font-semibold text-base">
+                                {`${numberToAlphabet(parentIndex + 1)}. ${
+                                  issue.failing_technique
+                                } (${issue.issues.length} ${
+                                  issue.issues.length === 1
+                                    ? "Instance"
+                                    : "Instances"
+                                })`}
+                              </p>
+                              <div className="h-6 w-6">
+                                {dropdownStates.find(
+                                  (item) =>
+                                    item.id === issue.id && item.isExpanded
+                                ) ? (
+                                  <ChevronDownIcon
+                                    width={24}
+                                    height={24}
+                                    className="text-neutral-900"
+                                  />
+                                ) : (
+                                  <ChevronUpIcon
+                                    width={24}
+                                    height={24}
+                                    className="text-neutral-900"
+                                  />
+                                )}
                               </div>
-                            ) : (
-                              issueItem.message.toString()
-                            )}
-                          </section>
+                            </div>
+                          </button>
                         </td>
                       </tr>
-                    ))}
-                  </>
-                ))}
-              </tbody>
-            </table>
-          </div>
+
+                      {issue.issues.map((issueItem, index) => (
+                        <tr
+                          id={issueItem.id}
+                          className={`text-base border-b border-neutral-300 hidden last:border-none ${
+                            selectedErrors.includes(issueItem.id)
+                              ? "bg-purple-50"
+                              : ""
+                          }`}
+                        >
+                          <td
+                            key="selection"
+                            className="border-r border-neutral-300 p-0"
+                          >
+                            <Checkbox
+                              classNames={{ control: "m-3", base: "p-0 m-0" }}
+                              isSelected={selectedErrors.includes(issueItem.id)}
+                              onChange={() =>
+                                handleErrorClick(
+                                  issueItem.id,
+                                  index,
+                                  parentIndex
+                                )
+                              }
+                              aria-label={`${index + 1} ${
+                                issueItem.elementTagName
+                              }`}
+                            />
+                          </td>
+                          <td className="table-cell border-r border-neutral-300 text-sm p-2">
+                            <p className="w-[63px]">
+                              {`${index + 1}. `}
+                              <Button
+                                appearance="link"
+                                spacing="none"
+                                isDisabled={!issueItem.selector}
+                                onPress={() => focusElement(issueItem.selector)}
+                              >
+                                <span>{`<${issueItem.elementTagName}>`}</span>
+                              </Button>
+                            </p>
+                          </td>
+                          <td className="table-cell text-sm border-r border-neutral-300 p-2">
+                            {issueItem.clipBase64 === "" ? (
+                              <p className="text-center">No Image</p>
+                            ) : (
+                              <img
+                                className="h-10 w-[123px] object-contain"
+                                src={`data:image/png;base64,${issueItem.clipBase64}`}
+                                alt={`${getAltText(
+                                  issueType
+                                )}-${numberToAlphabet(parentIndex + 1)}${
+                                  index + 1
+                                }`}
+                              />
+                            )}
+                          </td>
+                          <td className="table-cell p-2 pr-[1px] border-r border-neutral-300 relative font-sourceCode">
+                            <section
+                              className="h-14 w-[167px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                              tabIndex={0}
+                            >
+                              {issueItem.context}
+                            </section>
+
+                            <IconButton
+                              className="absolute top-0.5 right-4"
+                              onPress={() =>
+                                handleCopyToClipboard(
+                                  issueItem.context,
+                                  issueItem.id
+                                )
+                              }
+                              isIconOnly={true}
+                              spacing="compact"
+                              aria-label={`Copy ${index + 1} ${
+                                issueItem.elementTagName
+                              } code to clipboard`}
+                            >
+                              <CopyIcon
+                                width={16}
+                                height={16}
+                                className="text-neutral-600"
+                              />
+                            </IconButton>
+
+                            {activePopup === issueItem.id && (
+                              <div className="absolute bottom-[110%] -right-[26%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded">
+                                Copied to Clipboard!
+                              </div>
+                            )}
+                          </td>
+                          <td className="table-cell p-2 ">
+                            <section
+                              className="w-[108px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                              tabIndex={0}
+                            >
+                              {issue.element === "Contrast" &&
+                              issue.code !== "BB10575" ? (
+                                <div className="flex flex-col gap-1">
+                                  <div>
+                                    <span className="font-semibold">
+                                      {formatInput(issueItem.message).ratio}{" "}
+                                    </span>
+                                    <span>
+                                      -{" "}
+                                      {formatInput(issueItem.message).fontsize}{" "}
+                                      {
+                                        formatInput(issueItem.message)
+                                          .fontweight
+                                      }
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div
+                                      title="Foreground Color"
+                                      className="w-3.5 h-3.5 inline-block border border-neutral-300 bg-red"
+                                      style={{
+                                        backgroundColor: `${formatInput(
+                                          issueItem.message
+                                        ).fg.substring(0, 7)}`,
+                                      }}
+                                    ></div>
+                                    <span>
+                                      {formatInput(issueItem.message).fg}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <div
+                                      title="Background Color"
+                                      className="w-3.5 h-3.5 inline-block border border-neutral-300"
+                                      style={{
+                                        backgroundColor: `${formatInput(
+                                          issueItem.message
+                                        ).bg.substring(0, 7)}`,
+                                      }}
+                                    ></div>
+                                    <span>
+                                      {formatInput(issueItem.message).bg}
+                                    </span>
+                                  </div>
+                                </div>
+                              ) : (
+                                issueItem.message.toString()
+                              )}
+                            </section>
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+
+          {/* })
+        })} */}
         </>
       ) : (
         <div className="h-[600px] flex items-center justify-center">

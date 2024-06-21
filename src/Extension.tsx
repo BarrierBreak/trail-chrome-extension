@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {useEffect, useState} from 'react'
+import { useEffect, useState } from "react";
 import {
   Button,
   Checkbox,
@@ -9,196 +9,195 @@ import {
   TabList,
   TabPanel,
   Tabs,
-} from '@trail-ui/react'
+} from "@trail-ui/react";
 import {
   ExportIcon,
   TrailIcon,
   TrailAMSVerticalIcon,
   MinusIcon,
-} from '@trail-ui/icons'
-import WebsiteLandmarks from './WebsiteLandmarks'
-import CheckboxTable from './CheckboxTable'
-import DownloadCSV from './DownloadCSV'
+} from "@trail-ui/icons";
+import WebsiteLandmarks from "./WebsiteLandmarks";
+import CheckboxTable from "./CheckboxTable";
+import DownloadCSV from "./DownloadCSV";
 
 export interface IssueItems {
   issues: {
     clip: {
-      x: number
-      y: number
-      width: number
-      height: number
-    }
-    clipBase64: string
-    code: string
-    context: string
-    elementTagName: string
-    id: string
-    message: string
-    recurrence: number
-    selector: string
-    type: string
-    typeCode: number
-  }[]
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
+    clipBase64: string;
+    code: string;
+    context: string;
+    elementTagName: string;
+    id: string;
+    message: string;
+    recurrence: number;
+    selector: string;
+    type: string;
+    typeCode: number;
+  }[];
 }
 
 export interface Issues {
   issues: {
     errors: {
-      code: string
-      conformance_level: string
-      criteria_name: string
-      element: string
-      failing_issue_variable: string
-      failing_technique: string
-      id: string
+      code: string;
+      conformance_level: string;
+      criteria_name: string;
+      element: string;
+      failing_issue_variable: string;
+      failing_technique: string;
+      id: string;
       issues: {
         clip: {
-          x: number
-          y: number
-          width: number
-          height: number
-        }
-        clipBase64: string
-        code: string
-        context: string
-        elementTagName: string
-        id: string
-        message: string
-        recurrence: number
-        selector: string
-        type: string
-        typeCode: number
-      }[]
-      message: string
-      occurences: string
-      rule_name: string
-      severity: string
-    }[]
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        };
+        clipBase64: string;
+        code: string;
+        context: string;
+        elementTagName: string;
+        id: string;
+        message: string;
+        recurrence: number;
+        selector: string;
+        type: string;
+        typeCode: number;
+      }[];
+      message: string;
+      occurences: string;
+      rule_name: string;
+      severity: string;
+    }[];
     warnings: {
-      code: string
-      conformance_level: string
-      criteria_name: string
-      element: string
-      failing_issue_variable: string
-      failing_technique: string
-      id: string
+      code: string;
+      conformance_level: string;
+      criteria_name: string;
+      element: string;
+      failing_issue_variable: string;
+      failing_technique: string;
+      id: string;
       issues: {
         clip: {
-          x: number
-          y: number
-          width: number
-          height: number
-        }
-        clipBase64: string
-        code: string
-        context: string
-        elementTagName: string
-        id: string
-        message: string
-        recurrence: number
-        selector: string
-        type: string
-        typeCode: number
-      }[]
-      message: string
-      occurences: string
-      rule_name: string
-      severity: string
-    }[]
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        };
+        clipBase64: string;
+        code: string;
+        context: string;
+        elementTagName: string;
+        id: string;
+        message: string;
+        recurrence: number;
+        selector: string;
+        type: string;
+        typeCode: number;
+      }[];
+      message: string;
+      occurences: string;
+      rule_name: string;
+      severity: string;
+    }[];
     pass: {
-      code: string
-      conformance_level: string
-      criteria_name: string
-      element: string
-      failing_issue_variable: string
-      failing_technique: string
-      id: string
+      code: string;
+      conformance_level: string;
+      criteria_name: string;
+      element: string;
+      failing_issue_variable: string;
+      failing_technique: string;
+      id: string;
       issues: {
         clip: {
-          x: number
-          y: number
-          width: number
-          height: number
-        }
-        clipBase64: string
-        code: string
-        context: string
-        elementTagName: string
-        id: string
-        message: string
-        recurrence: number
-        selector: string
-        type: string
-        typeCode: number
-      }[]
-      message: string
-      occurences: string
-      rule_name: string
-      severity: string
-    }[]
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        };
+        clipBase64: string;
+        code: string;
+        context: string;
+        elementTagName: string;
+        id: string;
+        message: string;
+        recurrence: number;
+        selector: string;
+        type: string;
+        typeCode: number;
+      }[];
+      message: string;
+      occurences: string;
+      rule_name: string;
+      severity: string;
+    }[];
     notices: {
-      code: string
-      conformance_level: string
-      criteria_name: string
-      element: string
-      failing_issue_variable: string
-      failing_technique: string
-      id: string
+      code: string;
+      conformance_level: string;
+      criteria_name: string;
+      element: string;
+      failing_issue_variable: string;
+      failing_technique: string;
+      id: string;
       issues: {
         clip: {
-          x: number
-          y: number
-          width: number
-          height: number
-        }
-        clipBase64: string
-        code: string
-        context: string
-        elementTagName: string
-        id: string
-        message: string
-        recurrence: number
-        selector: string
-        type: string
-        typeCode: number
-      }[]
-      message: string
-      occurences: string
-      rule_name: string
-      severity: string
-    }[]
-  }
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        };
+        clipBase64: string;
+        code: string;
+        context: string;
+        elementTagName: string;
+        id: string;
+        message: string;
+        recurrence: number;
+        selector: string;
+        type: string;
+        typeCode: number;
+      }[];
+      message: string;
+      occurences: string;
+      rule_name: string;
+      severity: string;
+    }[];
+  };
 }
 
 const Extension = () => {
-  const [responseData, setResponseData] = useState<Issues>()
-  const [isLoading, setIsLoading] = useState(false)
-  const [isToggleSelected, setIsToggleSelected] = useState<boolean>(false)
-  const [isCheckboxSelected, setIsCheckboxSelected] = useState<boolean>(false)
-  const [isHeadingSelected, setIsHeadingSelected] = useState<boolean>(false)
-  const [isListToggleSelected, setIsListToggleSelected] =
-    useState<boolean>(false)
-  const [isLandmarksSelected, setIsLandmarksSelected] = useState<boolean>(false)
-  const [isAltTextSelected, setIsAltTextSelected] = useState<boolean>(false)
+  const [responseData, setResponseData] = useState<Issues>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // const [isCheckboxSelected, setIsCheckboxSelected] = useState<boolean>(false);
+  const [isTabOrderSelected, setIsTabOrderSelected] = useState<boolean>(false);
+  const [isHeadingSelected, setIsHeadingSelected] = useState<boolean>(false);
+  const [isListSelected, setIsListSelected] = useState<boolean>(false);
+  const [isLandmarkSelected, setIsLandmarkSelected] = useState<boolean>(false);
+  const [isAltTextSelected, setIsAltTextSelected] = useState<boolean>(false);
 
-  const [html, setHtml] = useState('')
-  const apiKey = localStorage.getItem('authtoken')
-  const [dataFromChild, setDataFromChild] = useState({})
+  const [html, setHtml] = useState("");
+  const apiKey = localStorage.getItem("authtoken");
+  const [dataFromChild, setDataFromChild] = useState({});
 
   const tabData = [
-    {id: 'FAIL', label: 'Fail', issues: responseData?.issues.errors.length},
+    { id: "FAIL", label: "Fail", issues: responseData?.issues.errors.length },
     {
-      id: 'MANUAL',
-      label: 'Manual',
+      id: "MANUAL",
+      label: "Manual",
       issues: responseData?.issues.warnings.length,
     },
-    {id: 'PASS', label: 'Pass', issues: responseData?.issues.pass.length},
+    { id: "PASS", label: "Pass", issues: responseData?.issues.pass.length },
     {
-      id: 'BEST-PRACTICE',
-      label: 'BP',
+      id: "BEST-PRACTICE",
+      label: "BP",
       issues: responseData?.issues.notices.length,
     },
-  ]
+  ];
 
   // To scrape HTML source code from current tab of webpage
   useEffect(() => {
@@ -206,151 +205,156 @@ const Extension = () => {
       const [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true,
-      })
+      });
       chrome.scripting.executeScript(
         {
-          target: {tabId: tab.id!},
+          target: { tabId: tab.id! },
           func: () => {
-            const html = document.documentElement.outerHTML
-            return html
+            const html = document.documentElement.outerHTML;
+            return html;
           },
         },
         (results) => {
-          setHtml(results[0].result as string)
+          setHtml(results[0].result as string);
         }
-      )
+      );
     }
 
-    getCurrentTabHtmlSource()
-  }, [])
+    getCurrentTabHtmlSource();
+  }, []);
 
-  const postURL = () => {
-    setIsLoading(true)
+  // const postURL = () => {
+  //   setIsLoading(true);
 
-    chrome.tabs.query(
-      {
-        active: true,
-        currentWindow: true,
-      },
-      async function (tabs) {
-        const tabURL = tabs[0].url
-        await fetch('https://trail-api.barrierbreak.com/api/audit', {
-          method: 'POST',
-          headers: {
-            Accept: '*/*',
-            'User-Agent': 'BarrierBreak Client (https://www.barrierbreak.com)',
-            'x-api-key': `${apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url: tabURL,
-            element: 'all',
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log('URL:', data)
-            setResponseData(data)
-            setIsLoading(false)
-          })
-          .catch((error) => {
-            console.error('Error:', error)
-          })
-      }
-    )
-  }
+  //   chrome.tabs.query(
+  //     {
+  //       active: true,
+  //       currentWindow: true,
+  //     },
+  //     async function (tabs) {
+  //       const tabURL = tabs[0].url;
+  //       await fetch("https://trail-api.barrierbreak.com/api/audit", {
+  //         method: "POST",
+  //         headers: {
+  //           Accept: "*/*",
+  //           "User-Agent": "BarrierBreak Client (https://www.barrierbreak.com)",
+  //           "x-api-key": `${apiKey}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           url: tabURL,
+  //           element: "all",
+  //         }),
+  //       })
+  //         .then((response) => response.json())
+  //         .then((data) => {
+  //           console.log("URL:", data);
+  //           setResponseData(data);
+  //           setIsLoading(false);
+  //         })
+  //         .catch((error) => {
+  //           console.error("Error:", error);
+  //         });
+  //     }
+  //   );
+  // };
 
   const postData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     // To get html structure of webpage
-    const htmlDocument = new DOMParser().parseFromString(html, 'text/html')
+    const htmlDocument = new DOMParser().parseFromString(html, "text/html");
 
     // To remove html element having id as 'trail-btn' from DOM
-    const element = htmlDocument.querySelector('#trail-btn')
+    const element = htmlDocument.querySelector("#trail-btn");
     if (element) {
-      element.remove()
+      element.remove();
     }
 
     // To fetch accesibility results of webpage from Scally
-    await fetch('https://trail-api.barrierbreak.com/api/test-html', {
-      method: 'POST',
+    await fetch("https://trail-api.barrierbreak.com/api/test-html", {
+      method: "POST",
       headers: {
-        Accept: '*/*',
-        'User-Agent': 'BarrierBreak Client (https://www.barrierbreak.com)',
-        'x-api-key': `${apiKey}`,
-        'Content-Type': 'application/json',
+        Accept: "*/*",
+        "User-Agent": "BarrierBreak Client (https://www.barrierbreak.com)",
+        "x-api-key": `${apiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         html: htmlDocument.documentElement.outerHTML,
-        element: '',
+        element: "",
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Success:', data)
-        setResponseData(data)
-        setIsLoading(false)
+        console.log("Success:", data);
+        setResponseData(data);
+        setIsLoading(false);
       })
       .catch((error) => {
-        console.error('Error:', error)
-      })
-  }
+        console.error("Error:", error);
+      });
+  };
 
   // To handle tab order
   const handleTabOrder = () => {
-    let msg: string
-    setIsToggleSelected(!isToggleSelected)
-    isToggleSelected ? (msg = 'hide-tab-order') : (msg = 'show-tab-order')
-    window.parent.postMessage(msg, '*')
-  }
+    let msg: string;
+    setIsTabOrderSelected(!isTabOrderSelected);
+    isTabOrderSelected ? (msg = "hide-tab-order") : (msg = "show-tab-order");
+    window.parent.postMessage(msg, "*");
+  };
 
-  const handleListToggle = () => {
-    let msg: string
-    setIsListToggleSelected(!isListToggleSelected)
-    isListToggleSelected ? (msg = 'hide-list-tags') : (msg = 'show-list-tags')
-    window.parent.postMessage(msg, '*')
-  }
+  // To handle list tags
+  const handleList = () => {
+    let msg: string;
+    setIsListSelected(!isListSelected);
+    isListSelected ? (msg = "hide-list-tags") : (msg = "show-list-tags");
+    window.parent.postMessage(msg, "*");
+  };
 
+  // To handle landmarks
   const handleLandmarks = () => {
-    let msg: string
-    setIsLandmarksSelected(!isLandmarksSelected)
-    isLandmarksSelected ? (msg = 'hide-landmarks') : (msg = 'show-landmarks')
-    window.parent.postMessage(msg, '*')
-  }
+    let msg: string;
+    setIsLandmarkSelected(!isLandmarkSelected);
+    isLandmarkSelected ? (msg = "hide-landmarks") : (msg = "show-landmarks");
+    window.parent.postMessage(msg, "*");
+  };
 
+  // To handle alt text
   const handleAltText = () => {
-    let msg: string
-    setIsAltTextSelected(!isAltTextSelected)
-    isAltTextSelected ? (msg = 'hide-alt-text') : (msg = 'show-alt-text')
-    window.parent.postMessage(msg, '*')
-  }
+    let msg: string;
+    setIsAltTextSelected(!isAltTextSelected);
+    isAltTextSelected ? (msg = "hide-alt-text") : (msg = "show-alt-text");
+    window.parent.postMessage(msg, "*");
+  };
 
-  const handleShowHeading = () => {
-    let msg: string
-    setIsHeadingSelected(!isHeadingSelected)
-    isHeadingSelected ? (msg = 'hide-headings') : (msg = 'show-headings')
-    window.parent.postMessage(msg, '*')
-  }
+  // To handle headings
+  const handleHeading = () => {
+    let msg: string;
+    setIsHeadingSelected(!isHeadingSelected);
+    isHeadingSelected ? (msg = "hide-headings") : (msg = "show-headings");
+    window.parent.postMessage(msg, "*");
+  };
 
   // To handle minimise functionality
   const handleMinimise = () => {
-    window.parent.postMessage('minimise-button-clicked', '*')
-  }
+    window.parent.postMessage("minimise-button-clicked", "*");
+  };
 
   // API call
   const handleTestResults = () => {
-    isCheckboxSelected ? postData() : postURL()
-  }
+    // isCheckboxSelected ? postData() : postURL();
+    postData();
+  };
 
   const handleDataFromChild = (
     data: {
-      id: string
-      data: IssueItems
+      id: string;
+      data: IssueItems;
     }[]
   ) => {
-    setDataFromChild(data)
-  }
+    setDataFromChild(data);
+  };
 
   return (
     <main className="font-poppins">
@@ -376,7 +380,7 @@ const Extension = () => {
               <div className="flex items-center gap-2">
                 <div>
                   <Checkbox
-                    isSelected={isToggleSelected}
+                    isSelected={isTabOrderSelected}
                     onChange={handleTabOrder}
                   >
                     Tab Order
@@ -385,22 +389,19 @@ const Extension = () => {
                 <div className="flex items-center gap-2">
                   <Checkbox
                     isSelected={isHeadingSelected}
-                    onChange={handleShowHeading}
+                    onChange={handleHeading}
                   >
                     Headings
                   </Checkbox>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    isSelected={isListToggleSelected}
-                    onChange={handleListToggle}
-                  >
+                  <Checkbox isSelected={isListSelected} onChange={handleList}>
                     Lists
                   </Checkbox>
                 </div>
                 <div className="flex items-center gap-2">
                   <Checkbox
-                    isSelected={isLandmarksSelected}
+                    isSelected={isLandmarkSelected}
                     onChange={handleLandmarks}
                   >
                     Landmarks
@@ -433,7 +434,7 @@ const Extension = () => {
               className="before:content-[''] before:h-[1px] before:w-6 before:bg-neutral-300 before:left-0 before:top-[103px] before:fixed
                         after:content-[''] after:h-[1px] after:w-6 after:bg-neutral-300 after:right-0 after:top-[103px] after:fixed"
             >
-              <Tabs color="purple" classNames={{tab: 'border-0 py-0 pr-1.5'}}>
+              <Tabs color="purple" classNames={{ tab: "border-0 py-0 pr-1.5" }}>
                 <div className="flex items-center justify-between h-12 w-[564px] border-b border-neutral-300 sticky z-[1] bg-white top-14">
                   <TabList>
                     {tabData.map((tab) => (
@@ -447,8 +448,8 @@ const Extension = () => {
                             radius="full"
                             children={`${tab.issues}`}
                             classNames={{
-                              base: 'p-0 h-[18px] min-w-7 hover:bg-purple-100 active:bg-purple-100',
-                              content: 'text-xs text-center px-2 py-0',
+                              base: "p-0 h-[18px] min-w-7 hover:bg-purple-100 active:bg-purple-100",
+                              content: "text-xs text-center px-2 py-0",
                             }}
                           />
                         </div>
@@ -506,12 +507,6 @@ const Extension = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center gap-4 w-full h-screen">
-              <Checkbox
-                isSelected={isCheckboxSelected}
-                onChange={setIsCheckboxSelected}
-              >
-                Does this page have a login?
-              </Checkbox>
               <Button
                 appearance="primary"
                 onPress={handleTestResults}
@@ -524,7 +519,7 @@ const Extension = () => {
         </div>
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default Extension
+export default Extension;

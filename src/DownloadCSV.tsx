@@ -51,9 +51,9 @@ const DownloadCSV = ({ csvdata }) => {
 
   // To download CSV file
   const downloadCSV = () => {
-    let data;
+    let issueData;
     csvdata.forEach((element: any, index: any) => {
-      data = element.data.issues.find(
+      issueData = element.data.issues.find(
         (item: any) => item.id === csvdata[index].id
       );
       const formattedParts: {
@@ -67,9 +67,10 @@ const DownloadCSV = ({ csvdata }) => {
       const regex = /(\w+)--([^=]+)/g;
       let match;
 
-      while ((match = regex.exec(data.message)) !== null) {
+      while ((match = regex.exec(issueData.message)) !== null) {
         const key = match[1];
         const value = match[2];
+
         switch (key) {
           case "fontsize":
             formattedParts["FontSize"] = `${parseInt(value)}px`;
@@ -94,15 +95,15 @@ const DownloadCSV = ({ csvdata }) => {
       }
 
       const attribute =
-        data.message.split("==").length <= 1
-          ? data.message
-          : `Font-size: ${formattedParts["FontSize"]}, Font-weight: ${formattedParts["FontWeight"]}, Foreground Color: ${formattedParts["Foreground"]}, Background Color: ${formattedParts["Background"]}, Ratio: ${formattedParts["Ratio"]}`;
+        element.data.element === "Contrast" && issueData.code !== "BB10575"
+          ? `Font-size: ${formattedParts["FontSize"]}, Font-weight: ${formattedParts["FontWeight"]}, Foreground Color: ${formattedParts["Foreground"]}, Background Color: ${formattedParts["Background"]}, Ratio: ${formattedParts["Ratio"]}`
+          : issueData.message;
 
       const dataformat = [
         element.data.failing_technique,
-        data.elementTagName,
+        issueData.elementTagName,
         element.alt,
-        data.context.substring(0, 300),
+        issueData.context.substring(0, 300),
         attribute,
         element.data.conformance_level,
         element.data.criteria_name,

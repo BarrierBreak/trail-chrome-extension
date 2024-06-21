@@ -23,14 +23,14 @@ const WebsiteLandmarks = ({ html }: { html: string }) => {
 
   return (
     <div>
-      <div>
+      <div className="pt-4">
         {landMarks.map((landmark) => (
           <>
             <div
               style={{
                 marginLeft: landmark.level * 20,
                 fontWeight: "bold",
-                color: "blue",
+                color: "#5826ed",
                 fontSize: "1.3em",
               }}
             >
