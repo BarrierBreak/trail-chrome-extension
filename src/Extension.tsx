@@ -178,7 +178,6 @@ const Extension = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [html, setHtml] = useState("");
   const [currentURL, setCurrentURL] = useState("");
-  const [dataFromChild, setDataFromChild] = useState({});
   const apiKey = localStorage.getItem("authtoken");
   const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]));
 
@@ -427,15 +426,6 @@ const Extension = () => {
     postData();
   };
 
-  const handleDataFromChild = (
-    data: {
-      id: string;
-      data: IssueItems;
-    }[]
-  ) => {
-    setDataFromChild(data);
-  };
-
   return (
     <main className="font-poppins">
       <div className="w-full" aria-label="Trail" role="modal">
@@ -538,32 +528,28 @@ const Extension = () => {
                       </div>
                     </Tab>
                   </TabList>
-                  <DownloadCSV csvdata={dataFromChild} />
+                  <DownloadCSV csvdata={responseData} />
                 </div>
                 <TabPanel id="FAIL">
                   <CheckboxTable
-                    sendDataToParent={handleDataFromChild}
                     data={responseData}
                     issueType="errors"
                   />
                 </TabPanel>
                 <TabPanel id="MANUAL">
                   <CheckboxTable
-                    sendDataToParent={handleDataFromChild}
                     data={responseData}
                     issueType="warnings"
                   />
                 </TabPanel>
                 <TabPanel id="PASS">
                   <CheckboxTable
-                    sendDataToParent={handleDataFromChild}
                     data={responseData}
                     issueType="pass"
                   />
                 </TabPanel>
                 <TabPanel id="BEST-PRACTICE">
                   <CheckboxTable
-                    sendDataToParent={handleDataFromChild}
                     data={responseData}
                     issueType="notices"
                   />

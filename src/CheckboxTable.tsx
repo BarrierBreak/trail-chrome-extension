@@ -8,12 +8,6 @@ import { numberToAlphabet, getAltText, formatInput } from "./utils";
 interface CheckboxTableProps {
   data: Issues;
   issueType: "errors" | "warnings" | "pass" | "notices";
-  sendDataToParent: (
-    data: {
-      id: string;
-      data: IssueItems;
-    }[]
-  ) => void;
 }
 
 interface DropdownState {
@@ -21,17 +15,7 @@ interface DropdownState {
   isExpanded: boolean;
 }
 
-const CheckboxTable = ({
-  data,
-  issueType,
-  sendDataToParent,
-}: CheckboxTableProps) => {
-  const [selectedErrors, setSelectedErrors] = useState<string[]>([]);
-  const [selectedErrorsData, setSelectedErrorsData] = useState<
-    { id: string; alt: string; data: IssueItems }[]
-  >([]);
-
-  const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
+const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
   const [issueCount, setIssueCount] = useState<number>(0);
   const [activePopup, setActivePopup] = useState<string>("");
   const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([]);
@@ -98,165 +82,6 @@ const CheckboxTable = ({
     }, 3000);
   };
 
-  // To check whether title checkbox should be selected
-  const checkForTitleSelection = (
-    parentIndex: number,
-    updatedErrors: string[]
-  ) => {
-    const shouldParentBeSelected = data?.issues[issueType][
-      parentIndex
-    ].issues.every((checkbox) => updatedErrors.includes(checkbox.id));
-
-    if (shouldParentBeSelected && data?.issues[issueType][parentIndex].id)
-      setSelectedTitles((prev) => [
-        ...prev,
-        data?.issues[issueType][parentIndex].id,
-      ]);
-  };
-
-  // To check whether title checkbox should be deselected
-  const checkForTitleDeselection = (parentIndex: number) => {
-    const id = data?.issues[issueType][parentIndex].id;
-
-    if (selectedTitles.includes(id as string)) {
-      setSelectedTitles((prev) => prev.filter((item) => item !== id));
-    }
-  };
-
-  // To handle individual error checkbox click
-  const handleErrorClick = (id: string, index: number, parentIndex: number) => {
-    const isSelected = selectedErrors.includes(id);
-
-    if (isSelected) {
-      setSelectedErrors(selectedErrors.filter((key) => key !== id));
-
-      setSelectedErrorsData(
-        selectedErrorsData.filter((error) => error.id !== id)
-      );
-
-      checkForTitleDeselection(parentIndex);
-    } else {
-      const updatedErrors = [...selectedErrors, id];
-      setSelectedErrors(updatedErrors);
-
-      const updatedErrorsData = [
-        ...selectedErrorsData,
-        {
-          id: id,
-          alt: `${getAltText(issueType)}-${numberToAlphabet(parentIndex + 1)}${
-            index + 1
-          }`,
-          data: data.issues[issueType][parentIndex],
-        },
-      ];
-      setSelectedErrorsData(updatedErrorsData);
-
-      checkForTitleSelection(parentIndex, updatedErrors);
-    }
-  };
-
-  useEffect(() => {
-    handleClick(selectedErrorsData);
-  }, [selectedErrorsData]);
-
-  // To handle title checkbox click
-  const handleTitleClick = (
-    issues: IssueItems,
-    titleId: string,
-    parentIndex: number
-  ) => {
-    const isSelected = selectedTitles.includes(titleId);
-
-    const updatedTitles = isSelected
-      ? selectedTitles.filter((key) => key !== titleId)
-      : [...selectedTitles, titleId];
-
-    let updatedErrors: string[] = [...selectedErrors];
-    let updatedErrorsData: { id: string; alt: string; data: IssueItems }[] = [
-      ...selectedErrorsData,
-    ];
-    const allIssueIds = issues.issues.map((item) => item.id);
-    let newdata: { id: string; alt: string; data: IssueItems }[] = [];
-
-    if (isSelected) {
-      updatedErrors = updatedErrors.filter((id) => !allIssueIds.includes(id));
-      updatedErrorsData = selectedErrorsData.filter(
-        (error) => !allIssueIds.includes(error.id)
-      );
-    } else {
-      updatedErrors = [...new Set([...updatedErrors, ...allIssueIds])];
-
-      data.issues[issueType][parentIndex].issues.forEach((item, index) => {
-        newdata = [
-          ...newdata,
-          {
-            id: item.id,
-            alt: `${getAltText(issueType)}-${numberToAlphabet(
-              parentIndex + 1
-            )}${index + 1}`,
-            data: data.issues[issueType][parentIndex],
-          },
-        ];
-      });
-
-      const combinedArray = [...selectedErrorsData, ...newdata];
-      const uniqueItems: any = {};
-
-      combinedArray.forEach((item) => {
-        uniqueItems[item.id] = item;
-      });
-
-      updatedErrorsData = Object.values(uniqueItems);
-    }
-
-    setSelectedTitles(updatedTitles);
-    setSelectedErrors(updatedErrors);
-    setSelectedErrorsData(updatedErrorsData);
-  };
-
-  // To check whether all available errors are selected or not
-  const isAllErrorSelected = (issues: IssueItems): number => {
-    return issues.issues.filter((item) => selectedErrors.includes(item.id))
-      .length;
-  };
-
-  // To handle table header checkbox click
-  const handleHeaderClick = () => {
-    if (data) {
-      if (selectedTitles.length === data?.issues[issueType].length) {
-        setSelectedTitles([]);
-        setSelectedErrors([]);
-        setSelectedErrorsData([]);
-      } else {
-        setSelectedTitles(data.issues[issueType].map((item) => item.id));
-        setSelectedErrors(
-          data.issues[issueType].flatMap((item) =>
-            item.issues.map((issue) => issue.id)
-          )
-        );
-
-        let alldata: any = [];
-
-        data.issues[issueType].forEach((item, index) => {
-          item.issues.forEach((issue, issueIndex) => {
-            alldata = [
-              ...alldata,
-              {
-                id: issue.id,
-                alt: `${getAltText(issueType)}-${numberToAlphabet(index + 1)}${
-                  issueIndex + 1
-                }`,
-                data: item,
-              },
-            ];
-          });
-        });
-
-        setSelectedErrorsData(alldata);
-      }
-    }
-  };
-
   // To focus on element functionality
   const focusElement = async (elementId: string) => {
     // console.log("Focus Element ID :---", elementId);
@@ -298,15 +123,6 @@ const CheckboxTable = ({
     });
   };
 
-  const handleClick = (
-    childData: {
-      id: string;
-      data: IssueItems;
-    }[]
-  ) => {
-    sendDataToParent(childData);
-  };
-
   return (
     <>
       {data.issues[issueType].length ? (
@@ -332,20 +148,6 @@ const CheckboxTable = ({
           <div className="overflow-hidden rounded border border-neutral-300">
             <table className="table">
               <th className="table-header-group w-20 h-10 font-medium border-b border-neutral-300 bg-neutral-100 text-left">
-                <td className="p-0 w-10 align-middle border-r border-neutral-300">
-                  <Checkbox
-                    classNames={{ control: "m-3", base: "p-0 m-0" }}
-                    isSelected={
-                      selectedTitles.length === data.issues[issueType].length
-                    }
-                    isIndeterminate={
-                      selectedTitles.length > 0 &&
-                      selectedTitles.length !== data.issues[issueType].length
-                    }
-                    onChange={() => handleHeaderClick()}
-                    aria-label="Select All"
-                  />
-                </td>
                 <td className="table-cell p-1 w-20 align-middle border-r border-neutral-300">
                   <p className="font-medium text-base pl-1">Element</p>
                 </td>
@@ -362,33 +164,7 @@ const CheckboxTable = ({
               <tbody>
                 {data.issues[issueType].map((issue, parentIndex) => (
                   <>
-                    <tr
-                      className={`border-b border-neutral-300 ${
-                        selectedTitles.includes(issue.id) ||
-                        isAllErrorSelected(issue) === issue.issues.length
-                          ? "bg-purple-50"
-                          : "bg-neutral-50"
-                      }`}
-                    >
-                      <td
-                        key="selection"
-                        className="p-0 w-10 border-r border-b border-neutral-300"
-                      >
-                        <Checkbox
-                          classNames={{ control: "m-3", base: "p-0 m-0" }}
-                          isSelected={
-                            isAllErrorSelected(issue) === issue.issues.length
-                          }
-                          isIndeterminate={
-                            isAllErrorSelected(issue) !== 0 &&
-                            isAllErrorSelected(issue) !== issue.issues.length
-                          }
-                          onChange={() =>
-                            handleTitleClick(issue, issue.id, parentIndex)
-                          }
-                          aria-label={`${issue.failing_technique}`}
-                        />
-                      </td>
+                    <tr className={`border-b border-neutral-300`}>
                       <td className="table-cell p-0" colSpan={4}>
                         <button
                           aria-expanded={
@@ -436,11 +212,7 @@ const CheckboxTable = ({
                     {issue.issues.map((issueItem, index) => (
                       <tr
                         id={issueItem.id}
-                        className={`text-base border-b border-neutral-300 hidden last:border-none ${
-                          selectedErrors.includes(issueItem.id)
-                            ? "bg-purple-50"
-                            : ""
-                        }`}
+                        className={`text-base border-b border-neutral-300 hidden last:border-none`}
                       >
                         <td
                           key="selection"
@@ -448,10 +220,6 @@ const CheckboxTable = ({
                         >
                           <Checkbox
                             classNames={{ control: "m-3", base: "p-0 m-0" }}
-                            isSelected={selectedErrors.includes(issueItem.id)}
-                            onChange={() =>
-                              handleErrorClick(issueItem.id, index, parentIndex)
-                            }
                             aria-label={`${index + 1} ${
                               issueItem.elementTagName
                             }`}
