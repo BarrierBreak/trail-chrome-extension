@@ -20,6 +20,17 @@ const iframe = new DOMParser().parseFromString(
 iframe.src = chrome.runtime.getURL("index.html");
 document.body.insertBefore(iframe, document.body.firstChild.nextSibling);
 
+const labelColors = {
+  RED_700: "#D20000",
+  BLUE_700: "#294CB5",
+  GREEN_800: "#458A46",
+  PURPLE_700: "#5827DA",
+  YELLOW_700: "#F5BD00",
+  NEUTRAL_50: "#FEFEFE",
+  NEUTRAL_700: "#484453",
+  NEUTRAL_900: "#19171D",
+};
+
 // To display iframe
 extensionBtn.addEventListener("click", () => {
   showIframe();
@@ -54,11 +65,11 @@ window.addEventListener("keyup", () => {
   keys = {};
 });
 
-iframe.contentWindow.document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    console.log("Escape key pressed from iframe");
-  }
-});
+// iframe.contentWindow.document.addEventListener("keydown", (event) => {
+//   if (event.key === "Escape") {
+//     console.log("Escape key pressed from iframe");
+//   }
+// });
 
 window.addEventListener("message", (event) => {
   // To minimize iframe
@@ -111,52 +122,55 @@ function getFocusableElements() {
 const labelPositions = [];
 function injectTabOrderLabels() {
   const focusableElements = getFocusableElements();
-  Array.from(focusableElements).forEach((element, index) => {
-    const label = document.createElement("span");
-    label.className = "tab-order-label";
-    label.textContent = index + 1;
-    label.style.position = "absolute";
-    label.style.display = "flex";
-    label.style.justifyContent = "center";
-    label.style.alignItems = "center";
-    label.style.backgroundColor = "#5928ed";
-    label.style.color = "white";
-    label.style.border = "2px solid white";
-    label.style.fontSize = "12px";
-    label.style.fontWeight = "bold";
-    label.style.width = "32px";
-    label.style.height = "32px";
-    label.style.borderRadius = "50%";
-    label.style.zIndex = "100000";
 
-    if (element.nextSibling) {
-      element.parentNode.insertBefore(label, element.nextSibling);
-    } else {
-      element.parentNode.appendChild(label);
-    }
+  if (document.querySelectorAll(".tab-order-label").length <= 0) {
+    Array.from(focusableElements).forEach((element, index) => {
+      const label = document.createElement("span");
+      label.className = "tab-order-label";
+      label.textContent = index + 1;
+      label.style.position = "absolute";
+      label.style.display = "flex";
+      label.style.justifyContent = "center";
+      label.style.alignItems = "center";
+      label.style.backgroundColor = "#5928ed";
+      label.style.color = "white";
+      label.style.border = "2px solid white";
+      label.style.fontSize = "12px";
+      label.style.fontWeight = "bold";
+      label.style.width = "32px";
+      label.style.height = "32px";
+      label.style.borderRadius = "50%";
+      label.style.zIndex = "100000";
 
-    const elementRect = element.getBoundingClientRect();
-    const labelRect = label.getBoundingClientRect();
+      if (element.nextSibling) {
+        element.parentNode.insertBefore(label, element.nextSibling);
+      } else {
+        element.parentNode.appendChild(label);
+      }
 
-    if (elementRect.x + elementRect.width < 32 || labelRect.x < 32) {
-      label.style.transform = "translateX(0%)";
-    } else {
-      label.style.transform = "translate(-50%, -50%)";
-    }
+      const elementRect = element.getBoundingClientRect();
+      const labelRect = label.getBoundingClientRect();
 
-    if (elementRect.y + elementRect.height < 32 || labelRect.y < 32) {
-      label.style.transform = "translateY(0%)";
-    } else {
-      label.style.transform = "translate(-50%, -50%)";
-    }
+      if (elementRect.x + elementRect.width < 32 || labelRect.x < 32) {
+        label.style.transform = "translateX(0%)";
+      } else {
+        label.style.transform = "translate(-50%, -50%)";
+      }
 
-    labelPositions.push({
-      element: label,
-      x: labelRect.left,
-      y: labelRect.top,
+      if (elementRect.y + elementRect.height < 32 || labelRect.y < 32) {
+        label.style.transform = "translateY(0%)";
+      } else {
+        label.style.transform = "translate(-50%, -50%)";
+      }
+
+      labelPositions.push({
+        element: label,
+        x: labelRect.left,
+        y: labelRect.top,
+      });
     });
-  });
-  drawLines(labelPositions);
+    drawLines(labelPositions);
+  }
 }
 
 function drawLines(positions) {
@@ -250,41 +264,53 @@ function showHeadings() {
     "[role=heading][aria-level=6]"
   );
 
-  headings.forEach((heading) => {
-    // make the heading label show at start of textContent and end of textContent
-    const headingLabel = document.createElement("strong");
-    headingLabel.className = "heading-label";
-    headingLabel.style.backgroundColor = "#5928ed";
-    headingLabel.style.color = "white";
-    headingLabel.style.padding = "2px 4px";
-    headingLabel.style.margin = "4px";
-    headingLabel.style.fontSize = "12px";
-    headingLabel.style.fontWeight = "bold";
-    headingLabel.style.borderRadius = "4px";
-    headingLabel.style.border = "1px solid white";
-    headingLabel.style.verticalAlign = "middle";
-    headingLabel.style.zIndex = "100000";
-    headingLabel.style.speak = "literal-punctuation"; //not supported by some browsers
-    headingLabel.textContent = `<${heading.tagName}>`;
-    headingLabel.style.textTransform = "lowercase";
+  if (document.querySelectorAll(".heading-label").length <= 0) {
+    headings.forEach((heading) => {
+      const headingLabel = document.createElement("strong");
+      headingLabel.className = "heading-label";
+      headingLabel.style.color = labelColors.NEUTRAL_50;
+      headingLabel.style.padding = "2px 4px";
+      headingLabel.style.margin = "4px";
+      headingLabel.style.fontSize = "12px";
+      headingLabel.style.fontWeight = "bold";
+      headingLabel.style.borderRadius = "4px";
+      headingLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
+      headingLabel.style.verticalAlign = "middle";
+      headingLabel.style.zIndex = "100000";
+      headingLabel.style.speak = "literal-punctuation"; //not supported by some browsers
+      headingLabel.textContent = `<${heading.tagName}>`;
+      headingLabel.style.textTransform = "lowercase";
+      heading.prepend(headingLabel);
 
-    // if (headingLabel.textContent === "<h1>") {
-    //   headingLabel.style.backgroundColor = "#d20000";
-    //   headingLabel.style.color = "#fefefe";
-    // }
+      switch (headingLabel.textContent) {
+        case "<H1>":
+          headingLabel.style.backgroundColor = labelColors.YELLOW_700;
+          headingLabel.style.color = labelColors.NEUTRAL_900;
+          break;
+        case "<H2>":
+          headingLabel.style.backgroundColor = labelColors.PURPLE_700;
+          break;
+        case "<H3>":
+          headingLabel.style.backgroundColor = labelColors.GREEN_800;
+          break;
+        case "<H4>":
+          headingLabel.style.backgroundColor = labelColors.BLUE_700;
+          break;
+        case "<H5>":
+          headingLabel.style.backgroundColor = labelColors.RED_700;
+          break;
+        case "<H6>":
+          headingLabel.style.backgroundColor = labelColors.NEUTRAL_700;
+          break;
+        default:
+          break;
+      }
 
-    // if(headingLabel.textContent === "<h2>") {
-    //   headingLabel.style.backgroundColor = "#0000ff";
-    //   headingLabel.style.color = "#fefefe";
-    // }
-
-    heading.prepend(headingLabel);
-
-    const endLabel = headingLabel.cloneNode(true);
-    endLabel.textContent = `</${heading.tagName}>`;
-
-    heading.appendChild(endLabel);
-  });
+      const endLabel = headingLabel.cloneNode(true);
+      endLabel.textContent = `</${heading.tagName}>`;
+      heading.appendChild(endLabel);
+    });
+  }
 }
 
 function hideHeadings() {
@@ -312,25 +338,51 @@ function showListTags() {
     "dl",
   ]);
 
-  listItems.forEach((listItem) => {
-    const listItemLabel = document.createElement("strong");
-    listItemLabel.className = "list-item-label";
-    listItemLabel.style.backgroundColor = "#5928ed";
-    listItemLabel.style.color = "white";
-    listItemLabel.style.padding = "2px";
-    listItemLabel.style.fontSize = "small";
-    listItemLabel.style.fontWeight = "bold";
-    listItemLabel.style.borderRadius = "4px";
-    listItemLabel.style.zIndex = "100000";
-    listItemLabel.textContent = `<${listItem.tagName}>`;
+  if (document.querySelectorAll(".list-item-label").length <= 0) {
+    listItems.forEach((listItem) => {
+      const listItemLabel = document.createElement("strong");
+      listItemLabel.className = "list-item-label";
+      listItemLabel.style.color = labelColors.NEUTRAL_50;
+      listItemLabel.style.padding = "2px 4px";
+      listItemLabel.style.margin = "4px";
+      listItemLabel.style.fontSize = "12px";
+      listItemLabel.style.fontWeight = "bold";
+      listItemLabel.style.borderRadius = "4px";
+      listItemLabel.style.zIndex = "100000";
+      listItemLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
+      listItemLabel.textContent = `<${listItem.tagName}>`;
+      listItemLabel.style.textTransform = "lowercase";
+      listItem.prepend(listItemLabel);
 
-    listItem.prepend(listItemLabel);
+      switch (listItemLabel.textContent) {
+        case "<UL>":
+          listItemLabel.style.backgroundColor = labelColors.GREEN_800;
+          break;
+        case "<OL>":
+          listItemLabel.style.backgroundColor = labelColors.YELLOW_700;
+          listItemLabel.style.color = labelColors.NEUTRAL_900;
+          break;
+        case "<LI>":
+          listItemLabel.style.backgroundColor = labelColors.PURPLE_700;
+          break;
+        case "<DD>":
+          listItemLabel.style.backgroundColor = labelColors.BLUE_700;
+          break;
+        case "<DT>":
+          listItemLabel.style.backgroundColor = labelColors.RED_700;
+          break;
+        case "<DL>":
+          listItemLabel.style.backgroundColor = labelColors.NEUTRAL_700;
+          break;
+        default:
+          break;
+      }
 
-    const endLabel = listItemLabel.cloneNode(true);
-    endLabel.textContent = `</${listItem.tagName}>`;
-
-    listItem.appendChild(endLabel);
-  });
+      const endLabel = listItemLabel.cloneNode(true);
+      endLabel.textContent = `</${listItem.tagName}>`;
+      listItem.appendChild(endLabel);
+    });
+  }
 }
 
 function hideListTags() {
@@ -357,45 +409,51 @@ function showLandMarks() {
     "section, article, aside, nav, header, footer, form, main"
   );
 
-  landmarks.forEach((landmark) => {
-    const landmarkLabel = document.createElement("strong");
-    landmarkLabel.className = "landmark-label";
-    landmarkLabel.style.backgroundColor = "#5928ed";
-    landmarkLabel.style.color = "white";
-    landmarkLabel.style.padding = "2px 4px";
-    landmarkLabel.style.fontSize = "12px";
-    landmarkLabel.style.fontWeight = "bold";
-    landmarkLabel.style.borderRadius = "4px";
-    landmarkLabel.style.zIndex = "100000";
-    landmarkLabel.textContent = `<${landmark.getAttribute("role")}>`;
+  if (document.querySelectorAll(".landmark-label").length <= 0) {
+    landmarks.forEach((landmark) => {
+      const landmarkLabel = document.createElement("strong");
+      landmarkLabel.className = "landmark-label";
+      landmarkLabel.style.backgroundColor = "#5928ed";
+      landmarkLabel.style.color = labelColors.NEUTRAL_50;
+      landmarkLabel.style.padding = "2px 4px";
+      landmarkLabel.style.margin = "4px";
+      landmarkLabel.style.fontSize = "12px";
+      landmarkLabel.style.fontWeight = "bold";
+      landmarkLabel.style.borderRadius = "4px";
+      landmarkLabel.style.zIndex = "100000";
+      landmarkLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
+      landmarkLabel.textContent = `<${landmark.getAttribute("role")}>`;
+      landmarkLabel.style.textTransform = "lowercase";
+      landmark.prepend(landmarkLabel);
 
-    landmark.prepend(landmarkLabel);
+      const endLabel = landmarkLabel.cloneNode(true);
+      endLabel.textContent = `</${landmark.getAttribute("role")}>`;
+      landmark.appendChild(endLabel);
+    });
+  }
 
-    const endLabel = landmarkLabel.cloneNode(true);
-    endLabel.textContent = `</${landmark.getAttribute("role")}>`;
+  if (document.querySelectorAll(".section-label").length <= 0) {
+    sections.forEach((section) => {
+      const sectionLabel = document.createElement("strong");
+      sectionLabel.className = "section-label";
+      sectionLabel.style.backgroundColor = "#5928ed";
+      sectionLabel.style.color = labelColors.NEUTRAL_50;
+      sectionLabel.style.padding = "2px 4px";
+      sectionLabel.style.margin = "4px";
+      sectionLabel.style.fontSize = "12px";
+      sectionLabel.style.fontWeight = "bold";
+      sectionLabel.style.borderRadius = "4px";
+      sectionLabel.style.zIndex = "100000";
+      sectionLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
+      sectionLabel.textContent = `<${section.tagName}>`;
+      sectionLabel.style.textTransform = "lowercase";
+      section.prepend(sectionLabel);
 
-    landmark.appendChild(endLabel);
-  });
-
-  sections.forEach((section) => {
-    const sectionLabel = document.createElement("strong");
-    sectionLabel.className = "section-label";
-    sectionLabel.style.backgroundColor = "#5928ed";
-    sectionLabel.style.color = "white";
-    sectionLabel.style.padding = "2px 4px";
-    sectionLabel.style.fontSize = "12px";
-    sectionLabel.style.fontWeight = "bold";
-    sectionLabel.style.borderRadius = "4px";
-    sectionLabel.style.zIndex = "100000";
-    sectionLabel.textContent = `<${section.tagName}>`;
-
-    section.prepend(sectionLabel);
-
-    const endLabel = sectionLabel.cloneNode(true);
-    endLabel.textContent = `</${section.tagName}>`;
-
-    section.appendChild(endLabel);
-  });
+      const endLabel = sectionLabel.cloneNode(true);
+      endLabel.textContent = `</${section.tagName}>`;
+      section.appendChild(endLabel);
+    });
+  }
 }
 
 function hideLandMarks() {
@@ -419,25 +477,34 @@ window.addEventListener("message", (event) => {
 function showAltText() {
   const images = document.querySelectorAll(["img", '[role="img"]']);
 
-  images.forEach((image) => {
-    const altText = image.getAttribute("alt");
-    const altTextLabel = document.createElement("strong");
+  if (document.querySelectorAll(".alt-text-label").length <= 0) {
+    images.forEach((image) => {
+      const altText = image.getAttribute("alt");
+      const altTextLabel = document.createElement("strong");
 
-    altTextLabel.className = "alt-text-label";
-    altTextLabel.style.backgroundColor = "#5928ed";
-    altTextLabel.style.position = "absolute";
-    altTextLabel.style.top = `${image.offsetTop}px`;
-    altTextLabel.style.left = `${image.offsetLeft}px`;
-    altTextLabel.style.color = "white";
-    altTextLabel.style.padding = "2px";
-    altTextLabel.style.fontSize = "small";
-    altTextLabel.style.fontWeight = "bold";
-    altTextLabel.style.borderRadius = "4px";
-    altTextLabel.style.zIndex = "100000";
-    altTextLabel.textContent = altText ? `alt="${altText}"` : 'alt=""';
+      altTextLabel.className = "alt-text-label";
+      altTextLabel.style.backgroundColor = labelColors.PURPLE_700;
+      altTextLabel.style.position = "absolute";
+      altTextLabel.style.top = `${image.offsetTop}px`;
+      altTextLabel.style.left = `${image.offsetLeft}px`;
+      altTextLabel.style.minHeight = "24px";
+      altTextLabel.style.color = labelColors.NEUTRAL_50;
+      altTextLabel.style.padding = "2px 4px";
+      altTextLabel.style.margin = "4px";
+      altTextLabel.style.fontSize = "12px";
+      altTextLabel.style.fontWeight = "bold";
+      altTextLabel.style.borderRadius = "4px";
+      altTextLabel.style.zIndex = "100000";
+      altTextLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
+      altTextLabel.textContent = altText ? `alt = "${altText}"` : 'alt = ""';
 
-    image.insertAdjacentHTML("beforebegin", altTextLabel.outerHTML);
-  });
+      if (altTextLabel.textContent === 'alt = ""') {
+        altTextLabel.style.backgroundColor = labelColors.RED_700;
+      }
+
+      image.insertAdjacentHTML("beforebegin", altTextLabel.outerHTML);
+    });
+  }
 }
 
 function hideAltText() {
@@ -458,25 +525,37 @@ window.addEventListener("message", (event) => {
 function showLinks() {
   const links = document.querySelectorAll("a");
 
-  links.forEach((link) => {
-    const startLabel = document.createElement("strong");
-    startLabel.className = "link-label";
-    startLabel.style.backgroundColor = "#5928ed";
-    startLabel.style.color = "white";
-    startLabel.style.padding = "2px";
-    startLabel.style.fontSize = "small";
-    startLabel.style.fontWeight = "bold";
-    startLabel.style.borderRadius = "4px";
-    startLabel.style.zIndex = "100000";
-    startLabel.textContent = `<${link.tagName.toLowerCase()}>`;
+  if (document.querySelectorAll(".link-label").length <= 0) {
+    links.forEach((link) => {
+      const name = link.getAttribute("aria-labelledby");
+      const startLabel = document.createElement("strong");
+      startLabel.className = "link-label";
+      startLabel.style.backgroundColor = labelColors.PURPLE_700;
+      startLabel.style.color = labelColors.NEUTRAL_50;
+      startLabel.style.padding = "2px 4px";
+      startLabel.style.margin = "4px";
+      startLabel.style.fontSize = "12px";
+      startLabel.style.fontWeight = "bold";
+      startLabel.style.borderRadius = "4px";
+      startLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
+      startLabel.style.zIndex = "100000";
+      link.prepend(startLabel);
 
-    link.prepend(startLabel);
+      startLabel.textContent = name
+        ? `<${link.tagName.toLowerCase()} name = "${name}">`
+        : `<${link.tagName.toLowerCase()}> name = ""`;
 
-    const endLabel = startLabel.cloneNode(true);
-    endLabel.textContent = `</${link.tagName.toLowerCase()}>`;
+      if (
+        startLabel.textContent === `<${link.tagName.toLowerCase()}> name = ""`
+      ) {
+        startLabel.style.backgroundColor = labelColors.RED_700;
+      }
 
-    link.appendChild(endLabel);
-  });
+      const endLabel = startLabel.cloneNode(true);
+      endLabel.textContent = `</${link.tagName.toLowerCase()}>`;
+      link.appendChild(endLabel);
+    });
+  }
 }
 
 function hideLinks() {
