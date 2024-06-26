@@ -23,153 +23,56 @@ import WebsiteLandmarks from "./WebsiteLandmarks";
 import CheckboxTable from "./CheckboxTable";
 import DownloadCSV from "./DownloadCSV";
 
-export interface IssueItems {
-  issues: {
-    clip: {
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    };
-    clipBase64: string;
-    code: string;
-    context: string;
-    elementTagName: string;
-    id: string;
-    message: string;
-    recurrence: number;
-    selector: string;
-    type: string;
-    typeCode: number;
-  }[];
-}
+export type Clip = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type Instance = {
+  clip: Clip;
+  clipBase64: string;
+  code: string;
+  context: string;
+  elementTagName: string;
+  id: string;
+  message: string;
+  recurrence: number;
+  selector: string;
+  type: string;
+  typeCode: number;
+};
+
+export type IssueTypes = {
+  code: string;
+  conformance_level: string;
+  criteria_name: string;
+  element: string;
+  failing_issue_variable: string;
+  failing_technique: string;
+  id: string;
+  issues: Instance[];
+  message: string;
+  occurences: number;
+  rule_name: string;
+  severity: string;
+};
+
+export type Conformance = {
+  A: IssueTypes[];
+  AA: IssueTypes[];
+  AAA: IssueTypes[];
+  Section508: IssueTypes[];
+  BestPractice: IssueTypes[];
+};
 
 export interface Issues {
   issues: {
-    errors: {
-      code: string;
-      conformance_level: string;
-      criteria_name: string;
-      element: string;
-      failing_issue_variable: string;
-      failing_technique: string;
-      id: string;
-      issues: {
-        clip: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        };
-        clipBase64: string;
-        code: string;
-        context: string;
-        elementTagName: string;
-        id: string;
-        message: string;
-        recurrence: number;
-        selector: string;
-        type: string;
-        typeCode: number;
-      }[];
-      message: string;
-      occurences: string;
-      rule_name: string;
-      severity: string;
-    }[];
-    warnings: {
-      code: string;
-      conformance_level: string;
-      criteria_name: string;
-      element: string;
-      failing_issue_variable: string;
-      failing_technique: string;
-      id: string;
-      issues: {
-        clip: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        };
-        clipBase64: string;
-        code: string;
-        context: string;
-        elementTagName: string;
-        id: string;
-        message: string;
-        recurrence: number;
-        selector: string;
-        type: string;
-        typeCode: number;
-      }[];
-      message: string;
-      occurences: string;
-      rule_name: string;
-      severity: string;
-    }[];
-    pass: {
-      code: string;
-      conformance_level: string;
-      criteria_name: string;
-      element: string;
-      failing_issue_variable: string;
-      failing_technique: string;
-      id: string;
-      issues: {
-        clip: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        };
-        clipBase64: string;
-        code: string;
-        context: string;
-        elementTagName: string;
-        id: string;
-        message: string;
-        recurrence: number;
-        selector: string;
-        type: string;
-        typeCode: number;
-      }[];
-      message: string;
-      occurences: string;
-      rule_name: string;
-      severity: string;
-    }[];
-    notices: {
-      code: string;
-      conformance_level: string;
-      criteria_name: string;
-      element: string;
-      failing_issue_variable: string;
-      failing_technique: string;
-      id: string;
-      issues: {
-        clip: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        };
-        clipBase64: string;
-        code: string;
-        context: string;
-        elementTagName: string;
-        id: string;
-        message: string;
-        recurrence: number;
-        selector: string;
-        type: string;
-        typeCode: number;
-      }[];
-      message: string;
-      occurences: string;
-      rule_name: string;
-      severity: string;
-    }[];
+    errors: Conformance;
+    warnings: Conformance;
+    pass: Conformance;
+    notices: Conformance;
   };
 }
 
@@ -202,18 +105,36 @@ const Extension = () => {
     });
   }, [selectedTool]);
 
+  const getTotalIssueCount = (data: any) => {
+    let count = 0;
+    if (data) {
+      Object.values(data).forEach((level: any) => {
+        count += level.length;
+      });
+    }
+    return count;
+  };
+
   const tabData = [
-    { id: "FAIL", label: "Fail", issues: responseData?.issues.errors.length },
+    {
+      id: "FAIL",
+      label: "Fail",
+      issues: getTotalIssueCount(responseData?.issues.errors),
+    },
     {
       id: "MANUAL",
       label: "Manual",
-      issues: responseData?.issues.warnings.length,
+      issues: getTotalIssueCount(responseData?.issues.warnings),
     },
-    { id: "PASS", label: "Pass", issues: responseData?.issues.pass.length },
+    {
+      id: "PASS",
+      label: "Pass",
+      issues: getTotalIssueCount(responseData?.issues.pass),
+    },
     {
       id: "BEST-PRACTICE",
       label: "BP",
-      issues: responseData?.issues.notices.length,
+      issues: getTotalIssueCount(responseData?.issues.notices),
     },
   ];
 
@@ -280,42 +201,44 @@ const Extension = () => {
   // };
 
   const convertAbsoluteToRelative = (htmlDocument: Document) => {
-    const elements = htmlDocument.querySelectorAll("[href], [src]");
-    elements.forEach((element) => {
-      const href = element.getAttribute("href");
-      const src = element.getAttribute("src");
-      const srcSet = element.getAttribute("srcset");
+    // const elements = htmlDocument.querySelectorAll("[href], [src]");
+    // elements.forEach((element) => {
+    //   const href = element.getAttribute("href");
+    //   const src = element.getAttribute("src");
+    //   const srcSet = element.getAttribute("srcset");
 
-      href &&
-        href.startsWith("/") &&
-        element.setAttribute("href", href.slice(1));
-      src && src.startsWith("/") && element.setAttribute("src", src.slice(1));
-      srcSet &&
-        srcSet.startsWith("/") &&
-        element.setAttribute("srcset", srcSet.slice(1));
+    //   href &&
+    //     href.startsWith("/") &&
+    //     element.setAttribute("href", href.slice(1));
+    //   src && src.startsWith("/") && element.setAttribute("src", src.slice(1));
+    //   srcSet &&
+    //     srcSet.startsWith("/") &&
+    //     element.setAttribute("srcset", srcSet.slice(1));
 
-      if (href && !href.startsWith("http") && !href.startsWith("//")) {
-        element.setAttribute("href", `${currentURL}${href}`);
-      }
+    //   if (href && !href.startsWith("http") && !href.startsWith("//")) {
+    //     element.setAttribute("href", `${currentURL}${href}`);
+    //   }
 
-      if (src && !src.startsWith("http") && !src.startsWith("//")) {
-        element.setAttribute("src", `${currentURL}${src}`);
-      }
+    //   if (src && !src.startsWith("http") && !src.startsWith("//")) {
+    //     element.setAttribute("src", `${currentURL}${src}`);
+    //   }
 
-      if (srcSet) {
-        const srcSetArray = srcSet.split(",");
-        const newSrcSetArray = srcSetArray.map((src) => {
-          if (!src.trim().startsWith("http") && !src.trim().startsWith("//")) {
-            return `${currentURL}${src.trim()}`;
-          }
-          return src;
-        });
-        element.setAttribute("srcset", newSrcSetArray.join(","));
-      }
+    //   if (srcSet) {
+    //     const srcSetArray = srcSet.split(",");
+    //     const newSrcSetArray = srcSetArray.map((src) => {
+    //       if (!src.trim().startsWith("http") && !src.trim().startsWith("//")) {
+    //         return `${currentURL}${src.trim()}`;
+    //       }
+    //       return src;
+    //     });
+    //     element.setAttribute("srcset", newSrcSetArray.join(","));
+    //   }
 
-      // console.log(src, srcSet, href);
-    });
+    //   // console.log(src, srcSet, href);
+    // });
 
+    console.log("currentURL", currentURL);
+    
     return htmlDocument;
   };
 
@@ -325,7 +248,7 @@ const Extension = () => {
     const htmlDocument = new DOMParser().parseFromString(html, "text/html");
 
     // To convert absolute URLs to relative URLs
-    const newhtmlcode=convertAbsoluteToRelative(htmlDocument);
+    const newhtmlcode = convertAbsoluteToRelative(htmlDocument);
 
     // console.log("HTML:", htmlDocument.documentElement.outerHTML);
 
@@ -335,8 +258,8 @@ const Extension = () => {
     }
 
     // To fetch accesibility results of webpage from Scally
-    await fetch("https://trail-api.barrierbreak.com/api/test-html", {
-    // await fetch("https://trail-api.barrierbreak.com/api/extension-html", {
+    // await fetch("https://trail-api.barrierbreak.com/api/test-html", {
+    await fetch("https://trail-api.barrierbreak.com/api/extension-html", {
       method: "POST",
       headers: {
         Accept: "*/*",
@@ -359,62 +282,6 @@ const Extension = () => {
         console.error("Error:", error);
       });
   };
-
-  // To handle tab order
-  // const handleTabOrder = () => {
-  //   let msg: string;
-  //   setIsTabOrderSelected(!isTabOrderSelected);
-  //   isTabOrderSelected ? (msg = "hide-tab-order") : (msg = "show-tab-order");
-  //   window.parent.postMessage(msg, "*");
-  // };
-
-  // To handle list tags
-  // const handleList = () => {
-  //   let msg: string;
-  //   setIsListSelected(!isListSelected);
-  //   isListSelected ? (msg = "hide-list-tags") : (msg = "show-list-tags");
-  //   window.parent.postMessage(msg, "*");
-  // };
-
-  // To handle landmarks
-  // const handleLandmarks = () => {
-  //   let msg: string;
-  //   setIsLandmarkSelected(!isLandmarkSelected);
-  //   isLandmarkSelected ? (msg = "hide-landmarks") : (msg = "show-landmarks");
-  //   window.parent.postMessage(msg, "*");
-  // };
-
-  // To handle alt text
-  // const handleAltText = () => {
-  //   let msg: string;
-  //   setIsAltTextSelected(!isAltTextSelected);
-  //   isAltTextSelected ? (msg = "hide-alt-text") : (msg = "show-alt-text");
-  //   window.parent.postMessage(msg, "*");
-  // };
-
-  // To handle links
-  // const handleLinks = () => {
-  //   let msg: string;
-  //   setIsLinkSelected(!isLinkSelected);
-  //   isLinkSelected ? (msg = "hide-links") : (msg = "show-links");
-  //   window.parent.postMessage(msg, "*");
-  // };
-
-  // To handle forms
-  // const handleForms = () => {
-  //   let msg: string;
-  //   setIsFormSelected(!isFormSelected);
-  //   isFormSelected ? (msg = "hide-forms") : (msg = "show-forms");
-  //   window.parent.postMessage(msg, "*");
-  // };
-
-  // To handle headings
-  // const handleHeading = () => {
-  //   let msg: string;
-  //   setIsHeadingSelected(!isHeadingSelected);
-  //   isHeadingSelected ? (msg = "hide-headings") : (msg = "show-headings");
-  //   window.parent.postMessage(msg, "*");
-  // };
 
   // To handle minimise functionality
   const handleMinimise = () => {
@@ -479,9 +346,6 @@ const Extension = () => {
                 <MenuItem id="links" classNames={{ title: "text-base" }}>
                   Links
                 </MenuItem>
-                {/* <MenuItem id="form" classNames={{ title: "text-base" }}>
-                  Form
-                </MenuItem> */}
               </Menu>
             </MenuTrigger>
             <IconButton

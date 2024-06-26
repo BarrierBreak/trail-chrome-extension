@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
 import * as XLSX from "xlsx";
 import { DownloadIcon } from "@trail-ui/icons";
 import { IconButton } from "@trail-ui/react";
@@ -7,19 +6,12 @@ import { rgbaToHex } from "./utils";
 
 //@ts-expect-error fix
 const DownloadCSV = ({ csvdata }) => {
-  const [showPopup, setShowPopup] = useState<boolean>(false);
-  const excelData: string[][] = [
-    [
-      "ISSUE VARIABLE",
-      "ELEMENT",
-      "SCREENSHOT",
-      "CODE",
-      "ATTRIBUTE",
-      "CONFORMANCE LEVEL",
-      "CRITERIA",
-      "SEVERITY",
-    ],
-  ];
+  const issueType = {
+    Fails: csvdata.issues.errors,
+    Manual: csvdata.issues.warnings,
+    Pass: csvdata.issues.pass,
+    "Best Practice": csvdata.issues.notices,
+  };
 
   // To remove unwanted characters from url
   const getCleanUrl = (callback: any) => {
@@ -41,89 +33,104 @@ const DownloadCSV = ({ csvdata }) => {
     currentURL = cleanURL;
   });
 
-  // To handle popup functionality
-  const handleShowPopup = () => {
-    setShowPopup(true);
-    setTimeout(() => {
-      setShowPopup(false);
-    }, 3000);
-  };
-
   // To download CSV file
   const downloadCSV = () => {
-    let issueData;
-    csvdata.forEach((element: any, index: any) => {
-      issueData = element.data.issues.find(
-        (item: any) => item.id === csvdata[index].id
-      );
-      const formattedParts: {
-        FontSize?: string;
-        FontWeight?: string;
-        Foreground?: string;
-        Background?: string;
-        Ratio?: string;
-      } = {};
+    const workbook = XLSX.utils.book_new();
 
-      const regex = /(\w+)--([^=]+)/g;
-      let match;
-
-      while ((match = regex.exec(issueData.message)) !== null) {
-        const key = match[1];
-        const value = match[2];
-
-        switch (key) {
-          case "fontsize":
-            formattedParts["FontSize"] = `${parseInt(value)}px`;
-            break;
-          case "fontweight":
-            formattedParts["FontWeight"] =
-              parseInt(value) >= 700 ? "Bold" : "Normal";
-            break;
-          case "forec":
-            formattedParts["Foreground"] = rgbaToHex(value);
-            break;
-          case "backc":
-            formattedParts["Background"] = rgbaToHex(value);
-            break;
-          case "ratio":
-            formattedParts["Ratio"] =
-              parseFloat(parseFloat(value.slice(0, -2)).toFixed(2)) + ":1";
-            break;
-          default:
-            break;
-        }
-      }
-
-      const attribute =
-        element.data.element === "Contrast" && issueData.code !== "BB10575"
-          ? `Font-size: ${formattedParts["FontSize"]}, Font-weight: ${formattedParts["FontWeight"]}, Foreground Color: ${formattedParts["Foreground"]}, Background Color: ${formattedParts["Background"]}, Ratio: ${formattedParts["Ratio"]}`
-          : issueData.message;
-
-      const dataformat = [
-        element.data.failing_technique,
-        issueData.elementTagName,
-        element.alt,
-        issueData.context.substring(0, 300),
-        attribute,
-        element.data.conformance_level,
-        element.data.criteria_name,
-        element.data.severity,
+    Object.values(issueType).forEach((data: any, index: number) => {
+      const excelData: string[][] = [
+        [
+          "ISSUE VARIABLE",
+          "ELEMENT",
+          "SCREENSHOT",
+          "CODE",
+          "ATTRIBUTE",
+          "CONFORMANCE LEVEL",
+          "CRITERIA",
+          "SEVERITY",
+        ],
       ];
 
-      excelData.push(dataformat);
+      Object.values(data).forEach((level: any) => {
+        level.forEach((issue: any) => {
+          issue.issues.forEach((item: any) => {
+            const formattedParts: {
+              FontSize?: string;
+              FontWeight?: string;
+              Foreground?: string;
+              Background?: string;
+              Ratio?: string;
+            } = {};
+
+            const regex = /(\w+)--([^=]+)/g;
+            let match;
+
+            while ((match = regex.exec(item.message)) !== null) {
+              const key = match[1];
+              const value = match[2];
+
+              switch (key) {
+                case "fontsize":
+                  formattedParts["FontSize"] = `${parseInt(value)}px`;
+                  break;
+                case "fontweight":
+                  formattedParts["FontWeight"] =
+                    parseInt(value) >= 700 ? "Bold" : "Normal";
+                  break;
+                case "forec":
+                  formattedParts["Foreground"] = rgbaToHex(value);
+                  break;
+                case "backc":
+                  formattedParts["Background"] = rgbaToHex(value);
+                  break;
+                case "ratio":
+                  formattedParts["Ratio"] =
+                    parseFloat(parseFloat(value.slice(0, -2)).toFixed(2)) +
+                    ":1";
+                  break;
+                default:
+                  break;
+              }
+            }
+
+            const attribute =
+              item.code !== "BB10575" &&
+              item.code !== "BB10615" &&
+              issue.element === "Contrast"
+                ? `Font-size: ${formattedParts["FontSize"]}, Font-weight: ${formattedParts["FontWeight"]}, Foreground Color: ${formattedParts["Foreground"]}, Background Color: ${formattedParts["Background"]}, Ratio: ${formattedParts["Ratio"]}`
+                : item.message;
+
+            const dataformat = [
+              issue.failing_technique,
+              item.elementTagName,
+              item.code,
+              item.context?.substring(0, 300),
+              attribute,
+              issue.conformance_level,
+              issue.criteria_name,
+              issue.severity,
+            ];
+
+            excelData.push(dataformat);
+          });
+        });
+      });
+
+      const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        `${Object.keys(issueType)[index]}`
+      );
     });
-
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.aoa_to_sheet(excelData);
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet 1");
 
     XLSX.writeFile(workbook, `${currentURL} Report.xlsx`);
   };
 
   // To handle download click
   const handleDownload = () => {
-    csvdata.length === 0 ? handleShowPopup() : downloadCSV();
+    downloadCSV();
   };
 
   return (
@@ -136,11 +143,6 @@ const DownloadCSV = ({ csvdata }) => {
       >
         <DownloadIcon width={24} height={24} className="text-neutral-800" />
       </IconButton>
-      {showPopup && (
-        <div className="absolute top-[100%] right-[11%] bg-neutral-50 text-neutral-900 border border-neutral-300 text-sm font-medium font-poppins shadow-lg px-3 py-2.5 rounded">
-          No Results Selected!
-        </div>
-      )}
     </div>
   );
 };
