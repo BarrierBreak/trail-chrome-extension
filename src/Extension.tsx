@@ -225,8 +225,7 @@ const Extension = () => {
         currentWindow: true,
       });
       //extract only url with https
-      const url = tab.url?.match(/^https?:\/\/[^#?/]+/)?.[0]
-      // const url = tab.url?.match(/^https?:\/\/[^#?\\/]+/)?.[0];
+      const url = tab.url?.match(/^https?:\/\/[^#?/]+/)?.[0];
       setCurrentURL(url!);
       chrome.scripting.executeScript(
         {
@@ -328,7 +327,7 @@ const Extension = () => {
     // To convert absolute URLs to relative URLs
     convertAbsoluteToRelative(htmlDocument);
 
-    console.log("HTML:", htmlDocument.documentElement.outerHTML);
+    // console.log("HTML:", htmlDocument.documentElement.outerHTML);
 
     const element = htmlDocument.querySelector("#trail-btn");
     if (element) {
@@ -337,6 +336,7 @@ const Extension = () => {
 
     // To fetch accesibility results of webpage from Scally
     await fetch("https://trail-api.barrierbreak.com/api/test-html", {
+    // await fetch("https://trail-api.barrierbreak.com/api/extension-html", {
       method: "POST",
       headers: {
         Accept: "*/*",
@@ -479,9 +479,9 @@ const Extension = () => {
                 <MenuItem id="links" classNames={{ title: "text-base" }}>
                   Links
                 </MenuItem>
-                <MenuItem id="form" classNames={{ title: "text-base" }}>
+                {/* <MenuItem id="form" classNames={{ title: "text-base" }}>
                   Form
-                </MenuItem>
+                </MenuItem> */}
               </Menu>
             </MenuTrigger>
             <IconButton
@@ -531,28 +531,16 @@ const Extension = () => {
                   <DownloadCSV csvdata={responseData} />
                 </div>
                 <TabPanel id="FAIL">
-                  <CheckboxTable
-                    data={responseData}
-                    issueType="errors"
-                  />
+                  <CheckboxTable data={responseData} issueType="errors" />
                 </TabPanel>
                 <TabPanel id="MANUAL">
-                  <CheckboxTable
-                    data={responseData}
-                    issueType="warnings"
-                  />
+                  <CheckboxTable data={responseData} issueType="warnings" />
                 </TabPanel>
                 <TabPanel id="PASS">
-                  <CheckboxTable
-                    data={responseData}
-                    issueType="pass"
-                  />
+                  <CheckboxTable data={responseData} issueType="pass" />
                 </TabPanel>
                 <TabPanel id="BEST-PRACTICE">
-                  <CheckboxTable
-                    data={responseData}
-                    issueType="notices"
-                  />
+                  <CheckboxTable data={responseData} issueType="notices" />
                 </TabPanel>
                 <TabPanel id="STRUCTURE">
                   <WebsiteLandmarks html={html} />

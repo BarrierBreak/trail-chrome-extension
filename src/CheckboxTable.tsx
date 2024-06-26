@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useState } from "react";
-import { Button, Checkbox, Chip, IconButton } from "@trail-ui/react";
+import { Button, Chip, IconButton } from "@trail-ui/react";
 import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
 import { Issues, IssueItems } from "./Extension";
 import { numberToAlphabet, getAltText, formatInput } from "./utils";
@@ -123,6 +123,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
     });
   };
 
+
   return (
     <>
       {data.issues[issueType].length ? (
@@ -149,15 +150,18 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
             <table className="table">
               <th className="table-header-group w-20 h-10 font-medium border-b border-neutral-300 bg-neutral-100 text-left">
                 <td className="table-cell p-1 w-20 align-middle border-r border-neutral-300">
+                  <p className="font-medium text-base pl-1">ID</p>
+                </td>
+                <td className="table-cell p-1 w-20 align-middle border-r border-neutral-300">
                   <p className="font-medium text-base pl-1">Element</p>
                 </td>
-                <td className="table-cell p-1 w-[140px] align-middle border-r border-neutral-300">
+                <td className="table-cell p-1 w-[120px] align-middle border-r border-neutral-300">
                   <p className="font-medium text-base pl-1">Screenshot</p>
                 </td>
-                <td className="table-cell p-1 w-[177px] align-middle border-r border-neutral-300">
+                <td className="table-cell p-1 w-[160px] align-middle border-r border-neutral-300">
                   <p className="font-medium text-base pl-1">Code</p>
                 </td>
-                <td className="table-cell p-1 w-[125px] align-middle">
+                <td className="table-cell p-1 w-[122px] align-middle">
                   <p className="font-medium text-base pl-1">Attribute</p>
                 </td>
               </th>
@@ -165,7 +169,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                 {data.issues[issueType].map((issue, parentIndex) => (
                   <>
                     <tr className={`border-b border-neutral-300`}>
-                      <td className="table-cell p-0" colSpan={4}>
+                      <td className="table-cell p-0" colSpan={5}>
                         <button
                           aria-expanded={
                             dropdownStates.find(
@@ -175,11 +179,11 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                               : true
                           }
                           onClick={() => handleDropdownClick(issue, issue.id)}
-                          className="p-2 w-full focus-visible:outline-focus"
+                          className="p-2 pl-4 w-full focus-visible:outline-focus"
                         >
                           <div className="flex gap-1 items-center justify-between">
                             <p className="text-start font-semibold text-base">
-                              {`${numberToAlphabet(parentIndex + 1)}. ${
+                              {`${parentIndex + 1}. ${
                                 issue.failing_technique
                               } (${issue.issues.length} ${
                                 issue.issues.length === 1
@@ -214,36 +218,28 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                         id={issueItem.id}
                         className={`text-base border-b border-neutral-300 hidden last:border-none`}
                       >
-                        <td
-                          key="selection"
-                          className="border-r border-neutral-300 p-0"
-                        >
-                          <Checkbox
-                            classNames={{ control: "m-3", base: "p-0 m-0" }}
-                            aria-label={`${index + 1} ${
-                              issueItem.elementTagName
-                            }`}
-                          />
+                        <td className="border-r border-neutral-300 w-[80px] p-2">
+                          <Button
+                            appearance="link"
+                            spacing="none"
+                            className="text-left"
+                            isDisabled={!issueItem.selector}
+                            onPress={() => focusElement(issueItem.selector)}
+                          >
+                            <p className="w-[63.5px]">Id-{index + 1}</p>
+                          </Button>
                         </td>
                         <td className="table-cell border-r border-neutral-300 text-sm p-2">
-                          <p className="w-[63px]">
-                            {`${index + 1}. `}
-                            <Button
-                              appearance="link"
-                              spacing="none"
-                              isDisabled={!issueItem.selector}
-                              onPress={() => focusElement(issueItem.selector)}
-                            >
-                              <span>{`<${issueItem.elementTagName}>`}</span>
-                            </Button>
+                          <p>
+                            <span>{`<${issueItem.elementTagName}>`}</span>
                           </p>
                         </td>
-                        <td className="table-cell text-sm border-r border-neutral-300 p-2">
+                        <td className="table-cell w-[120.5px] text-sm border-r border-neutral-300 p-2">
                           {issueItem.clipBase64 === "" ? (
                             <p className="text-center">No Image</p>
                           ) : (
                             <img
-                              className="h-10 w-[123px] object-contain"
+                              className="h-10 w-full object-contain"
                               src={`data:image/png;base64,${issueItem.clipBase64}`}
                               alt={`${getAltText(issueType)}-${numberToAlphabet(
                                 parentIndex + 1
@@ -253,7 +249,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                         </td>
                         <td className="table-cell p-2 pr-[1px] border-r border-neutral-300 relative font-sourceCode">
                           <section
-                            className="h-14 w-[167px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                            className="h-14 w-[150px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                             tabIndex={0}
                           >
                             {issueItem.context}
@@ -288,7 +284,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                         </td>
                         <td className="table-cell p-2 ">
                           <section
-                            className="w-[108px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                            className="w-[104px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                             tabIndex={0}
                           >
                             {issue.element === "Contrast" &&
