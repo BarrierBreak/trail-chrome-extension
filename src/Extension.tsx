@@ -294,18 +294,18 @@ const Extension = () => {
         srcSet.startsWith("/") &&
         element.setAttribute("srcset", srcSet.slice(1));
 
-      if (href && !href.startsWith("http")) {
+      if (href && !href.startsWith("http") && !href.startsWith("//")) {
         element.setAttribute("href", `${currentURL}${href}`);
       }
 
-      if (src && !src.startsWith("http")) {
+      if (src && !src.startsWith("http") && !src.startsWith("//")) {
         element.setAttribute("src", `${currentURL}${src}`);
       }
 
       if (srcSet) {
         const srcSetArray = srcSet.split(",");
         const newSrcSetArray = srcSetArray.map((src) => {
-          if (!src.trim().startsWith("http")) {
+          if (!src.trim().startsWith("http") && !src.trim().startsWith("//")) {
             return `${currentURL}${src.trim()}`;
           }
           return src;
@@ -325,11 +325,11 @@ const Extension = () => {
     const htmlDocument = new DOMParser().parseFromString(html, "text/html");
 
     // To convert absolute URLs to relative URLs
-    convertAbsoluteToRelative(htmlDocument);
+    const newhtmlcode=convertAbsoluteToRelative(htmlDocument);
 
     // console.log("HTML:", htmlDocument.documentElement.outerHTML);
 
-    const element = htmlDocument.querySelector("#trail-btn");
+    const element = newhtmlcode.querySelector("#trail-btn");
     if (element) {
       element.remove();
     }
@@ -345,7 +345,7 @@ const Extension = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        html: htmlDocument.documentElement.outerHTML,
+        html: newhtmlcode.documentElement.outerHTML,
         element: "",
       }),
     })
