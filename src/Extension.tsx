@@ -201,6 +201,14 @@ const Extension = () => {
   // };
 
   const convertAbsoluteToRelative = (htmlDocument: Document) => {
+    
+    const trailele=htmlDocument.querySelectorAll("#trail-iframe,#trail-btn")
+
+    trailele.forEach((element) => {
+      element.remove()
+    });
+    
+
     const elements = htmlDocument.querySelectorAll("[href], [src]");
     elements.forEach((element) => {
       const href = element.getAttribute("href");
