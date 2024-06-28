@@ -10,13 +10,20 @@
 <body>
   <div class="wrapper">
     <form>
-      <div class="field" style="display: flex; align-items: center; gap: 8px">
-        <label for="authtoken">Auth Token:</label>
-        <input type="text" name="authtoken" id="authtoken" style="width: 100%;" />
-        <button style="*:hover { background-color: #f1f1f1; }" id="btnToken">Save</button>
+      <div style="display: flex; align-items: center;">
+        <label for="authToken" style="width: 80px;">Auth Token:</label>
+        <input type="text" name="authToken" id="authToken" style="width: 350px;" />
+      </div>
+      <div style="display: flex; align-items: center;">
+        <label for="serverUrl" style="width: 80px;">Server URL:</label>
+        <input type="text" name="serverUrl" id="serverUrl" style="width: 350px;" />
+      </div>
+      <div style="display: flex; justify-content: end;">
+        <button style="*:hover { background-color: #f1f1f1; }" id="saveBtn">Save</button>
       </div>
     </form>
   </div>
+
   <script src="options.js"></script>
 </body>
 

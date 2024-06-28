@@ -77,12 +77,16 @@ export interface Issues {
 }
 
 const Extension = () => {
-  const [responseData, setResponseData] = useState<Issues>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [html, setHtml] = useState("");
   const [currentURL, setCurrentURL] = useState("");
-  const apiKey = localStorage.getItem("authtoken");
+  const [responseData, setResponseData] = useState<Issues>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]));
+  const apiKey = localStorage.getItem("authToken");
+  const serverUrl = localStorage.getItem("serverUrl");
+
+  console.log("apiKey", apiKey);
+  console.log("serverUrl", serverUrl);
 
   useEffect(() => {
     const selectedToolArray = Array.from(selectedTool);
@@ -201,13 +205,13 @@ const Extension = () => {
   // };
 
   const convertAbsoluteToRelative = (htmlDocument: Document) => {
-    
-    const trailele=htmlDocument.querySelectorAll("#trail-iframe,#trail-btn")
+    const trailElements = htmlDocument.querySelectorAll(
+      "#trail-iframe, #trail-btn"
+    );
 
-    trailele.forEach((element) => {
-      element.remove()
+    trailElements.forEach((element) => {
+      element.remove();
     });
-    
 
     const elements = htmlDocument.querySelectorAll("[href], [src]");
     elements.forEach((element) => {
@@ -215,19 +219,27 @@ const Extension = () => {
       const src = element.getAttribute("src");
       const srcSet = element.getAttribute("srcset");
 
-      if(href){
-        if (href.startsWith("/") && !href.startsWith("http") && !href.startsWith("//")) {
+      if (href) {
+        if (
+          href.startsWith("/") &&
+          !href.startsWith("http") &&
+          !href.startsWith("//")
+        ) {
           element.setAttribute("href", `${currentURL}${href}`);
-        }else if(href.startsWith("//")){
-          element.setAttribute("href", "https:"+`${href}`);
+        } else if (href.startsWith("//")) {
+          element.setAttribute("href", "https:" + `${href}`);
         }
       }
 
-      if(src){
-        if (src.startsWith("/") && !src.startsWith("http") && !src.startsWith("//")) {
+      if (src) {
+        if (
+          src.startsWith("/") &&
+          !src.startsWith("http") &&
+          !src.startsWith("//")
+        ) {
           element.setAttribute("src", `${currentURL}${src}`);
-        }else if(src.startsWith("//")){
-          element.setAttribute("src", "https:"+`${src}`);
+        } else if (src.startsWith("//")) {
+          element.setAttribute("src", "https:" + `${src}`);
         }
       }
 
@@ -236,8 +248,8 @@ const Extension = () => {
         const newSrcSetArray = srcSetArray.map((src) => {
           if (!src.trim().startsWith("http") && !src.trim().startsWith("//")) {
             return `${currentURL}${src.trim()}`;
-          }else if(src.trim().startsWith("//")){
-            return "https:"+`${src.trim()}`;
+          } else if (src.trim().startsWith("//")) {
+            return "https:" + `${src.trim()}`;
           }
           return src;
         });
@@ -248,7 +260,7 @@ const Extension = () => {
     });
 
     //console.log("currentURL", currentURL);
-    
+
     return htmlDocument;
   };
 

@@ -1,18 +1,26 @@
 (() => {
-  let btnToken = document.getElementById("btnToken");
-  let tokenVal = document.getElementById("authtoken");
+  let tokenValue = document.getElementById("authToken");
+  let urlValue = document.getElementById("serverUrl");
+  let saveBtn = document.getElementById("saveBtn");
 
-  const authtoken = localStorage.getItem("authtoken");
-  if (authtoken !== null) {
-    tokenVal.value = authtoken;
+  const authToken = localStorage.getItem("authToken");
+  if (authToken !== null) {
+    tokenValue.value = authToken;
+  }
+  
+  const serverURL = localStorage.getItem("serverUrl");
+  if (serverURL !== null) {
+    urlValue.value = serverURL;
   }
 
-  btnToken.addEventListener("click", () => {
+  saveBtn.addEventListener("click", () => {
     let data = {
-      authtoken: tokenVal.value,
+      authToken: tokenValue.value,
+      serverUrl: urlValue.value,
     };
 
-    localStorage.setItem("authtoken", data.authtoken);
+    localStorage.setItem("authToken", data.authToken);
+    localStorage.setItem("serverUrl", data.serverUrl);
     window.close();
   });
 })();
