@@ -322,7 +322,7 @@ const Extension = () => {
   };
 
   const getRulesets = async () => {
-    await fetch("https://trail-api.barrierbreak.com/api/rulesets", {
+    await fetch("https://trail-api.barrierbreak.com/api/allRuleSets", {
       method: "GET",
       headers: {
         Accept: "*/*",
@@ -390,6 +390,9 @@ const Extension = () => {
   };
   
   const handleData = () => {
+
+    console.log("");
+    console.log("");
     
     const errors = allIssues.filter((issue) => issue["type"] === "error");
     const warnings = allIssues.filter((issue) => issue["type"] === "warning");
@@ -502,7 +505,7 @@ const Extension = () => {
   const handleTestResults = () => {
     getRulesets();
     postData();
-      // handleData();
+    handleData();
   };
 
   return (

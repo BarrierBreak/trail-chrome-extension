@@ -1,14 +1,12 @@
 /*global chrome*/
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("runAudit").addEventListener("click", () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.scripting.executeScript({
         target: { tabId: tabs[0].id },
         function: dispatchScallySendEvent,
       });
     });
-  });
 });
 
 function dispatchScallySendEvent() {
