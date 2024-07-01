@@ -259,7 +259,7 @@ const Extension = () => {
       // console.log(src, srcSet, href);
     //});
 
-    //console.log("currentURL", currentURL);
+    console.log("currentURL", currentURL);
 
     return htmlDocument;
   };
