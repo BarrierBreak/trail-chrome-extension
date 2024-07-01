@@ -229,51 +229,51 @@ const Extension = () => {
       element.remove();
     });
 
-    const elements = htmlDocument.querySelectorAll("[href], [src]");
-    elements.forEach((element) => {
-      const href = element.getAttribute("href");
-      const src = element.getAttribute("src");
-      const srcSet = element.getAttribute("srcset");
+    // const elements = htmlDocument.querySelectorAll("[href], [src]");
+    // elements.forEach((element) => {
+    //   const href = element.getAttribute("href");
+    //   const src = element.getAttribute("src");
+    //   const srcSet = element.getAttribute("srcset");
 
-      if (href) {
-        if (
-          href.startsWith("/") &&
-          !href.startsWith("http") &&
-          !href.startsWith("//")
-        ) {
-          element.setAttribute("href", `${currentURL}${href}`);
-        } else if (href.startsWith("//")) {
-          element.setAttribute("href", "https:" + `${href}`);
-        }
-      }
+    //   if (href) {
+    //     if (
+    //       href.startsWith("/") &&
+    //       !href.startsWith("http") &&
+    //       !href.startsWith("//")
+    //     ) {
+    //       element.setAttribute("href", `${currentURL}${href}`);
+    //     } else if (href.startsWith("//")) {
+    //       element.setAttribute("href", "https:" + `${href}`);
+    //     }
+    //   }
 
-      if (src) {
-        if (
-          src.startsWith("/") &&
-          !src.startsWith("http") &&
-          !src.startsWith("//")
-        ) {
-          element.setAttribute("src", `${currentURL}${src}`);
-        } else if (src.startsWith("//")) {
-          element.setAttribute("src", "https:" + `${src}`);
-        }
-      }
+    //   if (src) {
+    //     if (
+    //       src.startsWith("/") &&
+    //       !src.startsWith("http") &&
+    //       !src.startsWith("//")
+    //     ) {
+    //       element.setAttribute("src", `${currentURL}${src}`);
+    //     } else if (src.startsWith("//")) {
+    //       element.setAttribute("src", "https:" + `${src}`);
+    //     }
+    //   }
 
-      if (srcSet) {
-        const srcSetArray = srcSet.split(",");
-        const newSrcSetArray = srcSetArray.map((src) => {
-          if (!src.trim().startsWith("http") && !src.trim().startsWith("//")) {
-            return `${currentURL}${src.trim()}`;
-          } else if (src.trim().startsWith("//")) {
-            return "https:" + `${src.trim()}`;
-          }
-          return src;
-        });
-        element.setAttribute("srcset", newSrcSetArray.join(","));
-      }
+    //   if (srcSet) {
+    //     const srcSetArray = srcSet.split(",");
+    //     const newSrcSetArray = srcSetArray.map((src) => {
+    //       if (!src.trim().startsWith("http") && !src.trim().startsWith("//")) {
+    //         return `${currentURL}${src.trim()}`;
+    //       } else if (src.trim().startsWith("//")) {
+    //         return "https:" + `${src.trim()}`;
+    //       }
+    //       return src;
+    //     });
+    //     element.setAttribute("srcset", newSrcSetArray.join(","));
+    //   }
 
       // console.log(src, srcSet, href);
-    });
+    //});
 
     //console.log("currentURL", currentURL);
 
