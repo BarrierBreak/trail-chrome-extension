@@ -19,9 +19,9 @@ import {
   MinusIcon,
   ChevronDownIcon,
 } from "@trail-ui/icons";
-import WebsiteLandmarks from "./WebsiteLandmarks";
+// import WebsiteLandmarks from "./WebsiteLandmarks";
 import CheckboxTable from "./CheckboxTable";
-import DownloadCSV from "./DownloadCSV";
+// import DownloadCSV from "./DownloadCSV";
 
 export type Clip = {
   x: number;
@@ -78,14 +78,26 @@ export interface Issues {
 
 const Extension = () => {
   const [html, setHtml] = useState("");
+  const [rulesets, setRulesets] = useState([]);
+  const [allIssues, setAllIssues] = useState([]);
+  // const [scallyErrors, setScallyErrors] = useState([]);
+  // const [scallyWarnings, setScallyWarnings] = useState([]);
+  // const [scallyPass, setScallyPass] = useState([]);
+  // const [scallyNotices, setScallyNotices] = useState([]);
   const [currentURL, setCurrentURL] = useState("");
   const [responseData, setResponseData] = useState<Issues>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]));
+
   const apiKey = localStorage.getItem("authToken");
   const serverUrl = localStorage.getItem("serverUrl");
 
-  console.log("apiKey", apiKey);
+
+  // const errors = allIssues.filter((issue) => issue["type"] === "error");
+  // const warnings = allIssues.filter((issue) => issue["type"] === "warning");
+  // const pass = allIssues.filter((issue) => issue["type"] === "pass");
+  // const notices = allIssues.filter((issue) => issue["type"] === "notice");
+
   console.log("serverUrl", serverUrl);
 
   useEffect(() => {
@@ -109,36 +121,40 @@ const Extension = () => {
     });
   }, [selectedTool]);
 
-  const getTotalIssueCount = (data: any) => {
-    let count = 0;
-    if (data) {
-      Object.values(data).forEach((level: any) => {
-        count += level.length;
-      });
-    }
-    return count;
-  };
+  // const getTotalIssueCount = (data: any) => {
+  //   let count = 0;
+  //   if (data) {
+  //     Object.values(data).forEach((level: any) => {
+  //       count += level.length;
+  //     });
+  //   }
+  //   return count;
+  // };
 
   const tabData = [
     {
       id: "FAIL",
       label: "Fail",
-      issues: getTotalIssueCount(responseData?.issues.errors),
+      // issues: getTotalIssueCount(errors),
+      issues: 555,
     },
     {
       id: "MANUAL",
       label: "Manual",
-      issues: getTotalIssueCount(responseData?.issues.warnings),
+      // issues: getTotalIssueCount(warnings),
+      issues: 666,
     },
     {
       id: "PASS",
       label: "Pass",
-      issues: getTotalIssueCount(responseData?.issues.pass),
+      // issues: getTotalIssueCount(pass),
+      issues: 777,
     },
     {
       id: "BEST-PRACTICE",
       label: "BP",
-      issues: getTotalIssueCount(responseData?.issues.notices),
+      // issues: getTotalIssueCount(notices),
+      issues: 888,
     },
   ];
 
@@ -279,8 +295,8 @@ const Extension = () => {
       element.remove();
     }
 
-    // To fetch accesibility results of webpage from Scally
-    // await fetch("https://trail-api.barrierbreak.com/api/test-html", {
+  //   // To fetch accesibility results of webpage from Scally
+  //   // await fetch("https://trail-api.barrierbreak.com/api/test-html", {
     await fetch("https://trail-api.barrierbreak.com/api/extension-html", {
       method: "POST",
       headers: {
@@ -305,14 +321,188 @@ const Extension = () => {
       });
   };
 
+  const getRulesets = async () => {
+    await fetch("https://trail-api.barrierbreak.com/api/rulesets", {
+      method: "GET",
+      headers: {
+        Accept: "*/*",
+        "User-Agent": "Test 123",
+        "x-api-key": `${apiKey}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setRulesets(data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  console.log("rulesets", rulesets);
+
+  let auditResult: any = null;
+  chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+    if (request.action === "sendAuditResult") {
+      // console.log("Received audit result:", request.result);
+      auditResult = request.result;
+      console.log("auditResult", auditResult);
+
+      setAllIssues(auditResult.issues);
+      console.log("allIssues", allIssues);
+    }
+    sendResponse({ status: "received" });
+  });
+
+  const errorData: Conformance = {
+    A: [],
+    AA: [],
+    AAA: [],
+    BestPractice: [],
+    Section508: [],
+  };
+  const warningData: Conformance = {
+    A: [],
+    AA: [],
+    AAA: [],
+    BestPractice: [],
+    Section508: [],
+  };
+  const passData: Conformance = {
+    A: [],
+    AA: [],
+    AAA: [],
+    BestPractice: [],
+    Section508: [],
+  };
+  const noticeData: Conformance = {
+    A: [],
+    AA: [],
+    AAA: [],
+    BestPractice: [],
+    Section508: [],
+  };
+  
   // To handle minimise functionality
   const handleMinimise = () => {
     window.parent.postMessage("minimise-button-clicked", "*");
   };
+  
+  const handleData = () => {
+    
+    const errors = allIssues.filter((issue) => issue["type"] === "error");
+    const warnings = allIssues.filter((issue) => issue["type"] === "warning");
+    const pass = allIssues.filter((issue) => issue["type"] === "pass");
+    const notices = allIssues.filter((issue) => issue["type"] === "notice");
+    const scallyIssueTypes = [errors, warnings, pass, notices];
+    scallyIssueTypes.forEach((scallyIssue) => {
+      rulesets.forEach((ruleset) => {
+        scallyIssue.forEach((issue: any) => {
+          if (ruleset["ruleset_id"] === issue["code"]) {
+            const result = {
+              code: issue["code"],
+              conformance_level: ruleset["name"],
+              criteria_name: ruleset["criteria_name"],
+              element: ruleset["element"],
+              failing_issue_variable: ruleset["failing_issue_variable"],
+              failing_technique: ruleset["failing_technique"],
+              id: "",
+              issues: [
+                {
+                  clip: { x: 404, y: 404, width: 404, height: 404 },
+                  clipBase64: "",
+                  code: issue["code"],
+                  context: issue["context"],
+                  elementTagName: issue["elementTagName"],
+                  id: "",
+                  message: issue["message"],
+                  recurrence: issue["recurrence"],
+                  selector: issue["selector"],
+                  type: issue["type"],
+                  typeCode: issue["typeCode"],
+                },
+              ],
+              message: issue["message"],
+              occurences: 404,
+              rule_name: ruleset["rule_name"],
+              severity: ruleset["severity"],
+            };
+
+            let targetArray: any[] = [];
+            if (issue["type"] === "error") {
+              if (ruleset["name"] === "A") {
+                targetArray = errorData.A;
+              } else if (ruleset["name"] === "AA") {
+                targetArray = errorData.AA;
+              } else if (ruleset["name"] === "AAA") {
+                targetArray = errorData.AAA;
+              } else if (ruleset["name"] === "Best Practice") {
+                targetArray = errorData.BestPractice;
+              } else if (ruleset["name"] === "Section508") {
+                targetArray = errorData.Section508;
+              }
+            } else if (issue["type"] === "warning") {
+              if (ruleset["name"] === "A") {
+                targetArray = warningData.A;
+              } else if (ruleset["name"] === "AA") {
+                targetArray = warningData.AA;
+              } else if (ruleset["name"] === "AAA") {
+                targetArray = warningData.AAA;
+              } else if (ruleset["name"] === "Best Practice") {
+                targetArray = warningData.BestPractice;
+              } else if (ruleset["name"] === "Section508") {
+                targetArray = warningData.Section508;
+              }
+            } else if (issue["type"] === "pass") {
+              if (ruleset["name"] === "A") {
+                targetArray = passData.A;
+              } else if (ruleset["name"] === "AA") {
+                targetArray = passData.AA;
+              } else if (ruleset["name"] === "AAA") {
+                targetArray = passData.AAA;
+              } else if (ruleset["name"] === "Best Practice") {
+                targetArray = passData.BestPractice;
+              } else if (ruleset["name"] === "Section508") {
+                targetArray = passData.Section508;
+                }
+            } else if (issue["type"] === "notice") {
+              if (ruleset["name"] === "A") {
+                targetArray = noticeData.A;
+              } else if (ruleset["name"] === "AA") {
+                targetArray = noticeData.AA;
+              } else if (ruleset["name"] === "AAA") {
+                targetArray = noticeData.AAA;
+              } else if (ruleset["name"] === "Best Practice") {
+                targetArray = noticeData.BestPractice;
+              } else if (ruleset["name"] === "Section508") {
+                targetArray = noticeData.Section508;
+              }
+            }
+
+            const existingEntry = targetArray.find(
+              (entry) => entry.code === issue["code"]
+            );
+            if (existingEntry) {
+              existingEntry.issues.push(...result.issues);
+            } else {
+              targetArray.push(result);
+            }
+          }
+        });
+      });
+      console.log("errorData", errorData);
+      console.log("warningData", warningData);
+      console.log("passData", passData);
+      console.log("noticeData", noticeData);
+    });
+  };
 
   // API call
   const handleTestResults = () => {
+    getRulesets();
     postData();
+      // handleData();
   };
 
   return (
@@ -335,6 +525,7 @@ const Extension = () => {
             />
           </div>
           <div className="flex gap-4">
+            <Button onPress={handleData}>Data</Button>
             <MenuTrigger>
               <Button
                 appearance="default"
@@ -414,23 +605,23 @@ const Extension = () => {
                       </div>
                     </Tab>
                   </TabList>
-                  <DownloadCSV csvdata={responseData} />
+                  {/* <DownloadCSV csvdata={allIssues} /> */}
                 </div>
                 <TabPanel id="FAIL">
-                  <CheckboxTable data={responseData} issueType="errors" />
+                  <CheckboxTable data={errorData} />
                 </TabPanel>
                 <TabPanel id="MANUAL">
-                  <CheckboxTable data={responseData} issueType="warnings" />
+                  <CheckboxTable data={warningData} />
                 </TabPanel>
                 <TabPanel id="PASS">
-                  <CheckboxTable data={responseData} issueType="pass" />
+                  <CheckboxTable data={passData} />
                 </TabPanel>
                 <TabPanel id="BEST-PRACTICE">
-                  <CheckboxTable data={responseData} issueType="notices" />
+                  <CheckboxTable data={noticeData} />
                 </TabPanel>
-                <TabPanel id="STRUCTURE">
+                {/* <TabPanel id="STRUCTURE">
                   <WebsiteLandmarks html={html} />
-                </TabPanel>
+                </TabPanel> */}
               </Tabs>
             </div>
           ) : (

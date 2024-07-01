@@ -2,12 +2,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, Chip, IconButton } from "@trail-ui/react";
 import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
-import { Issues, IssueTypes } from "./Extension";
+import { Conformance, IssueTypes } from "./Extension";
 import { numberToAlphabet, getAltText, formatInput } from "./utils";
 
 interface CheckboxTableProps {
-  data: Issues;
-  issueType: "errors" | "warnings" | "pass" | "notices";
+  data: Conformance;
+  // issueType: "errors" | "warnings" | "pass" | "notices";
 }
 
 interface DropdownState {
@@ -15,11 +15,11 @@ interface DropdownState {
   isExpanded: boolean;
 }
 
-const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
+const CheckboxTable = ({ data }: CheckboxTableProps) => {
   const [issueCount, setIssueCount] = useState<number>(0);
   const [activePopup, setActivePopup] = useState<string>("");
   const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([]);
-  const conformance = Object.values(data.issues[issueType]);
+  const conformance = Object.values(data);
 
   // To count the total number of individual issues
   const getIssueCount = () => {
@@ -32,7 +32,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
 
   useEffect(() => {
     getIssueCount();
-  }, [data, issueType]);
+  }, [data]);
 
   // To count the total number of instances of issues
   const getTotalInstanceCount = (data: any) => {
@@ -139,7 +139,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
     <>
       {issueCount > 0 ? (
         <>
-          {Object.values(data.issues[issueType]).map((item) => {
+          {Object.values(data).map((item) => {
             return (
               <>
                 {item.length > 0 && (
@@ -276,7 +276,7 @@ const CheckboxTable = ({ data, issueType }: CheckboxTableProps) => {
                                         className="h-10 w-full object-contain"
                                         src={`data:image/png;base64,${issueItem.clipBase64}`}
                                         alt={`${getAltText(
-                                          issueType
+                                          "error"
                                         )}-${numberToAlphabet(
                                           parentIndex + 1
                                         )}${index + 1}`}
