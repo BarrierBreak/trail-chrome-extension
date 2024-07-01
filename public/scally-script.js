@@ -76,7 +76,6 @@
             (e.value && Array.isArray(e.value) && e.value.length && e.value[0])
         ];
       return {
-        context: i || e.snippet,
         selector: l || (e.path && e.path.dom ? e.path.dom : ""),
         elementTagName: a || "",
         code: e.code || e.ruleId,
