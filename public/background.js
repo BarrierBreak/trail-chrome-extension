@@ -1,53 +1,41 @@
-// /*global chrome*/
+let auditResult = null
 
-// // Add background scripts here
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('Message received in background script:', request)
 
-// let auditResult = null;
-
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//   if (request.action === "sendAuditResult") {
-//     console.log("Received audit result:", request.result);
-//     auditResult = request.result;
-
-//     const allIssues = auditResult.issues;
-
-//     const message = {
-//       type: "rulesets",
-//       issues: allIssues,
-//     };
-
-//     // Post the message to the parent window
-//     window.parent.postMessage(message, "*");
-//     const error = [];
-//     const warning = [];
-//     const pass = [];
-
-//     // console.log("all issues", allIssues);
-//     allIssues.forEach((issue) => {
-//       switch (issue.type) {
-//         case "error":
-//           error.push(issue);
-//           break;
-//         case "warning":
-//           warning.push(issue);
-//           break;
-//         case "pass":
-//           pass.push(issue);
-//           break;
-//         default:
-//           break;
-//       }
-//     });
-
-//     console.log("error", error);
-//     console.log("warning", warning);
-//     console.log("pass", pass);
-//   }
-//   sendResponse({ status: "received" });
-// });
-
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//   if (request.action === "getAuditResult") {
-//     sendResponse({ result: auditResult });
-//   }
-// });
+  // reset the stored audit result on page refresh 
+  if (request.action === 'resetAuditResult') {
+    auditResult = null
+    console.log('Audit result reset:', auditResult)
+    sendResponse({
+      message: 'Audit result reset successfully',
+      result: auditResult,
+    })
+    chrome.storage.session.set({
+      auditResult: auditResult,
+    })
+  } else if (request.action === 'sendAuditResult') {
+    auditResult = request.result
+    console.log('Audit result stored:', auditResult)
+    sendResponse({
+      message: 'Audit result received successfully',
+      result: auditResult,
+    })
+    chrome.storage.session.set({
+      auditResult: auditResult,
+    })
+  } else if (request.action === 'getAuditResult') {
+    console.log('Sending audit result:', auditResult)
+    sendResponse({result: auditResult})
+  } else if (request.action === "updateResult") {
+    auditResult = request.result
+    console.log('Audit result updated:', auditResult)
+    sendResponse({
+      message: 'Audit result updated successfully',
+      result: auditResult,
+    })
+    chrome.storage.session.set({
+      auditResult: auditResult,
+    })
+  }
+})
