@@ -1,27 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import { useCallback, useEffect, useState } from "react";
-// import { useState } from "react";
-// import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
-// import { Conformance, IssueTypes } from "./Extension";
-import { ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
+import { useCallback, useState } from "react";
+import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
+import { Conformance, IssueTypes } from "./Extension";
 import { getAltText, formatInput } from "./utils";
 
 import { Button, Chip, IconButton } from "@trail-ui/react";
-import { Conformance } from "./Extension";
-
+import { nanoid } from 'nanoid';
 interface CheckboxTableProps {
   data: any;
   rules: any;
 }
 
-// interface DropdownState {
-//   id: string;
-//   isExpanded: boolean;
-// }
+interface DropdownState {
+  id: string;
+  isExpanded: boolean;
+}
 
 const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
-  // const [activePopup, setActivePopup] = useState<string>("");
-  // const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([]);
+  const [activePopup, setActivePopup] = useState<string>("");
+  const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([]);
 
   const levelData: Conformance = {
     A: [],
@@ -40,6 +37,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
     return count;
   };
 
+
   const mergedData: any = [];
   rules.forEach((rule: any) => {
     data.forEach((issue: any) => {
@@ -51,7 +49,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
           element: rule["element"],
           failing_issue_variable: rule["failing_issue_variable"],
           failing_technique: rule["failing_technique"],
-          id: "",
+          id: nanoid(),
           issues: [
             {
               clip: { x: 0, y: 0, width: 0, height: 0 },
@@ -59,7 +57,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
               code: issue["code"],
               context: issue["context"],
               elementTagName: issue["elementTagName"],
-              id: "",
+              id: nanoid(),
               message: issue["message"],
               recurrence: issue["recurrence"],
               selector: issue["selector"],
@@ -70,6 +68,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
           message: issue["message"],
           occurences: 0,
           severity: rule["severity"],
+          isExpanded: false,
         };
 
         const existingEntry = mergedData.find(
@@ -102,52 +101,58 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
 
   // To assign initial state for dropdown
   // useEffect(() => {
-  //   conformance.forEach((item) => {
-  //     item.forEach((issue) => {
-  //       updatedStates.push({ id: issue.id, isExpanded: true });
-  //       setDropdownStates(updatedStates);
+  //   conformance.forEach((item: any) => {
+  //     updatedStates.push({ id: item.id, isExpanded: false });
+  //     item.issues.forEach((issue: any) => {
+  //       updatedStates.push({ id: issue.id, isExpanded: false });
   //     });
-  //   });
+  //   })
   // }, []);
 
   // To handle accordion dropdown click
-  // const handleDropdownClick = useCallback(
-  //   (issue: IssueTypes, id: string) => {
-  //     const currentDropdown = dropdownStates.find((item) => item.id === id);
+  
+  const handleDropdownClick = useCallback(
+    (issue: IssueTypes, id: string) => {
 
-  //     setDropdownStates((prevStates) => {
-  //       const updatedStates = prevStates.filter((state) => state.id !== id);
-  //       updatedStates.push({ id, isExpanded: !currentDropdown?.isExpanded });
-  //       return updatedStates;
-  //     });
+      const currentDropdown = dropdownStates.find((item) => item.id === id);
 
-  //     issue.issues.forEach((item) => {
-  //       const issueRows = document.getElementById(item.id);
-  //       if (issueRows) {
-  //         currentDropdown?.isExpanded
-  //           ? (issueRows.style.display = "table-row")
-  //           : (issueRows.style.display = "none");
-  //       }
-  //     });
-  //   },
-  //   [dropdownStates]
-  // );
+      if (currentDropdown) {
+        const updatedStates = dropdownStates.map((item) => {
+          if (item.id === id) {
+            return { ...item, isExpanded: !item.isExpanded };
+          }
+          return item;
+        });
+        setDropdownStates(updatedStates);
+      }
+
+      issue.issues.forEach((item) => {
+        const issueRows = document.getElementById(item.id);
+        if (issueRows) {
+          currentDropdown?.isExpanded
+            ? (issueRows.style.display = "table-row")
+            : (issueRows.style.display = "none");
+        }
+      });
+    },
+    [dropdownStates]
+  );
 
   // To handle copy to clipboard functionality
-  // const handleCopyToClipboard = (code: string, id: string) => {
-  //   navigator.clipboard.writeText(code).then(() => {
-  //     // console.log("Code copied successfully");
-  //     handleShowPopup(id);
-  //   });
-  // };
+  const handleCopyToClipboard = (code: string, id: string) => {
+    navigator.clipboard.writeText(code).then(() => {
+      // console.log("Code copied successfully");
+      handleShowPopup(id);
+    });
+  };
 
   // To handle displaying of copied to clipboard popup
-  // const handleShowPopup = (id: string) => {
-  //   setActivePopup(id);
-  //   setTimeout(() => {
-  //     setActivePopup("");
-  //   }, 3000);
-  // };
+  const handleShowPopup = (id: string) => {
+    setActivePopup(id);
+    setTimeout(() => {
+      setActivePopup("");
+    }, 3000);
+  };
 
   // To focus on element functionality
   const focusElement = async (elementId: string) => {
@@ -520,18 +525,18 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                             <tr className={`border-b border-neutral-200`}>
                               <td className="table-cell p-0" colSpan={5}>
                                 <button
-                                  //  aria-expanded={
-                                  //    dropdownStates.find(
-                                  //      (item) =>
-                                  //        item.id === issue.id &&
-                                  //        item.isExpanded
-                                  //    )
-                                  //      ? false
-                                  //      : true
-                                  //  }
-                                  //  onClick={() =>
-                                  //    handleDropdownClick(issue, issue.id)
-                                  //  }
+                                   aria-expanded={
+                                     dropdownStates.find(
+                                       (item) =>
+                                         item.id === issue.id &&
+                                         item.isExpanded
+                                     )
+                                       ? false
+                                       : true
+                                   }
+                                   onClick={() =>
+                                     handleDropdownClick(issue, issue.id)
+                                   }
                                   className="p-2 pl-4 w-full focus-visible:outline-focus"
                                 >
                                   <div className="flex gap-1 items-center justify-between">
@@ -545,7 +550,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                       })`}
                                     </p>
                                     <div className="h-6 w-6">
-                                      {/* {dropdownStates.find(
+                                      {dropdownStates.find(
                                            (item) =>
                                              item.id === issue.id &&
                                              item.isExpanded
@@ -555,13 +560,13 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                              height={24}
                                              className="text-neutral-900"
                                            />
-                                         ) : ( */}
+                                         ) : (
                                       <ChevronUpIcon
                                         width={24}
                                         height={24}
                                         className="text-neutral-900"
                                       />
-                                      {/* )} */}
+                                      )}
                                     </div>
                                   </div>
                                 </button>
@@ -612,12 +617,12 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                   </section>
                                   <IconButton
                                     className="absolute top-0.5 right-4"
-                                    // onPress={() =>
-                                    //   handleCopyToClipboard(
-                                    //     issueItem.context,
-                                    //     issueItem.id
-                                    //   )
-                                    // }
+                                    onPress={() =>
+                                      handleCopyToClipboard(
+                                        issueItem.context,
+                                        issueItem.id
+                                      )
+                                    }
                                     isIconOnly={true}
                                     spacing="compact"
                                     aria-label={`Copy ${index + 1} ${
@@ -630,11 +635,11 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                       className="text-neutral-600"
                                     />
                                   </IconButton>
-                                  {/* {activePopup === issueItem.id && (
+                                  {activePopup === issueItem.id && (
                                     <div className="absolute bottom-[110%] -right-[26%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded">
                                       Copied to Clipboard!
                                     </div>
-                                  )} */}
+                                  )}
                                 </td>
                                 <td className="table-cell p-2 ">
                                   <section
