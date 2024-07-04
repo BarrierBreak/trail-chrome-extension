@@ -33,13 +33,13 @@ export function numberToAlphabet(num: number): string {
 // Function to get alt text for images
 export const getAltText = (issueType: string) => {
   switch (issueType) {
-    case "errors":
+    case "error":
       return "Fail";
-    case "warnings":
+    case "warning":
       return "Manual";
     case "pass":
       return "Pass";
-    case "notices":
+    case "notice":
       return "BP";
     default:
       break;

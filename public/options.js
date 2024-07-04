@@ -7,7 +7,7 @@
   if (authToken !== null) {
     tokenValue.value = authToken;
   }
-  
+
   const serverURL = localStorage.getItem("serverUrl");
   if (serverURL !== null) {
     urlValue.value = serverURL;
