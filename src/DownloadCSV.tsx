@@ -90,7 +90,6 @@ const DownloadCSV = ({ csvData, rules }) => {
               message: issue["message"],
               occurences: 0,
               severity: rule["severity"],
-              isExpanded: false,
             };
 
             const existingEntry = mergedData.find(

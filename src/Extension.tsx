@@ -169,10 +169,10 @@ const Extension = () => {
     // Listen for messages from the background script
     const listener = (request: any) => {
       if (request.type === "TO_REACT") {
-        console.log(
-          "Audit results received in React frontend:",
-          request.payload
-        );
+        // console.log(
+        //   "Audit results received in React frontend:",
+        //   request.payload
+        // );
         setScallyResult((prevResults: any) => ({
           ...prevResults,
           [request.tabId]: request.payload,
@@ -207,10 +207,10 @@ const Extension = () => {
 
     const listener = (request: any) => {
       if (request.type === "TO_REACT") {
-        console.log(
-          "Audit results received in React frontend:",
-          request.payload
-        );
+        // console.log(
+        //   "Audit results received in React frontend:",
+        //   request.payload
+        // );
         setScallyResult((prevResults: any) => ({
           ...prevResults,
           [request.tabId]: request.payload,

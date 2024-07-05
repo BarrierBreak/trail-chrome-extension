@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import { Button, Chip, IconButton } from "@trail-ui/react";
 import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
@@ -19,6 +19,7 @@ interface DropdownState {
 const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
   const [activePopup, setActivePopup] = useState<string>("");
   const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([]);
+  const updatedStates: DropdownState[] = [];
 
   const levelData: Conformance = {
     A: [],
@@ -38,78 +39,79 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
   };
 
   const mergedData: any = [];
-  rules.forEach((rule: any) => {
-    data.forEach((issue: any) => {
-      if (rule.ruleset_id === issue.code) {
-        const format = {
-          code: issue["code"],
-          conformance_level: rule["conformance_level"],
-          criteria_name: rule["wcag_criteria"],
-          element: rule["element"],
-          failing_issue_variable: rule["failing_issue_variable"],
-          failing_technique: rule["failing_technique"],
-          id: nanoid(),
-          issues: [
-            {
-              clip: { x: 0, y: 0, width: 0, height: 0 },
-              clipBase64: "",
-              code: issue["code"],
-              context: issue["context"],
-              elementTagName: issue["elementTagName"],
-              id: nanoid(),
-              message: issue["message"],
-              recurrence: issue["recurrence"],
-              selector: issue["selector"],
-              type: issue["type"],
-              typeCode: issue["typeCode"],
-            },
-          ],
-          message: issue["message"],
-          occurences: 0,
-          severity: rule["severity"],
-          isExpanded: false,
-        };
 
-        const existingEntry = mergedData.find(
-          (entry: any) => entry.code === issue.code
-        );
-        if (existingEntry) {
-          existingEntry.issues.push(...format.issues);
-        } else {
-          mergedData.push(format);
+  const mergeIssuesAndRulesets = () => {
+    rules.forEach((rule: any) => {
+      data.forEach((issue: any) => {
+        if (rule.ruleset_id === issue.code) {
+          const format = {
+            code: issue["code"],
+            conformance_level: rule["conformance_level"],
+            criteria_name: rule["wcag_criteria"],
+            element: rule["element"],
+            failing_issue_variable: rule["failing_issue_variable"],
+            failing_technique: rule["failing_technique"],
+            id: nanoid(),
+            issues: [
+              {
+                clip: { x: 0, y: 0, width: 0, height: 0 },
+                clipBase64: "",
+                code: issue["code"],
+                context: issue["context"],
+                elementTagName: issue["elementTagName"],
+                id: nanoid(),
+                message: issue["message"],
+                recurrence: issue["recurrence"],
+                selector: issue["selector"],
+                type: issue["type"],
+                typeCode: issue["typeCode"],
+              },
+            ],
+            message: issue["message"],
+            occurences: 0,
+            severity: rule["severity"],
+          };
+
+          const existingEntry = mergedData.find(
+            (entry: any) => entry.code === issue.code
+          );
+          if (existingEntry) {
+            existingEntry.issues.push(...format.issues);
+          } else {
+            mergedData.push(format);
+          }
         }
+      });
+    });
+
+    mergedData.forEach((item: any) => {
+      if (item.conformance_level === "A") {
+        levelData.A.push(item);
+      } else if (item.conformance_level === "AA") {
+        levelData.AA.push(item);
+      } else if (item.conformance_level === "AAA") {
+        levelData.AAA.push(item);
+      } else if (item.conformance_level === "Best Practice") {
+        levelData.BestPractice.push(item);
+      } else if (item.conformance_level === "Section508") {
+        levelData.Section508.push(item);
       }
     });
-  });
+  };
 
-  mergedData.forEach((item: any) => {
-    if (item.conformance_level === "A") {
-      levelData.A.push(item);
-    } else if (item.conformance_level === "AA") {
-      levelData.AA.push(item);
-    } else if (item.conformance_level === "AAA") {
-      levelData.AAA.push(item);
-    } else if (item.conformance_level === "Best Practice") {
-      levelData.BestPractice.push(item);
-    } else if (item.conformance_level === "Section508") {
-      levelData.Section508.push(item);
-    }
-  });
-
-  // const updatedStates: DropdownState[] = [];
+  mergeIssuesAndRulesets();
 
   // To assign initial state for dropdown
-  // useEffect(() => {
-  //   conformance.forEach((item: any) => {
-  //     updatedStates.push({ id: item.id, isExpanded: false });
-  //     item.issues.forEach((issue: any) => {
-  //       updatedStates.push({ id: issue.id, isExpanded: false });
-  //     });
-  //   })
-  // }, []);
+  useEffect(() => {
+    Object.values(levelData)?.forEach((item) => {
+      item?.forEach((issue) => {
+        updatedStates.push({ id: issue.code, isExpanded: true });
+        setDropdownStates(updatedStates);
+      });
+    });
+  }, [data]);
 
   // To handle accordion dropdown click
-
   const handleDropdownClick = useCallback(
     (issue: IssueTypes, id: string) => {
       const currentDropdown = dropdownStates.find((item) => item.id === id);
@@ -262,7 +264,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                       : true
                                   }
                                   onClick={() =>
-                                    handleDropdownClick(issue, issue.id)
+                                    handleDropdownClick(issue, issue.code)
                                   }
                                   className="p-2 pl-4 w-full focus-visible:outline-focus"
                                 >
@@ -279,7 +281,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     <div className="h-6 w-6">
                                       {dropdownStates.find(
                                         (item) =>
-                                          item.id === issue.id &&
+                                          item.id === issue.code &&
                                           item.isExpanded
                                       ) ? (
                                         <ChevronDownIcon
@@ -302,7 +304,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                             {issue.issues.map((issueItem: any, index: any) => (
                               <tr
                                 id={issueItem.id}
-                                className={`text-base border-b border-neutral-200 last:border-none`}
+                                className={`text-base border-b border-neutral-200 hidden last:border-none`}
                               >
                                 <td className="border-r border-neutral-200 w-[80px] p-2">
                                   <Button
