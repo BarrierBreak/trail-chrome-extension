@@ -1,49 +1,52 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import * as XLSX from "xlsx";
+import * as XLSX from "xlsx";
+import { nanoid } from "nanoid";
 import { DownloadIcon } from "@trail-ui/icons";
 import { IconButton } from "@trail-ui/react";
-// import { rgbaToHex } from "./utils";
+import { rgbaToHex } from "./utils";
 
 //@ts-expect-error fix
-const DownloadCSV = ({ csvdata }) => {
-
-  
-  // const issueType = {
-  //   Fails: csvdata.issues.errors,
-  //   Manual: csvdata.issues.warnings,
-  //   Pass: csvdata.issues.pass,
-  //   "Best Practice": csvdata.issues.notices,
-  // };
+const DownloadCSV = ({ csvData, rules }) => {
+  const issueType = {
+    Fails: csvData.errorType,
+    Manual: csvData.warningType,
+    Pass: csvData.passType,
+    "Best Practice": csvData.noticeType,
+  };
 
   // To remove unwanted characters from url
-  // const getCleanUrl = (callback: any) => {
-  //   chrome.tabs.query(
-  //     {
-  //       active: true,
-  //       currentWindow: true,
-  //     },
-  //     function (tabs) {
-  //       const tabURL = tabs[0].url;
-  //       const cleanURL = tabURL?.replace(/^(https?:\/\/)?(www\.)?/, "");
-  //       callback(cleanURL);
-  //     }
-  //   );
-  // };
+  const getCleanUrl = (callback: any) => {
+    chrome.tabs.query(
+      {
+        active: true,
+        currentWindow: true,
+      },
+      function (tabs) {
+        const tabURL = tabs[0].url;
+        const cleanURL = tabURL?.replace(/^(https?:\/\/)?(www\.)?/, "");
+        callback(cleanURL);
+      }
+    );
+  };
 
-  // let currentURL: string;
-  // getCleanUrl((cleanURL: string) => {
-  //   currentURL = cleanURL;
-  // });
+  let currentURL: string;
+  getCleanUrl((cleanURL: string) => {
+    currentURL = cleanURL;
+  });
 
   // To download CSV file
   const downloadCSV = () => {
+    const workbook = XLSX.utils.book_new();
 
+    const conformanceOrder: { [key: string]: number } = {
+      A: 1,
+      AA: 2,
+      AAA: 3,
+      Section508: 4,
+      "Best Practice": 5,
+    };
 
-  console.log("csvdata", csvdata);
-
-    // const workbook = XLSX.utils.book_new();
-
-    Object.values(csvdata).forEach((data: any, index: number) => {
+    Object.values(issueType)?.forEach((data: any, index: number) => {
       const excelData: string[][] = [
         [
           "ISSUE VARIABLE",
@@ -57,87 +60,130 @@ const DownloadCSV = ({ csvdata }) => {
         ],
       ];
 
-      console.log("issueType", Object.keys(data)[index]);
-      
+      const mergedData: any = [];
+      rules.forEach((rule: any) => {
+        data.forEach((issue: any) => {
+          if (rule.ruleset_id === issue.code) {
+            const format = {
+              code: issue["code"],
+              conformance_level: rule["conformance_level"],
+              criteria_name: rule["wcag_criteria"],
+              element: rule["element"],
+              failing_issue_variable: rule["failing_issue_variable"],
+              failing_technique: rule["failing_technique"],
+              id: nanoid(),
+              issues: [
+                {
+                  clip: { x: 0, y: 0, width: 0, height: 0 },
+                  clipBase64: "",
+                  code: issue["code"],
+                  context: issue["context"],
+                  elementTagName: issue["elementTagName"],
+                  id: nanoid(),
+                  message: issue["message"],
+                  recurrence: issue["recurrence"],
+                  selector: issue["selector"],
+                  type: issue["type"],
+                  typeCode: issue["typeCode"],
+                },
+              ],
+              message: issue["message"],
+              occurences: 0,
+              severity: rule["severity"],
+              isExpanded: false,
+            };
 
-      // Object.values(data).forEach((level: any) => {
-      //   level.forEach((issue: any) => {
-      //     issue.issues.forEach((item: any) => {
-      //       const formattedParts: {
-      //         FontSize?: string;
-      //         FontWeight?: string;
-      //         Foreground?: string;
-      //         Background?: string;
-      //         Ratio?: string;
-      //       } = {};
+            const existingEntry = mergedData.find(
+              (entry: any) => entry.code === issue.code
+            );
+            if (existingEntry) {
+              existingEntry.issues.push(...format.issues);
+            } else {
+              mergedData.push(format);
+            }
+          }
+        });
+      });
 
-      //       const regex = /(\w+)--([^=]+)/g;
-      //       let match;
+      mergedData.sort((a: any, b: any) => {
+        return (
+          conformanceOrder[a.conformance_level] -
+          conformanceOrder[b.conformance_level]
+        );
+      });
 
-      //       while ((match = regex.exec(item.message)) !== null) {
-      //         const key = match[1];
-      //         const value = match[2];
+      mergedData?.forEach((issue: any) => {
+        issue.issues?.forEach((item: any) => {
+          const formattedParts: {
+            FontSize?: string;
+            FontWeight?: string;
+            Foreground?: string;
+            Background?: string;
+            Ratio?: string;
+          } = {};
 
-      //         switch (key) {
-      //           case "fontsize":
-      //             formattedParts["FontSize"] = `${parseInt(value)}px`;
-      //             break;
-      //           case "fontweight":
-      //             formattedParts["FontWeight"] =
-      //               parseInt(value) >= 700 ? "Bold" : "Normal";
-      //             break;
-      //           case "forec":
-      //             formattedParts["Foreground"] = rgbaToHex(value);
-      //             break;
-      //           case "backc":
-      //             formattedParts["Background"] = rgbaToHex(value);
-      //             break;
-      //           case "ratio":
-      //             formattedParts["Ratio"] =
-      //               parseFloat(parseFloat(value.slice(0, -2)).toFixed(2)) +
-      //               ":1";
-      //             break;
-      //           default:
-      //             break;
-      //         }
-      //       }
+          const regex = /(\w+)--([^=]+)/g;
+          let match;
 
-      //       const attribute =
-      //         item.code !== "BB10575" &&
-      //         item.code !== "BB10615" &&
-      //         issue.element === "Contrast"
-      //           ? `Font-size: ${formattedParts["FontSize"]}, Font-weight: ${formattedParts["FontWeight"]}, Foreground Color: ${formattedParts["Foreground"]}, Background Color: ${formattedParts["Background"]}, Ratio: ${formattedParts["Ratio"]}`
-      //           : item.message;
+          while ((match = regex.exec(issue.message)) !== null) {
+            const key = match[1];
+            const value = match[2];
 
-      //       const dataformat = [
-      //         issue.failing_technique,
-      //         item.elementTagName,
-      //         item.code,
-      //         item.context?.substring(0, 300),
-      //         attribute,
-      //         issue.conformance_level,
-      //         issue.criteria_name,
-      //         issue.severity,
-      //       ];
+            switch (key) {
+              case "fontsize":
+                formattedParts["FontSize"] = `${parseInt(value)}px`;
+                break;
+              case "fontweight":
+                formattedParts["FontWeight"] =
+                  parseInt(value) >= 700 ? "Bold" : "Normal";
+                break;
+              case "forec":
+                formattedParts["Foreground"] = rgbaToHex(value);
+                break;
+              case "backc":
+                formattedParts["Background"] = rgbaToHex(value);
+                break;
+              case "ratio":
+                formattedParts["Ratio"] =
+                  parseFloat(parseFloat(value.slice(0, -2)).toFixed(2)) + ":1";
+                break;
+              default:
+                break;
+            }
+          }
 
-      //       excelData.push(dataformat);
-      //     });
-      //   });
-      // });
+          const attribute =
+            issue.code !== "BB10575" &&
+            issue.code !== "BB10615" &&
+            issue.element === "Contrast"
+              ? `Font-size: ${formattedParts["FontSize"]}, Font-weight: ${formattedParts["FontWeight"]}, Foreground Color: ${formattedParts["Foreground"]}, Background Color: ${formattedParts["Background"]}, Ratio: ${formattedParts["Ratio"]}`
+              : issue.message;
 
-      console.log("excelData", excelData);
-      
+          const dataformat = [
+            issue.failing_technique,
+            item.elementTagName,
+            item.code,
+            item.context?.substring(0, 300),
+            attribute,
+            issue.conformance_level,
+            issue.criteria_name,
+            issue.severity,
+          ];
 
-    //   const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+          excelData.push(dataformat);
+        });
+      });
 
-    //   XLSX.utils.book_append_sheet(
-    //     workbook,
-    //     worksheet,
-    //     `${Object.keys(issueType)[index]}`
-    //   );
+      const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        `${Object.keys(issueType)[index]}`
+      );
     });
 
-    // XLSX.writeFile(workbook, `${currentURL} Report.xlsx`);
+    XLSX.writeFile(workbook, `${currentURL} Report.xlsx`);
   };
 
   // To handle download click

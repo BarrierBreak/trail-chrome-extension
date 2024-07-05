@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {useCallback, useEffect, useState} from 'react'
+import { useCallback, useEffect, useState } from "react";
 import {
   Button,
   Chip,
@@ -12,276 +12,272 @@ import {
   TabList,
   TabPanel,
   Tabs,
-} from '@trail-ui/react'
+} from "@trail-ui/react";
 import {
   TrailIcon,
   TrailAMSVerticalIcon,
   MinusIcon,
   ChevronDownIcon,
-} from '@trail-ui/icons'
-import CheckboxTable from './CheckboxTable'
-import WebsiteLandmarks from './WebsiteLandmarks'
-// import DownloadCSV from "./DownloadCSV";
+} from "@trail-ui/icons";
+import CheckboxTable from "./CheckboxTable";
+import WebsiteLandmarks from "./WebsiteLandmarks";
+import DownloadCSV from "./DownloadCSV";
 
 export type Clip = {
-  x: number
-  y: number
-  width: number
-  height: number
-}
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 export type Instance = {
-  clip: Clip
-  clipBase64: string
-  code: string
-  context: string
-  elementTagName: string
-  id: string
-  message: string
-  recurrence: number
-  selector: string
-  type: string
-  typeCode: number
-}
+  clip: Clip;
+  clipBase64: string;
+  code: string;
+  context: string;
+  elementTagName: string;
+  id: string;
+  message: string;
+  recurrence: number;
+  selector: string;
+  type: string;
+  typeCode: number;
+};
 
 export type IssueTypes = {
-  code: string
-  conformance_level: string
-  criteria_name: string
-  element: string
-  failing_issue_variable: string
-  failing_technique: string
-  id: string
-  issues: Instance[]
-  message: string
-  occurences: number
-  rule_name: string
-  severity: string
-}
+  code: string;
+  conformance_level: string;
+  criteria_name: string;
+  element: string;
+  failing_issue_variable: string;
+  failing_technique: string;
+  id: string;
+  issues: Instance[];
+  message: string;
+  occurences: number;
+  rule_name: string;
+  severity: string;
+};
 
 export type Conformance = {
-  A: IssueTypes[]
-  AA: IssueTypes[]
-  AAA: IssueTypes[]
-  Section508: IssueTypes[]
-  BestPractice: IssueTypes[]
-}
+  A: IssueTypes[];
+  AA: IssueTypes[];
+  AAA: IssueTypes[];
+  Section508: IssueTypes[];
+  BestPractice: IssueTypes[];
+};
 
 export interface Issues {
   issues: {
-    errors: Conformance
-    warnings: Conformance
-    pass: Conformance
-    notices: Conformance
-  }
+    errors: Conformance;
+    warnings: Conformance;
+    pass: Conformance;
+    notices: Conformance;
+  };
 }
 
 const Extension = () => {
-  const [rulesets, setRulesets] = useState([])
-  const [html, setHtml] = useState('')
-  const [currentURL, setCurrentURL] = useState('')
-  const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]))
-  const [result, setResult] = useState<[] | any>([])
-  const [scallyResult, setScallyResult] = useState<any>({})
-  const [tabId,setTabId] = useState<number>(0)
+  const [html, setHtml] = useState("");
+  const [rulesets, setRulesets] = useState([]);
+  const [currentURL, setCurrentURL] = useState("");
+  const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]));
+  const [result, setResult] = useState<[] | any>([]);
+  const [scallyResult, setScallyResult] = useState<any>({});
+  const [tabId, setTabId] = useState<number>(0);
 
-  const apiKey = localStorage.getItem('authToken')
+  const errorType: any[] = [];
+  const warningType: any[] = [];
+  const passType: any[] = [];
+  const noticeType: any[] = [];
+  const apiKey = localStorage.getItem("authToken");
   // const serverUrl = localStorage.getItem('serverUrl')
 
-  console.log('current url', currentURL)
+  console.log("current url", currentURL);
 
   useEffect(() => {
-    const selectedToolArray = Array.from(selectedTool)
+    const selectedToolArray = Array.from(selectedTool);
 
     const tools = [
-      'tab-order',
-      'headings',
-      'list-tags',
-      'landmarks',
-      'alt-text',
-      'links',
-    ]
+      "tab-order",
+      "headings",
+      "list-tags",
+      "landmarks",
+      "alt-text",
+      "links",
+    ];
 
     tools.forEach((tool) => {
       if (selectedToolArray.includes(tool)) {
-        window.parent.postMessage(`show-${tool}`, '*')
+        window.parent.postMessage(`show-${tool}`, "*");
       } else {
-        window.parent.postMessage(`hide-${tool}`, '*')
+        window.parent.postMessage(`hide-${tool}`, "*");
       }
-    })
-  }, [selectedTool])
+    });
+  }, [selectedTool]);
 
   const handleMinimise = () => {
-    window.parent.postMessage('minimise-button-clicked', '*')
-  }
+    window.parent.postMessage("minimise-button-clicked", "*");
+  };
 
   useEffect(() => {
     async function getCurrentTabHtmlSource() {
       const [tab] = await chrome.tabs.query({
         active: true,
         currentWindow: true,
-      })
+      });
 
       //extract only url with https
-      const url = tab.url?.match(/^https?:\/\/[^#?/]+/)?.[0]
-      setCurrentURL(url!)
+      const url = tab.url?.match(/^https?:\/\/[^#?/]+/)?.[0];
+      setCurrentURL(url!);
       chrome.scripting.executeScript(
         {
-          target: {tabId: tab.id!},
+          target: { tabId: tab.id! },
           func: () => {
-            const html = document.documentElement.outerHTML
-            return html
+            const html = document.documentElement.outerHTML;
+            return html;
           },
         },
         (results) => {
-          setHtml(results[0].result as string)
+          setHtml(results[0].result as string);
         }
-      )
+      );
     }
 
-    getCurrentTabHtmlSource()
-  }, [])
+    getCurrentTabHtmlSource();
+  }, []);
 
   const getRulesets = useCallback(() => {
-    fetch('https://trail-api.barrierbreak.com/api/allRuleSets', {
-      method: 'GET',
+    fetch("https://trail-api.barrierbreak.com/api/allRuleSets", {
+      method: "GET",
       headers: {
-        Accept: '*/*',
-        'User-Agent': 'Test 123',
-        'x-api-key': `${apiKey}`,
-        'Content-Type': 'application/json',
+        Accept: "*/*",
+        "User-Agent": "Test 123",
+        "x-api-key": `${apiKey}`,
+        "Content-Type": "application/json",
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        setRulesets(data)
+        setRulesets(data);
       })
       .catch((error) => {
-        console.error('Error:', error)
-      })
-  }, [apiKey])
+        console.error("Error:", error);
+      });
+  }, [apiKey]);
 
   useEffect(() => {
     // Listen for messages from the background script
     const listener = (request: any) => {
-      if (request.type === 'TO_REACT') {
+      if (request.type === "TO_REACT") {
         console.log(
-          'Audit results received in React frontend:',
+          "Audit results received in React frontend:",
           request.payload
-        )
+        );
         setScallyResult((prevResults: any) => ({
           ...prevResults,
           [request.tabId]: request.payload,
-        }))
+        }));
       }
-    }
+    };
 
-    chrome.runtime.onMessage.addListener(listener)
+    chrome.runtime.onMessage.addListener(listener);
 
     // Cleanup listener on component unmount
     return () => {
-      chrome.runtime.onMessage.removeListener(listener)
-    }
-  }, [])
+      chrome.runtime.onMessage.removeListener(listener);
+    };
+  }, []);
 
   useEffect(() => {
-    setResult(scallyResult[tabId])
-    localStorage.removeItem(`auditResults_${tabId}`)
-  }, [scallyResult, tabId])
+    setResult(scallyResult[tabId]);
+    localStorage.removeItem(`auditResults_${tabId}`);
+  }, [scallyResult, tabId]);
 
   const runAudit = () => {
     const options = {
-      runners: ['htmlcs'], // example options
+      runners: ["htmlcs"],
       ignore: [],
-      standard: ['SECTIONBB'],
-    }
-    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-      const tabId = tabs[0].id
-      setTabId(tabId as number)
-      chrome.runtime.sendMessage({ type: 'RUN_AUDIT', options, tabId })
-    })
+      standard: ["SECTIONBB"],
+    };
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tabId = tabs[0].id;
+      setTabId(tabId as number);
+      chrome.runtime.sendMessage({ type: "RUN_AUDIT", options, tabId });
+    });
 
-    
     const listener = (request: any) => {
-      if (request.type === 'TO_REACT') {
+      if (request.type === "TO_REACT") {
         console.log(
-          'Audit results received in React frontend:',
+          "Audit results received in React frontend:",
           request.payload
-        )
+        );
         setScallyResult((prevResults: any) => ({
           ...prevResults,
           [request.tabId]: request.payload,
-        }))
+        }));
       }
-    }
+    };
 
-    chrome.runtime.onMessage.addListener(listener)
+    chrome.runtime.onMessage.addListener(listener);
 
     // Cleanup listener on component unmount
-
     return () => {
-      chrome.runtime.onMessage.removeListener(listener)
-    }
-
-  }
-
-  const errorType: any[] = []
-  const warningType: any[] = []
-  const passType: any[] = []
-  const noticeType: any[] = []
+      chrome.runtime.onMessage.removeListener(listener);
+    };
+  };
 
   result?.issues?.forEach((issue: any) => {
     switch (issue.type) {
-      case 'error':
-        errorType.push(issue)
-        break
-      case 'warning':
-        warningType.push(issue)
-        break
-      case 'pass':
-        passType.push(issue)
-        break
-      case 'notice':
-        noticeType.push(issue)
-        break
+      case "error":
+        errorType.push(issue);
+        break;
+      case "warning":
+        warningType.push(issue);
+        break;
+      case "pass":
+        passType.push(issue);
+        break;
+      case "notice":
+        noticeType.push(issue);
+        break;
     }
-  })
+  });
 
   const getTotalIssueCount = (data: any) => {
-    const total: any = []
+    const total: any = [];
     data?.forEach((item: any) => {
-      total.push(item.code)
-    })
-    return new Set(total).size
-  }
+      total.push(item.code);
+    });
+    return new Set(total).size;
+  };
 
   const tabData = [
     {
-      id: 'FAIL',
-      label: 'Fail',
+      id: "FAIL",
+      label: "Fail",
       issues: getTotalIssueCount(errorType),
     },
     {
-      id: 'MANUAL',
-      label: 'Manual',
+      id: "MANUAL",
+      label: "Manual",
       issues: getTotalIssueCount(warningType),
     },
     {
-      id: 'PASS',
-      label: 'Pass',
+      id: "PASS",
+      label: "Pass",
       issues: getTotalIssueCount(passType),
     },
     {
-      id: 'BEST-PRACTICE',
-      label: 'BP',
+      id: "BEST-PRACTICE",
+      label: "BP",
       issues: getTotalIssueCount(noticeType),
     },
-  ]
+  ];
 
   const handleResponse = useCallback(() => {
-    getRulesets()
-    runAudit()
-  }, [getRulesets])
+    getRulesets();
+    runAudit();
+  }, [getRulesets]);
 
   return (
     <main className="font-poppins">
@@ -316,24 +312,24 @@ const Extension = () => {
                 selectionMode="multiple"
                 selectedKeys={selectedTool}
                 onSelectionChange={setSelectedTool}
-                classNames={{popover: 'font-poppins'}}
+                classNames={{ popover: "font-poppins" }}
               >
-                <MenuItem id="tab-order" classNames={{title: 'text-base'}}>
+                <MenuItem id="tab-order" classNames={{ title: "text-base" }}>
                   Tab Order
                 </MenuItem>
-                <MenuItem id="headings" classNames={{title: 'text-base'}}>
+                <MenuItem id="headings" classNames={{ title: "text-base" }}>
                   Headings
                 </MenuItem>
-                <MenuItem id="list-tags" classNames={{title: 'text-base'}}>
+                <MenuItem id="list-tags" classNames={{ title: "text-base" }}>
                   List
                 </MenuItem>
-                <MenuItem id="landmarks" classNames={{title: 'text-base'}}>
+                <MenuItem id="landmarks" classNames={{ title: "text-base" }}>
                   Landmark
                 </MenuItem>
-                <MenuItem id="alt-text" classNames={{title: 'text-base'}}>
+                <MenuItem id="alt-text" classNames={{ title: "text-base" }}>
                   Alt Text
                 </MenuItem>
-                <MenuItem id="links" classNames={{title: 'text-base'}}>
+                <MenuItem id="links" classNames={{ title: "text-base" }}>
                   Links
                 </MenuItem>
               </Menu>
@@ -355,7 +351,7 @@ const Extension = () => {
               className="before:content-[''] before:h-[1px] before:w-6 before:bg-neutral-300 before:left-0 before:top-[103px] before:fixed
                         after:content-[''] after:h-[1px] after:w-6 after:bg-neutral-300 after:right-0 after:top-[103px] after:fixed"
             >
-              <Tabs color="purple" classNames={{tab: 'border-0 py-0 pr-1.5'}}>
+              <Tabs color="purple" classNames={{ tab: "border-0 py-0 pr-1.5" }}>
                 <div className="flex items-center justify-between h-12 w-[564px] border-b border-neutral-300 sticky z-[1] bg-white top-14">
                   <TabList>
                     {tabData.map((tab) => (
@@ -369,8 +365,8 @@ const Extension = () => {
                             radius="full"
                             children={`${tab.issues}`}
                             classNames={{
-                              base: 'p-0 h-[18px] min-w-7 hover:bg-purple-100 active:bg-purple-100',
-                              content: 'text-xs text-center px-2 py-0',
+                              base: "p-0 h-[18px] min-w-7 hover:bg-purple-100 active:bg-purple-100",
+                              content: "text-xs text-center px-2 py-0",
                             }}
                           />
                         </div>
@@ -382,7 +378,10 @@ const Extension = () => {
                       </div>
                     </Tab>
                   </TabList>
-                  {/* <DownloadCSV csvdata={{errorType, warningType, passType, noticeType}} /> */}
+                  <DownloadCSV
+                    csvData={{ errorType, warningType, passType, noticeType }}
+                    rules={rulesets}
+                  />
                 </div>
                 <TabPanel id="FAIL">
                   <CheckboxTable data={errorType} rules={rulesets} />
@@ -411,7 +410,7 @@ const Extension = () => {
         </div>
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default Extension
+export default Extension;
