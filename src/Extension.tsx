@@ -197,6 +197,7 @@ const Extension = () => {
     const options = {
       runners: ["htmlcs"],
       ignore: [],
+      clip: true,
       standard: ["SECTIONBB"],
     };
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
