@@ -204,7 +204,11 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
               <>
                 {item.length > 0 && (
                   <>
-                    <div className="flex items-center justify-between py-4">
+                    <div
+                      role="heading"
+                      aria-level={2}
+                      className="flex items-center justify-between py-4"
+                    >
                       <span className="font-semibold text-lg">
                         Level {item[0]?.conformance_level} (Conformance Level)
                       </span>
@@ -226,29 +230,29 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                     </div>
                     <div className="overflow-hidden rounded border border-neutral-200">
                       <table className="table">
-                        <th className="table-header-group w-20 h-10 font-medium border-b border-neutral-200 bg-neutral-100 text-left">
-                          <td className="table-cell p-1 w-20 align-middle border-r border-neutral-200">
+                        <tr className="table-header-group w-20 h-10 font-medium border-b border-neutral-200 bg-neutral-100 text-left">
+                          <th className="table-cell p-1 w-20 align-middle border-r border-neutral-200">
                             <p className="font-medium text-base pl-1">ID</p>
-                          </td>
-                          <td className="table-cell p-1 w-20 align-middle border-r border-neutral-200">
+                          </th>
+                          <th className="table-cell p-1 w-20 align-middle border-r border-neutral-200">
                             <p className="font-medium text-base pl-1">
                               Element
                             </p>
-                          </td>
-                          <td className="table-cell p-1 w-[120px] align-middle border-r border-neutral-200">
+                          </th>
+                          <th className="table-cell p-1 w-[120px] align-middle border-r border-neutral-200">
                             <p className="font-medium text-base pl-1">
                               Screenshot
                             </p>
-                          </td>
-                          <td className="table-cell p-1 w-[160px] align-middle border-r border-neutral-200">
+                          </th>
+                          <th className="table-cell p-1 w-[160px] align-middle border-r border-neutral-200">
                             <p className="font-medium text-base pl-1">Code</p>
-                          </td>
-                          <td className="table-cell p-1 w-[122px] align-middle">
+                          </th>
+                          <th className="table-cell p-1 w-[122px] align-middle">
                             <p className="font-medium text-base pl-1">
                               Attribute
                             </p>
-                          </td>
-                        </th>
+                          </th>
+                        </tr>
 
                         {item.map((issue: any, parentIndex: any) => (
                           <>
@@ -331,9 +335,9 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     <img
                                       className="h-10 w-full object-contain"
                                       src={`data:image/png;base64,${issueItem.clipBase64}`}
-                                      alt={`${getAltText(issueItem.type)}-${
-                                        parentIndex + 1
-                                      }-${index + 1}`}
+                                      alt={`${getAltText(issueItem.type)}-Id-${
+                                        index + 1
+                                      }`}
                                     />
                                   )}
                                 </td>
@@ -354,8 +358,8 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     }
                                     isIconOnly={true}
                                     spacing="compact"
-                                    aria-label={`Copy ${index + 1} ${
-                                      issueItem.elementTagName
+                                    aria-label={`Copy Id-${
+                                      index + 1
                                     } code to clipboard`}
                                   >
                                     <CopyIcon

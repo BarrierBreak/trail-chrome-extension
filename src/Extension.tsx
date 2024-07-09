@@ -126,7 +126,7 @@ const Extension = () => {
         currentWindow: true,
       });
 
-      //extract only url with https
+      // To extract only url with https
       const url = tab.url?.match(/^https?:\/\/[^#?/]+/)?.[0];
       setCurrentURL(url!);
       chrome.scripting.executeScript(
@@ -142,8 +142,13 @@ const Extension = () => {
         }
       );
     }
-
     getCurrentTabHtmlSource();
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        handleMinimise();
+      }
+    });
   }, []);
 
   const getRulesets = useCallback(() => {
@@ -200,6 +205,7 @@ const Extension = () => {
       clip: true,
       standard: ["SECTIONBB"],
     };
+
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tabId = tabs[0].id;
       setTabId(tabId as number);
@@ -278,11 +284,15 @@ const Extension = () => {
   const handleResponse = useCallback(() => {
     getRulesets();
     runAudit();
+    (document.querySelector(".bookmarklet") as HTMLElement)?.focus();
   }, [getRulesets]);
 
   return (
     <main className="font-poppins">
-      <div className="w-full" aria-label="Trail" role="modal">
+      <span aria-live="polite" className="sr-only">
+        Results are loaded
+      </span>
+      <div className="w-full" aria-label="Trail AMS" role="dialog">
         <div className="flex justify-between items-center sticky bg-white top-0 z-[1] border-b border-neutral-300 h-14 px-6 py-2">
           <div className="flex items-center gap-1">
             <TrailIcon
@@ -303,8 +313,7 @@ const Extension = () => {
             <MenuTrigger>
               <Button
                 appearance="default"
-                aria-label="Menu"
-                className="text-base data-[pressed=true]:border-purple-600 data-[pressed=true]:bg-purple-100"
+                className="bookmarklet text-base data-[pressed=true]:border-purple-600 data-[pressed=true]:bg-purple-100"
               >
                 Bookmarklets
                 <ChevronDownIcon width={16} height={16} />
