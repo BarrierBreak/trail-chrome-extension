@@ -32,6 +32,7 @@ const labelColors = {
 
 // To display iframe
 extensionBtn.addEventListener("click", () => {
+  iframe?.setAttribute("aria-hidden", "false");
   showIframe();
 });
 
@@ -491,6 +492,7 @@ window.addEventListener("message", (event) => {
   // To minimize iframe
   if (event.data === "minimise-button-clicked") {
     hideIframe();
+    iframe?.setAttribute("aria-hidden", "true");
     extensionBtn.focus();
   }
 

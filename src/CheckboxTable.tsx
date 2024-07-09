@@ -231,23 +231,38 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                     <div className="overflow-hidden rounded border border-neutral-200">
                       <table className="table">
                         <tr className="table-header-group w-20 h-10 font-medium border-b border-neutral-200 bg-neutral-100 text-left">
-                          <th className="table-cell p-1 w-20 align-middle border-r border-neutral-200">
+                          <th
+                            id="id"
+                            className="table-cell p-1 w-20 align-middle border-r border-neutral-200"
+                          >
                             <p className="font-medium text-base pl-1">ID</p>
                           </th>
-                          <th className="table-cell p-1 w-20 align-middle border-r border-neutral-200">
+                          <th
+                            id="element"
+                            className="table-cell p-1 w-20 align-middle border-r border-neutral-200"
+                          >
                             <p className="font-medium text-base pl-1">
                               Element
                             </p>
                           </th>
-                          <th className="table-cell p-1 w-[120px] align-middle border-r border-neutral-200">
+                          <th
+                            id="screenshot"
+                            className="table-cell p-1 w-[120px] align-middle border-r border-neutral-200"
+                          >
                             <p className="font-medium text-base pl-1">
                               Screenshot
                             </p>
                           </th>
-                          <th className="table-cell p-1 w-[160px] align-middle border-r border-neutral-200">
+                          <th
+                            id="code"
+                            className="table-cell p-1 w-[160px] align-middle border-r border-neutral-200"
+                          >
                             <p className="font-medium text-base pl-1">Code</p>
                           </th>
-                          <th className="table-cell p-1 w-[122px] align-middle">
+                          <th
+                            id="attribute"
+                            className="table-cell p-1 w-[122px] align-middle"
+                          >
                             <p className="font-medium text-base pl-1">
                               Attribute
                             </p>
@@ -257,7 +272,11 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                         {item.map((issue: any, parentIndex: any) => (
                           <>
                             <tr className={`border-b border-neutral-200`}>
-                              <td className="table-cell p-0" colSpan={5}>
+                              <td
+                                id="issue"
+                                className="table-cell p-0"
+                                colSpan={5}
+                              >
                                 <button
                                   aria-expanded={
                                     dropdownStates.find(
@@ -310,7 +329,10 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                 id={issueItem.id}
                                 className={`text-base border-b border-neutral-200 hidden last:border-none`}
                               >
-                                <td className="border-r border-neutral-200 w-[80px] p-2">
+                                <td
+                                  headers="issue id"
+                                  className="border-r border-neutral-200 w-[80px] p-2"
+                                >
                                   <Button
                                     appearance="link"
                                     spacing="none"
@@ -323,12 +345,18 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     <p className="w-[63.5px]">Id-{index + 1}</p>
                                   </Button>
                                 </td>
-                                <td className="table-cell border-r border-neutral-200 text-sm p-2">
+                                <td
+                                  headers="issue element"
+                                  className="table-cell border-r border-neutral-200 text-sm p-2"
+                                >
                                   <p>
                                     <span>{`<${issueItem.elementTagName}>`}</span>
                                   </p>
                                 </td>
-                                <td className="table-cell w-[120.5px] text-sm border-r border-neutral-200 p-2">
+                                <td
+                                  headers="issue screenshot"
+                                  className="table-cell w-[120.5px] text-sm border-r border-neutral-200 p-2"
+                                >
                                   {issueItem.clipBase64 === "" ? (
                                     <p className="text-center">No Image</p>
                                   ) : (
@@ -341,7 +369,10 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     />
                                   )}
                                 </td>
-                                <td className="table-cell p-2 pr-[1px] border-r border-neutral-200 relative font-sourceCode">
+                                <td
+                                  headers="issue code"
+                                  className="table-cell p-2 pr-[1px] border-r border-neutral-200 relative font-sourceCode"
+                                >
                                   <section
                                     className="h-14 w-[150px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                                     tabIndex={0}
@@ -374,7 +405,10 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     </div>
                                   )}
                                 </td>
-                                <td className="table-cell p-2 ">
+                                <td
+                                  headers="issue attribute"
+                                  className="table-cell p-2 "
+                                >
                                   <section
                                     className="w-[104px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                                     tabIndex={0}
