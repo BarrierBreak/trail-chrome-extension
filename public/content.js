@@ -12,7 +12,7 @@ document.body.insertBefore(extensionBtn, document.body.firstChild);
 
 // To inject Trail Extension iframe on load
 const iframe = new DOMParser().parseFromString(
-  "<iframe id='trail-iframe' title='Trail AMS Iframe' allow='clipboard-write' style = 'width: 0px !important; height: 100vh; position: fixed; top: 0; right: 0; border: none; border-radius: 5px; z-index: 999999; box-shadow: -8px 0px 24px 0px rgba(0, 0, 0, 0.12);'></iframe>",
+  "<iframe id='trail-iframe' title='Trail AMS Iframe' allow='clipboard-write' aria-hidden='true' style='width: 0px !important; height: 100vh; position: fixed; top: 0; right: 0; border: none; border-radius: 5px; z-index: 999999; box-shadow: -8px 0px 24px 0px rgba(0, 0, 0, 0.12);'></iframe>",
   "text/html"
 ).body.firstElementChild;
 iframe.src = chrome.runtime.getURL("index.html");
@@ -32,7 +32,6 @@ const labelColors = {
 
 // To display iframe
 extensionBtn.addEventListener("click", () => {
-  iframe?.setAttribute("aria-hidden", "false");
   showIframe();
 });
 
@@ -67,6 +66,7 @@ function showIframe() {
   iframe.style.transition = "width 0.5s ease";
   iframe.style.width = "612px";
   iframe.focus();
+  iframe?.setAttribute("aria-hidden", "false");
 }
 
 // Function to hide extension iframe
@@ -76,6 +76,7 @@ function hideIframe() {
   extensionBtn.style.transition = "top 1s ease";
   iframe.style.transition = "width 0.5s ease";
   iframe.style.width = "0px";
+  iframe?.setAttribute("aria-hidden", "true");
 }
 
 // To handle keyboard shortcut to display / hide iframe
@@ -371,6 +372,33 @@ function showLandMarks() {
       landmarkLabel.style.textTransform = "lowercase";
       landmark.prepend(landmarkLabel);
 
+      switch (landmarkLabel.textContent) {
+        case "<navigation>":
+          landmarkLabel.style.backgroundColor = labelColors.RED_700;
+          break;
+        case "<main>":
+          landmarkLabel.style.backgroundColor = labelColors.PURPLE_700;
+          break;
+        case "<form>":
+          landmarkLabel.style.backgroundColor = labelColors.BLUE_700;
+          break;
+        case "<search>":
+          landmarkLabel.style.backgroundColor = labelColors.GREEN_800;
+          break;
+        case "<banner>":
+          landmarkLabel.style.backgroundColor = labelColors.YELLOW_700;
+          landmarkLabel.style.color = labelColors.NEUTRAL_900;
+          break;
+        case "<complementary>":
+          landmarkLabel.style.backgroundColor = labelColors.NEUTRAL_700;
+          break;
+        case "<contentinfo>":
+          landmarkLabel.style.backgroundColor = labelColors.PURPLE_700;
+          break;
+        default:
+          break;
+      }
+
       const endLabel = landmarkLabel.cloneNode(true);
       endLabel.textContent = `</${landmark.getAttribute("role")}>`;
       landmark.appendChild(endLabel);
@@ -393,6 +421,36 @@ function showLandMarks() {
       sectionLabel.textContent = `<${section.tagName}>`;
       sectionLabel.style.textTransform = "lowercase";
       section.prepend(sectionLabel);
+
+      switch (sectionLabel.textContent) {
+        case "<SECTION>":
+          sectionLabel.style.backgroundColor = labelColors.RED_700;
+          break;
+        case "<ARTICLE>":
+          sectionLabel.style.backgroundColor = labelColors.GREEN_800;
+          break;
+        case "<ASIDE>":
+          sectionLabel.style.backgroundColor = labelColors.YELLOW_700;
+          sectionLabel.style.color = labelColors.NEUTRAL_900;
+          break;
+        case "<NAV>":
+          sectionLabel.style.backgroundColor = labelColors.GREEN_800;
+          break;
+        case "<HEADER>":
+          sectionLabel.style.backgroundColor = labelColors.PURPLE_700;
+          break;
+        case "<FOOTER>":
+          sectionLabel.style.backgroundColor = labelColors.NEUTRAL_700;
+          break;
+        case "<FORM>":
+          sectionLabel.style.backgroundColor = labelColors.BLUE_700;
+          break;
+        case "<MAIN>":
+          sectionLabel.style.backgroundColor = labelColors.PURPLE_700;
+          break;
+        default:
+          break;
+      }
 
       const endLabel = sectionLabel.cloneNode(true);
       endLabel.textContent = `</${section.tagName}>`;
@@ -492,7 +550,6 @@ window.addEventListener("message", (event) => {
   // To minimize iframe
   if (event.data === "minimise-button-clicked") {
     hideIframe();
-    iframe?.setAttribute("aria-hidden", "true");
     extensionBtn.focus();
   }
 

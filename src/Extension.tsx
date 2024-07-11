@@ -314,9 +314,9 @@ const Extension = () => {
               <Button
                 appearance="default"
                 className="bookmarklet text-base data-[pressed=true]:border-purple-600 data-[pressed=true]:bg-purple-100"
+                endContent={<ChevronDownIcon width={16} height={16} />}
               >
                 Bookmarklets
-                <ChevronDownIcon width={16} height={16} />
               </Button>
               <Menu
                 selectionMode="multiple"

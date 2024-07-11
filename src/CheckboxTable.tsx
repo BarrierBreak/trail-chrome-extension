@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useState } from "react";
-import { nanoid } from "nanoid";
 import { Button, Chip, IconButton } from "@trail-ui/react";
 import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
 import { getAltText, formatInput } from "./utils";
@@ -41,8 +40,8 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
   const mergedData: any = [];
 
   const mergeIssuesAndRulesets = () => {
-    rules.forEach((rule: any) => {
-      data.forEach((issue: any) => {
+    rules.forEach((rule: any, rule_index: number) => {
+      data.forEach((issue: any, data_index: number) => {
         if (rule.ruleset_id === issue.code) {
           const format = {
             code: issue["code"],
@@ -51,7 +50,6 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
             element: rule["element"],
             failing_issue_variable: rule["failing_issue_variable"],
             failing_technique: rule["failing_technique"],
-            id: nanoid(),
             issues: [
               {
                 clip: { x: 0, y: 0, width: 0, height: 0 },
@@ -59,7 +57,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                 code: issue["code"],
                 context: issue["context"],
                 elementTagName: issue["elementTagName"],
-                id: nanoid(),
+                id: `${rule_index}-${data_index}`,
                 message: issue["message"],
                 recurrence: issue["recurrence"],
                 selector: issue["selector"],
@@ -91,7 +89,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
         levelData.AA.push(item);
       } else if (item.conformance_level === "AAA") {
         levelData.AAA.push(item);
-      } else if (item.conformance_level === "Best Practice") {
+      } else if (item.conformance_level === "Best Practices") {
         levelData.BestPractice.push(item);
       } else if (item.conformance_level === "Section508") {
         levelData.Section508.push(item);
@@ -141,7 +139,6 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
   // To handle copy to clipboard functionality
   const handleCopyToClipboard = (code: string, id: string) => {
     navigator.clipboard.writeText(code).then(() => {
-      // console.log("Code copied successfully");
       handleShowPopup(id);
     });
   };
@@ -156,7 +153,6 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
 
   // To focus on element functionality
   const focusElement = async (elementId: string) => {
-    // console.log("Focus Element ID :---", elementId);
     window.parent.postMessage("minimise-button-clicked", "*");
 
     const [tab] = await chrome.tabs.query({
@@ -377,7 +373,15 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     className="h-14 w-[150px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                                     tabIndex={0}
                                   >
-                                    {issueItem.context}
+                                    {issueItem.context?.length > 300
+                                      ? issueItem.context?.split(">")[0] +
+                                        "> . . . </" +
+                                        issueItem.context
+                                          ?.slice(1)
+                                          .split(" ")[0]
+                                          .split(">")[0] +
+                                        ">"
+                                      : issueItem.context}
                                   </section>
                                   <IconButton
                                     className="absolute top-0.5 right-4"
@@ -400,7 +404,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     />
                                   </IconButton>
                                   {activePopup === issueItem.id && (
-                                    <div className="absolute bottom-[110%] -right-[26%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded">
+                                    <div className="absolute bottom-[110%] -right-[28%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded">
                                       Copied to Clipboard!
                                     </div>
                                   )}

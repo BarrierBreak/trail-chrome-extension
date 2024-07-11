@@ -9,14 +9,14 @@ dependencies:
     specifier: ^1.0.14
     version: 1.0.14(vite@5.2.11)
   '@trail-ui/icons':
-    specifier: ^1.0.11
-    version: 1.0.11(react@18.3.1)
+    specifier: ^1.0.12
+    version: 1.0.12(react@18.3.1)
   '@trail-ui/react':
-    specifier: ^1.1.13
-    version: 1.1.13(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@3.4.3)
+    specifier: ^1.1.14
+    version: 1.1.14(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@3.4.3)
   '@trail-ui/theme':
-    specifier: ^1.1.13
-    version: 1.1.13(tailwindcss@3.4.3)
+    specifier: ^1.1.14
+    version: 1.1.14(tailwindcss@3.4.3)
   framer-motion:
     specifier: ^11.1.9
     version: 11.1.9(react-dom@18.3.1)(react@18.3.1)
@@ -2145,35 +2145,35 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /@trail-ui/hooks@1.0.7(react@18.3.1):
-    resolution: {integrity: sha512-SlncRM3Np371WOOhyYjCziXUs6N5luFA0jlRmalYsa8SosiACdZsaHhEoh7oYSI/T/K6ZR7nfjDVNZJ2nqnL6A==}
+  /@trail-ui/hooks@1.0.8(react@18.3.1):
+    resolution: {integrity: sha512-eVhsbi6Wsbp7gnDgFexgmuByRlYOyvHKHUknuhF6kHu+1gAlMvxol8rLPcS+6K+ezdRpJy4VcvyhWem5PVWCyQ==}
     peerDependencies:
       react: '>=18'
     dependencies:
-      '@trail-ui/shared-utils': 1.0.5
+      '@trail-ui/shared-utils': 1.0.6
       '@types/lodash.debounce': 4.0.9
       lodash.debounce: 4.0.8
       react: 18.3.1
     dev: false
 
-  /@trail-ui/icons@1.0.11(react@18.3.1):
-    resolution: {integrity: sha512-tuyCkYls7Le9uzHy67gvBxBNzC18vqPJK+1lSSUMRN6g2pYuIrwJtYbG0ng1aXgkLBpdBzLT4L0RbiG3iauMEg==}
+  /@trail-ui/icons@1.0.12(react@18.3.1):
+    resolution: {integrity: sha512-9OfTvHA88retbPUaaxcsrbz9Mmzgn5qGXDlDXCGiPtadTguaJ/mfffWgdE838sEQocNcmNyJ1bhHmCwo0d5KKg==}
     peerDependencies:
       react: '>=18'
     dependencies:
       react: 18.3.1
     dev: false
 
-  /@trail-ui/react-utils@1.0.5(react@18.3.1):
-    resolution: {integrity: sha512-GETEEuOMCaCqgT05u86rTNSTNgKGNvxmtjVJARc7HXIShHOB/k56epNjR6jwMPUB5x0xeJ0brNm+M/JSP97nFg==}
+  /@trail-ui/react-utils@1.0.6(react@18.3.1):
+    resolution: {integrity: sha512-OKmqFPrYp0tuTVwSi7B75SBfmJJaSlPnBLiW1fiBKNqJZroQZIrpc0u80vCMv136zb3DJEMy+5XSa0QUInrz2w==}
     peerDependencies:
       react: '>=18'
     dependencies:
       react: 18.3.1
     dev: false
 
-  /@trail-ui/react@1.1.13(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@3.4.3):
-    resolution: {integrity: sha512-FiKymGxS9PVBLqr/kjn64QXsVhJfhvzJ4+om+E97C93TLREfrAqzSWjAuzT5LT/acw4ePl7MESTun5MvBzJ3rQ==}
+  /@trail-ui/react@1.1.14(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)(tailwindcss@3.4.3):
+    resolution: {integrity: sha512-FccAaLlV7owDfa6t/3tXbbrdoSuCqxShqgOcF4AjHH6vGbuStRE7zhj+QCYCtD/InxMKilQakK59Z4WId8eF4A==}
     peerDependencies:
       react: ^18.2.0
       react-dom: ^18.2.0
@@ -2185,11 +2185,11 @@ packages:
       '@react-stately/utils': 3.10.0(react@18.3.1)
       '@react-types/shared': 3.23.0(react@18.3.1)
       '@tanstack/react-table': 8.16.0(react-dom@18.3.1)(react@18.3.1)
-      '@trail-ui/hooks': 1.0.7(react@18.3.1)
-      '@trail-ui/icons': 1.0.11(react@18.3.1)
-      '@trail-ui/react-utils': 1.0.5(react@18.3.1)
-      '@trail-ui/shared-utils': 1.0.5
-      '@trail-ui/theme': 1.1.13(tailwindcss@3.4.3)
+      '@trail-ui/hooks': 1.0.8(react@18.3.1)
+      '@trail-ui/icons': 1.0.12(react@18.3.1)
+      '@trail-ui/react-utils': 1.0.6(react@18.3.1)
+      '@trail-ui/shared-utils': 1.0.6
+      '@trail-ui/theme': 1.1.14(tailwindcss@3.4.3)
       react: 18.3.1
       react-aria: 3.33.0(react-dom@18.3.1)(react@18.3.1)
       react-aria-components: 1.2.0(react-dom@18.3.1)(react@18.3.1)
@@ -2201,15 +2201,15 @@ packages:
       - tailwindcss
     dev: false
 
-  /@trail-ui/shared-utils@1.0.5:
-    resolution: {integrity: sha512-MPhufo11/HaoCg0uaTYC7b3iYKsmN+2lluH6YNCbeQbwiYD6w+m20/TeN0eZJaBHAfZkxypeQeSSeE3iAn8HMg==}
+  /@trail-ui/shared-utils@1.0.6:
+    resolution: {integrity: sha512-zihuQKds+2ljJikJRN2xbHiFjFyZ7XH7Jo3Ot73KhUKf1Ixv7HyQpDRkDP/0qn7Eq6vBHNgesA1Uo8iISA92TQ==}
     dependencies:
       clsx: 2.1.1
       tailwind-merge: 1.14.0
     dev: false
 
-  /@trail-ui/theme@1.1.13(tailwindcss@3.4.3):
-    resolution: {integrity: sha512-viyz5xjSRQjll88OTY7RV6J3KBhpB4J1vYroLSvTWk2JfQlT0XLrfMsrduqa+cubctidUd67sTWQytERSrmfaQ==}
+  /@trail-ui/theme@1.1.14(tailwindcss@3.4.3):
+    resolution: {integrity: sha512-mwewrSHltEufpXs8SdA6t+UZ904Pk7zW9OSJRmULlrY+FGvgYiqGQ5gnSZpxnp+rWJbkBmYixBG2BILc9Pz8UA==}
     peerDependencies:
       tailwindcss: '*'
     dependencies:

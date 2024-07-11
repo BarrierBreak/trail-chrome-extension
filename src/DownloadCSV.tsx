@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as XLSX from "xlsx";
-import { nanoid } from "nanoid";
 import { DownloadIcon } from "@trail-ui/icons";
 import { IconButton } from "@trail-ui/react";
 import { rgbaToHex } from "./utils";
@@ -61,8 +60,8 @@ const DownloadCSV = ({ csvData, rules }) => {
       ];
 
       const mergedData: any = [];
-      rules.forEach((rule: any) => {
-        data.forEach((issue: any) => {
+      rules.forEach((rule: any, rule_index: number) => {
+        data.forEach((issue: any, data_index: number) => {
           if (rule.ruleset_id === issue.code) {
             const format = {
               code: issue["code"],
@@ -71,7 +70,6 @@ const DownloadCSV = ({ csvData, rules }) => {
               element: rule["element"],
               failing_issue_variable: rule["failing_issue_variable"],
               failing_technique: rule["failing_technique"],
-              id: nanoid(),
               issues: [
                 {
                   clip: { x: 0, y: 0, width: 0, height: 0 },
@@ -79,7 +77,7 @@ const DownloadCSV = ({ csvData, rules }) => {
                   code: issue["code"],
                   context: issue["context"],
                   elementTagName: issue["elementTagName"],
-                  id: nanoid(),
+                  id: `${rule_index}-${data_index}`,
                   message: issue["message"],
                   recurrence: issue["recurrence"],
                   selector: issue["selector"],
@@ -158,11 +156,16 @@ const DownloadCSV = ({ csvData, rules }) => {
               ? `Font-size: ${formattedParts["FontSize"]}, Font-weight: ${formattedParts["FontWeight"]}, Foreground Color: ${formattedParts["Foreground"]}, Background Color: ${formattedParts["Background"]}, Ratio: ${formattedParts["Ratio"]}`
               : issue.message;
 
+          const codeSnippet =
+            item.context?.length > 300
+              ? item.context?.split(">")[0] + "> . . . </" + item.context?.slice(1).split(" ")[0].split(">")[0] + ">"
+              : item.context;
+
           const dataformat = [
             issue.failing_technique,
             item.elementTagName,
             item.code,
-            item.context?.substring(0, 300),
+            codeSnippet,
             attribute,
             issue.conformance_level,
             issue.criteria_name,

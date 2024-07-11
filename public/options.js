@@ -1,6 +1,6 @@
 (() => {
   let tokenValue = document.getElementById("authToken");
-  let urlValue = document.getElementById("serverUrl");
+  // let urlValue = document.getElementById("serverUrl");
   let saveBtn = document.getElementById("saveBtn");
 
   const authToken = localStorage.getItem("authToken");
@@ -8,19 +8,19 @@
     tokenValue.value = authToken;
   }
 
-  const serverURL = localStorage.getItem("serverUrl");
-  if (serverURL !== null) {
-    urlValue.value = serverURL;
-  }
+  // const serverURL = localStorage.getItem("serverUrl");
+  // if (serverURL !== null) {
+  //   urlValue.value = serverURL;
+  // }
 
   saveBtn.addEventListener("click", () => {
     let data = {
       authToken: tokenValue.value,
-      serverUrl: urlValue.value,
+      // serverUrl: urlValue.value,
     };
 
     localStorage.setItem("authToken", data.authToken);
-    localStorage.setItem("serverUrl", data.serverUrl);
+    // localStorage.setItem("serverUrl", data.serverUrl);
     window.close();
   });
 })();
