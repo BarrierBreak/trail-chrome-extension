@@ -510,7 +510,9 @@ function showLinks() {
 
   if (document.querySelectorAll(".link-label").length <= 0) {
     links.forEach((link) => {
-      const name = link.getAttribute("aria-labelledby");
+      const ariaLabelledBy = link.getAttribute("aria-labelledby");
+      const ariaLabel = link.getAttribute("aria-label");
+      const title = link.getAttribute("title");
       const startLabel = document.createElement("strong");
       startLabel.className = "link-label";
       startLabel.style.backgroundColor = labelColors.PURPLE_700;
@@ -524,13 +526,15 @@ function showLinks() {
       startLabel.style.zIndex = "100000";
       link.prepend(startLabel);
 
-      startLabel.textContent = name
-        ? `<${link.tagName.toLowerCase()} name = "${name}">`
-        : `<${link.tagName.toLowerCase()}> name = ""`;
+      // In the order of: aria-labelledby > aria-label > title
+      const name = ariaLabelledBy || ariaLabel || title;
 
-      if (
-        startLabel.textContent === `<${link.tagName.toLowerCase()}> name = ""`
-      ) {
+      startLabel.textContent =
+        name !== null
+          ? `<${link.tagName.toLowerCase()} name = "${name}">`
+          : `<${link.tagName.toLowerCase()}>`;
+
+      if (name === null) {
         startLabel.style.backgroundColor = labelColors.RED_700;
       }
 

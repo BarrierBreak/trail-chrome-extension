@@ -9,10 +9,37 @@ const WebsiteLandmarks = ({ html }: { html: string }) => {
       const tagName = heading.tagName;
       const level = parseInt(heading.tagName[1]);
       const text = heading.textContent;
+      let color = "#FEFEFE";
+      let bgColor;
+
+      switch (tagName) {
+        case "H1":
+          color = "#19171D";
+          bgColor = "#F5BD00";
+          break;
+        case "H2":
+          bgColor = "#5827DA";
+          break;
+        case "H3":
+          bgColor = "#458A46";
+          break;
+        case "H4":
+          bgColor = "#294CB5";
+          break;
+        case "H5":
+          bgColor = "#D20000";
+          break;
+        case "H6":
+          bgColor = "#484453";
+          break;
+      }
+
       return {
         tagName,
         level,
         text,
+        color,
+        bgColor,
       };
     });
 
@@ -26,21 +53,25 @@ const WebsiteLandmarks = ({ html }: { html: string }) => {
       <div className="pt-4">
         {landMarks.map((landmark) => (
           <>
-            <div
+            <span
               style={{
+                color: landmark.color,
+                backgroundColor: landmark.bgColor,
                 marginLeft: landmark.level * 20,
-                fontWeight: "bold",
-                color: "#5826ed",
-                fontSize: "1.3em",
+                padding: "0px 6px",
+                borderRadius: "4px",
+                fontWeight: "500",
+                fontSize: "16px",
               }}
             >
               {landmark.tagName}
-            </div>
+            </span>
             <div
               style={{
+                margin: "4px 0",
                 marginLeft: landmark.level * 20,
-                color: "black",
-                fontSize: "1.2em",
+                color: "#19171D",
+                fontSize: "16px",
               }}
             >
               {landmark.text}
