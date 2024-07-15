@@ -281,6 +281,11 @@ const Extension = () => {
     },
   ];
 
+  const handleReset = () => {
+    window.parent.postMessage("reset-results", "*");
+    setRulesets([]);
+  };
+
   const handleResponse = useCallback(() => {
     getRulesets();
     runAudit();
@@ -310,6 +315,12 @@ const Extension = () => {
             />
           </div>
           <div className="flex gap-4">
+            <Button
+              className="text-base"
+              onPress={handleReset}
+            >
+              Reset
+            </Button>
             <MenuTrigger>
               <Button
                 appearance="default"
