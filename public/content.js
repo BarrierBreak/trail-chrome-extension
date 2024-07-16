@@ -550,6 +550,23 @@ function hideLinks() {
   linkLabels.forEach((label) => label.remove());
 }
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "INSERT_SCALLY") {
+    insertScally();
+    sendResponse({ status: "Action performed" });
+  }
+});
+
+function insertScally() {
+  if (
+    !document.getElementById("trail-btn") &&
+    !document.getElementById("trail-iframe")
+  ) {
+    document.body.insertBefore(extensionBtn, document.body.firstChild);
+    document.body.insertBefore(iframe, document.body.firstChild.nextSibling);
+  }
+}
+
 window.addEventListener("message", (event) => {
   // To minimize iframe
   if (event.data === "minimise-button-clicked") {

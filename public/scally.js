@@ -15,12 +15,13 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
       }
     }
 
-    const auditData = await window.__a11y.run(request.options)
+    let auditData = await window.__a11y.run(request.options)
     const tabId = request.tabId
     localStorage.setItem(`auditResults_${tabId}`, JSON.stringify(auditData))
 
     window.addEventListener("message", (event) => {
       if (event.data === "reset-results") {
+        auditData = {};
         localStorage.removeItem(`auditResults_${tabId}`);
       }
     });

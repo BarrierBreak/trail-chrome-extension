@@ -284,6 +284,7 @@ const Extension = () => {
   const handleReset = () => {
     window.parent.postMessage("reset-results", "*");
     setRulesets([]);
+    setResult({});
   };
 
   const handleResponse = useCallback(() => {
