@@ -564,6 +564,7 @@ function insertScally() {
   ) {
     document.body.insertBefore(extensionBtn, document.body.firstChild);
     document.body.insertBefore(iframe, document.body.firstChild.nextSibling);
+    showIframe();
   }
 }
 

@@ -6,7 +6,8 @@ insertButton.addEventListener("click", () => {
       activeTab.id,
       { type: "INSERT_SCALLY" },
       (response) => {
-        console.log(response.status);
+        //console.log(response.status);
+        window.close();
       }
     );
   });
