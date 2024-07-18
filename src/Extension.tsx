@@ -14,10 +14,11 @@ import {
   Tabs,
 } from "@trail-ui/react";
 import {
-  TrailIcon,
-  TrailAMSVerticalIcon,
-  MinusIcon,
   ChevronDownIcon,
+  MinusIcon,
+  ResetIcon,
+  TrailAMSVerticalIcon,
+  TrailIcon,
 } from "@trail-ui/icons";
 import CheckboxTable from "./CheckboxTable";
 import WebsiteLandmarks from "./WebsiteLandmarks";
@@ -170,14 +171,10 @@ const Extension = () => {
       });
   }, [apiKey]);
 
+  // Listen for messages from the background script
   useEffect(() => {
-    // Listen for messages from the background script
     const listener = (request: any) => {
       if (request.type === "TO_REACT") {
-        // console.log(
-        //   "Audit results received in React frontend:",
-        //   request.payload
-        // );
         setScallyResult((prevResults: any) => ({
           ...prevResults,
           [request.tabId]: request.payload,
@@ -195,7 +192,7 @@ const Extension = () => {
 
   useEffect(() => {
     setResult(scallyResult[tabId]);
-    localStorage.removeItem(`auditResults_${tabId}`);
+    sessionStorage.removeItem(`auditResults_${tabId}`);
   }, [scallyResult, tabId]);
 
   const runAudit = () => {
@@ -214,10 +211,6 @@ const Extension = () => {
 
     const listener = (request: any) => {
       if (request.type === "TO_REACT") {
-        // console.log(
-        //   "Audit results received in React frontend:",
-        //   request.payload
-        // );
         setScallyResult((prevResults: any) => ({
           ...prevResults,
           [request.tabId]: request.payload,
@@ -288,6 +281,7 @@ const Extension = () => {
   };
 
   const handleResponse = useCallback(() => {
+    sessionStorage.removeItem(`auditResults_${tabId}`);
     getRulesets();
     runAudit();
     (document.querySelector(".bookmarklet") as HTMLElement)?.focus();
@@ -316,12 +310,6 @@ const Extension = () => {
             />
           </div>
           <div className="flex gap-4">
-            <Button
-              className="text-base"
-              onPress={handleReset}
-            >
-              Reset
-            </Button>
             <MenuTrigger>
               <Button
                 appearance="default"
@@ -357,12 +345,12 @@ const Extension = () => {
               </Menu>
             </MenuTrigger>
             <IconButton
-              appearance="text"
+              appearance="default"
               isIconOnly={true}
               onPress={handleMinimise}
               aria-label="Minimise"
             >
-              <MinusIcon width={24} height={24} />
+              <MinusIcon width={24} height={24} className="text-neutral-800" />
             </IconButton>
           </div>
         </div>
@@ -400,10 +388,24 @@ const Extension = () => {
                       </div>
                     </Tab>
                   </TabList>
-                  <DownloadCSV
-                    csvData={{ errorType, warningType, passType, noticeType }}
-                    rules={rulesets}
-                  />
+                  <div className="flex gap-4">
+                    <IconButton
+                      appearance="default"
+                      isIconOnly={true}
+                      onPress={handleReset}
+                      aria-label="Reset Results"
+                    >
+                      <ResetIcon
+                        width={24}
+                        height={24}
+                        className="text-neutral-800"
+                      />
+                    </IconButton>
+                    <DownloadCSV
+                      csvData={{ errorType, warningType, passType, noticeType }}
+                      rules={rulesets}
+                    />
+                  </div>
                 </div>
                 <TabPanel id="FAIL">
                   <CheckboxTable data={errorType} rules={rulesets} />
@@ -424,8 +426,12 @@ const Extension = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center gap-4 w-full h-screen">
-              <Button appearance="primary" onPress={handleResponse}>
-                <span className="text-base">Test Website</span>
+              <Button
+                appearance="primary"
+                onPress={handleResponse}
+                className="text-base"
+              >
+                Test Website
               </Button>
             </div>
           )}

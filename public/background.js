@@ -16,3 +16,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
   }
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "CAPTURE_SCREENSHOT") {
+    chrome.tabs.captureVisibleTab(null, { format: "png" }, (image) => {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError);
+        return;
+      }
+      sendResponse({ screenshot: image });
+    });
+    return true;
+  }
+});

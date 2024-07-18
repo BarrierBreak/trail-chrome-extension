@@ -30,6 +30,44 @@ const labelColors = {
   NEUTRAL_900: "#19171D",
 };
 
+function captureScreenshot(x, y, width, height, callback) {
+  chrome.runtime.sendMessage({ type: "CAPTURE_SCREENSHOT" }, (response) => {
+    if (response && response.screenshot) {
+      const img = new Image();
+      img.src = response.screenshot;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
+        callback(canvas.toDataURL("image/png"));
+      };
+    }
+  });
+}
+
+function captureSpecificArea(name, x, y, width, height) {
+  captureScreenshot(x, y, width, height, (screenshot) => {
+    const link = document.createElement("a");
+    link.href = screenshot;
+    link.download = `Screenshot-${name}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "CAPTURE_AREA") {
+    const { name, x, y, width, height } = message;
+    captureSpecificArea(name, x, y, width, height);
+  }
+});
+
 // To display iframe
 extensionBtn.addEventListener("click", () => {
   showIframe();
@@ -61,22 +99,33 @@ extensionBtn.addEventListener("mouseout", () => {
 
 // Function to show extension iframe
 function showIframe() {
-  extensionBtn.style.top = "1000px";
-  extensionBtn.style.transition = "top 1s ease";
+  hideTrailButton();
   iframe.style.transition = "width 0.5s ease";
   iframe.style.width = "612px";
   iframe.focus();
   iframe?.setAttribute("aria-hidden", "false");
 }
 
+function hideTrailButton() {
+  extensionBtn.style.top = "1000px";
+  extensionBtn.style.transition = "top 1s ease";
+}
+
 // Function to hide extension iframe
 function hideIframe() {
-  extensionBtn.style.display = "flex";
-  extensionBtn.style.top = "244px";
-  extensionBtn.style.transition = "top 1s ease";
   iframe.style.transition = "width 0.5s ease";
   iframe.style.width = "0px";
   iframe?.setAttribute("aria-hidden", "true");
+  
+  setTimeout(() => {
+    showTrailButton();
+  }, 1000);
+}
+
+function showTrailButton() {
+  extensionBtn.style.display = "flex";
+  extensionBtn.style.top = "244px";
+  extensionBtn.style.transition = "top 1s ease";
 }
 
 // To handle keyboard shortcut to display / hide iframe
@@ -564,7 +613,9 @@ function insertScally() {
   ) {
     document.body.insertBefore(extensionBtn, document.body.firstChild);
     document.body.insertBefore(iframe, document.body.firstChild.nextSibling);
-    showIframe();
+    setTimeout(() => {
+      showIframe();
+    }, 50);
   }
 }
 

@@ -5,8 +5,7 @@ insertButton.addEventListener("click", () => {
     chrome.tabs.sendMessage(
       activeTab.id,
       { type: "INSERT_SCALLY" },
-      (response) => {
-        //console.log(response.status);
+      () => {
         window.close();
       }
     );

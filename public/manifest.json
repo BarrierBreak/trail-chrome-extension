@@ -1,15 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Trail Extension",
-  "version": "1.2.4",
+  "version": "1.2.8",
   "description": "Trail Extension - A Chrome Extension for testing accessibility of a webpage.",
   "action": {
     "default_title": "Trail Extension",
     "default_popup": "popup.html"
   },
-  "host_permissions": [
-    "*://*/*"
-  ],
+  "host_permissions": ["*://*/*", "<all_urls>"],
   "permissions": [
     "scripting",
     "tabs",
@@ -25,35 +23,18 @@
     "open_in_tab": false
   },
   "externally_connectable": {
-    "matches": [
-      "http://*/*",
-      "https://*/*",
-      "file:///*"
-    ]
+    "matches": ["http://*/*", "https://*/*", "file:///*"]
   },
   "content_scripts": [
     {
-      "js": [
-        "content.js",
-        "scally.js"
-      ],
-      "matches": [
-        "http://*/*",
-        "https://*/*",
-        "file:///*"
-      ]
+      "js": ["content.js", "scally.js"],
+      "matches": ["http://*/*", "https://*/*", "file:///*", "<all_urls>"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "index.html"
-      ],
-      "matches": [
-        "https://*/*",
-        "http://*/*",
-        "file:///*"
-      ]
+      "resources": ["index.html", "html2canvas.min.js"],
+      "matches": ["https://*/*", "http://*/*", "file:///*", "<all_urls>"]
     }
   ]
 }

@@ -2,8 +2,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, Chip, IconButton } from "@trail-ui/react";
 import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
-import { getAltText, formatInput } from "./utils";
 import { Conformance, IssueTypes } from "./Extension";
+import { formatInput, getAltText } from "./utils";
 
 interface CheckboxTableProps {
   data: any;
@@ -168,7 +168,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
           .toString(36)
           .substring(7)}`;
         const styleElement = document.createElement("style");
-        styleElement.innerText = `.${className} { outline: 2px solid red !important; background: yellow !important; }`;
+        styleElement.innerText = `.${className} { outline: 4px solid red !important; outline-offset: 4px; }`;
         document.body.appendChild(styleElement);
 
         /** @type {Element | null} */
@@ -185,10 +185,35 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
             lastFocusedElement.classList.remove(className);
           }
           styleElement.remove();
-        }, 2000);
+        }, 3000);
       },
       args: [elementId],
     });
+  };
+
+  const downloadScreenshot = (
+    elementId: string,
+    issue: string,
+    parentIndex: number,
+    index: number
+  ) => {
+    focusElement(elementId);
+    const name = `${getAltText(issue)}-${parentIndex + 1}-Id-${index + 1}`;
+
+    setTimeout(() => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const tabId = tabs[0].id;
+
+        chrome.tabs.sendMessage(tabId as number, {
+          type: "CAPTURE_AREA",
+          name: name,
+          x: 0,
+          y: 0,
+          width: 3000,
+          height: 1500,
+        });
+      });
+    }, 1000);
   };
 
   return (
@@ -351,19 +376,34 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                 </td>
                                 <td
                                   headers="issue screenshot"
-                                  className="table-cell w-[120.5px] text-sm border-r border-neutral-200 p-2"
+                                  className="table-cell w-[120.5px] text-sm text-center border-r border-neutral-200 p-2"
                                 >
-                                  {issueItem.clipBase64 === "" ? (
-                                    <p className="text-center">No Image</p>
-                                  ) : (
-                                    <img
-                                      className="h-10 w-full object-contain"
-                                      src={`data:image/png;base64,${issueItem.clipBase64}`}
-                                      alt={`${getAltText(issueItem.type)}-Id-${
-                                        index + 1
-                                      }`}
-                                    />
-                                  )}
+                                  <Button
+                                    appearance="link"
+                                    spacing="none"
+                                    isDisabled={!issueItem.selector}
+                                    onPress={() =>
+                                      downloadScreenshot(
+                                        issueItem.selector,
+                                        issueItem.type,
+                                        parentIndex,
+                                        index
+                                      )
+                                    }
+                                  >
+                                    Download
+                                  </Button>
+                                  {/* //   {issueItem.clipBase64 === "" ? (
+                                      //     <p className="text-center">No Image</p>
+                                      //   ) : (
+                                      //     <img
+                                      //       className="h-10 w-full object-contain"
+                                      //       src={`data:image/png;base64,${issueItem.clipBase64}`}
+                                      //       alt={`${getAltText(issueItem.type)}-Id-${
+                                      //         index + 1
+                                      //       }`}
+                                      //     />
+                                      //   )} */}
                                 </td>
                                 <td
                                   headers="issue code"
