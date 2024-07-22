@@ -201,18 +201,35 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
     const name = `${getAltText(issue)}-${parentIndex + 1}-Id-${index + 1}`;
 
     setTimeout(() => {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const tabId = tabs[0].id;
-
-        chrome.tabs.sendMessage(tabId as number, {
-          type: "CAPTURE_AREA",
-          name: name,
-          x: 0,
-          y: 0,
-          width: 3000,
-          height: 1500,
+      if (navigator.userAgent.indexOf('Mac OS X') != -1) {
+        
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const tabId = tabs[0].id;
+  
+          chrome.tabs.sendMessage(tabId as number, {
+            type: "CAPTURE_AREA",
+            name: name,
+            x: 0,
+            y: 0,
+            width: 3000,
+            height: 1500,
+          });
         });
-      });
+      } else {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const tabId = tabs[0].id;
+  
+          chrome.tabs.sendMessage(tabId as number, {
+            type: "CAPTURE_AREA",
+            name: name,
+            x: 0,
+            y: 0,
+            width: 1400,
+            height: 650,
+          });
+        });
+      }
+      
     }, 1000);
   };
 

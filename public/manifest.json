@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Trail Extension",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "description": "Trail Extension - A Chrome Extension for testing accessibility of a webpage.",
   "action": {
     "default_title": "Trail Extension",
@@ -17,10 +17,6 @@
   ],
   "background": {
     "service_worker": "background.js"
-  },
-  "options_ui": {
-    "page": "options.html",
-    "open_in_tab": false
   },
   "externally_connectable": {
     "matches": ["http://*/*", "https://*/*", "file:///*"]

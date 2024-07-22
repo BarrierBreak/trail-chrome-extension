@@ -94,6 +94,17 @@ const Extension = () => {
   // const serverUrl = localStorage.getItem('serverUrl')
 
   console.log("current url", currentURL);
+  
+  // To check whether the URL has dashboard params and then open Trail automatically
+  // if (currentURL.includes("break")) {
+  //   console.log("match found");
+  //   window.parent.postMessage("open-trail", "*");
+  //   setTimeout(() => {
+  //     (document.querySelector(".test-website") as HTMLElement)?.click()
+  //   }, 500);
+  // } else {
+  //   console.log("match not found");
+  // }
 
   useEffect(() => {
     const selectedToolArray = Array.from(selectedTool);
@@ -429,7 +440,7 @@ const Extension = () => {
               <Button
                 appearance="primary"
                 onPress={handleResponse}
-                className="text-base"
+                className="test-website text-base"
               >
                 Test Website
               </Button>

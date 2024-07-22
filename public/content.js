@@ -116,7 +116,7 @@ function hideIframe() {
   iframe.style.transition = "width 0.5s ease";
   iframe.style.width = "0px";
   iframe?.setAttribute("aria-hidden", "true");
-  
+
   setTimeout(() => {
     showTrailButton();
   }, 1000);
@@ -625,6 +625,10 @@ window.addEventListener("message", (event) => {
     hideIframe();
     extensionBtn.focus();
   }
+  
+  // if (event.data === "open-trail") {
+  //   showIframe();
+  // }
 
   // To show tab order
   if (event.data === "show-tab-order") {
