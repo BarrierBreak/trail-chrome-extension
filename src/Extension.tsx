@@ -356,7 +356,7 @@ const Extension = () => {
               </Menu>
             </MenuTrigger>
             <IconButton
-              appearance="default"
+              appearance="textLink"
               isIconOnly={true}
               onPress={handleMinimise}
               aria-label="Minimise"
@@ -407,8 +407,8 @@ const Extension = () => {
                       aria-label="Reset Results"
                     >
                       <ResetIcon
-                        width={24}
-                        height={24}
+                        width={16}
+                        height={16}
                         className="text-neutral-800"
                       />
                     </IconButton>

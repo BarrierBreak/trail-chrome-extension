@@ -196,7 +196,7 @@ const DownloadCSV = ({ csvData, rules }) => {
   return (
     <div>
       <IconButton
-        appearance="default"
+        appearance="textLink"
         isIconOnly={true}
         onPress={handleDownload}
         aria-label="Download CSV"
