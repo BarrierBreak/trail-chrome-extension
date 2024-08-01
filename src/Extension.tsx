@@ -94,7 +94,7 @@ const Extension = () => {
   // const serverUrl = localStorage.getItem('serverUrl')
 
   console.log("current url", currentURL);
-  
+
   // To check whether the URL has dashboard params and then open Trail automatically
   // if (currentURL.includes("break")) {
   //   console.log("match found");
@@ -295,14 +295,14 @@ const Extension = () => {
     sessionStorage.removeItem(`auditResults_${tabId}`);
     getRulesets();
     runAudit();
-    (document.querySelector(".bookmarklet") as HTMLElement)?.focus();
+    (document.querySelector(".live-region") as HTMLElement).innerText =
+      "Results are loaded";
+    // (document.querySelector(".bookmarklet") as HTMLElement)?.focus();
   }, [getRulesets]);
 
   return (
     <main className="font-poppins">
-      <span aria-live="polite" className="sr-only">
-        Results are loaded
-      </span>
+      <span aria-live="polite" className="live-region sr-only"></span>
       <div className="w-full" aria-label="Trail AMS" role="dialog">
         <div className="flex justify-between items-center sticky bg-white top-0 z-[1] border-b border-neutral-300 h-14 px-6 py-2">
           <div className="flex items-center gap-1">
