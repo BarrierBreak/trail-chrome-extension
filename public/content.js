@@ -407,6 +407,9 @@ function showLandMarks() {
   if (document.querySelectorAll(".landmark-label").length <= 0) {
     landmarks.forEach((landmark) => {
       const landmarkLabel = document.createElement("strong");
+      const ariaLabelledBy = landmark.getAttribute("aria-labelledby");
+      const ariaLabel = landmark.getAttribute("aria-label");
+      const title = landmark.getAttribute("title");
       landmarkLabel.className = "landmark-label";
       landmarkLabel.style.backgroundColor = "#5928ed";
       landmarkLabel.style.color = labelColors.NEUTRAL_50;
@@ -417,9 +420,15 @@ function showLandMarks() {
       landmarkLabel.style.borderRadius = "4px";
       landmarkLabel.style.zIndex = "100000";
       landmarkLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
-      landmarkLabel.textContent = `<${landmark.getAttribute("role")}>`;
       landmarkLabel.style.textTransform = "lowercase";
       landmark.prepend(landmarkLabel);
+
+      const name = ariaLabelledBy || ariaLabel || title;
+
+      landmarkLabel.textContent =
+        name !== null
+          ? `<${landmark.getAttribute("role")} name = "${name}">`
+          : `<${landmark.getAttribute("role")}>`;
 
       switch (landmarkLabel.textContent) {
         case "<navigation>":
@@ -457,6 +466,9 @@ function showLandMarks() {
   if (document.querySelectorAll(".section-label").length <= 0) {
     sections.forEach((section) => {
       const sectionLabel = document.createElement("strong");
+      const ariaLabelledBy = section.getAttribute("aria-labelledby");
+      const ariaLabel = section.getAttribute("aria-label");
+      const title = section.getAttribute("title");
       sectionLabel.className = "section-label";
       sectionLabel.style.backgroundColor = "#5928ed";
       sectionLabel.style.color = labelColors.NEUTRAL_50;
@@ -467,9 +479,15 @@ function showLandMarks() {
       sectionLabel.style.borderRadius = "4px";
       sectionLabel.style.zIndex = "100000";
       sectionLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
-      sectionLabel.textContent = `<${section.tagName}>`;
       sectionLabel.style.textTransform = "lowercase";
       section.prepend(sectionLabel);
+
+      const name = ariaLabelledBy || ariaLabel || title;
+
+      sectionLabel.textContent =
+        name !== null
+          ? `<$${section.tagName} name = "${name}">`
+          : `<${section.tagName}>`;
 
       switch (sectionLabel.textContent) {
         case "<SECTION>":
@@ -625,7 +643,7 @@ window.addEventListener("message", (event) => {
     hideIframe();
     extensionBtn.focus();
   }
-  
+
   // if (event.data === "open-trail") {
   //   showIframe();
   // }
