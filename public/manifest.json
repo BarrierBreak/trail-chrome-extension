@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Trail Extension",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "Trail Extension - A Chrome Extension for testing accessibility of a webpage.",
   "action": {
     "default_title": "Trail Extension",
