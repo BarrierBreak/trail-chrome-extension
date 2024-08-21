@@ -168,13 +168,14 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
           .toString(36)
           .substring(7)}`;
         const styleElement = document.createElement("style");
-        styleElement.innerText = `.${className} { outline: 4px solid red !important; outline-offset: 4px; }`;
+        styleElement.innerText = `.${className} { outline: 4px solid red !important; outline-offset: 8px; }`;
         document.body.appendChild(styleElement);
 
         /** @type {Element | null} */
         let lastFocusedElement = null;
         if (element) {
           lastFocusedElement = element;
+          (element as HTMLElement).focus();
           element.classList.add(className);
           element.scrollIntoView({ behavior: "smooth", block: "center" });
         }
@@ -194,18 +195,17 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
   const downloadScreenshot = (
     elementId: string,
     issue: string,
-    parentIndex: number,
+    failing_technique: string,
     index: number
   ) => {
     focusElement(elementId);
-    const name = `${getAltText(issue)}-${parentIndex + 1}-Id-${index + 1}`;
+    const name = `${getAltText(issue)}-${failing_technique}-ID-${index + 1}`;
 
     setTimeout(() => {
-      if (navigator.userAgent.indexOf('Mac OS X') != -1) {
-        
+      if (navigator.userAgent.indexOf("Mac OS X") != -1) {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           const tabId = tabs[0].id;
-  
+
           chrome.tabs.sendMessage(tabId as number, {
             type: "CAPTURE_AREA",
             name: name,
@@ -218,7 +218,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
       } else {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           const tabId = tabs[0].id;
-  
+
           chrome.tabs.sendMessage(tabId as number, {
             type: "CAPTURE_AREA",
             name: name,
@@ -229,7 +229,6 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
           });
         });
       }
-      
     }, 1000);
   };
 
@@ -310,7 +309,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                         {item.map((issue: any, parentIndex: any) => (
                           <>
                             <tr className={`border-b border-neutral-200`}>
-                              <td
+                              <th
                                 id="issue"
                                 className="table-cell p-0"
                                 colSpan={5}
@@ -319,7 +318,8 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                   aria-expanded={
                                     dropdownStates.find(
                                       (item) =>
-                                        item.id === issue.id && item.isExpanded
+                                        item.id === issue.code &&
+                                        item.isExpanded
                                     )
                                       ? false
                                       : true
@@ -360,7 +360,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     </div>
                                   </div>
                                 </button>
-                              </td>
+                              </th>
                             </tr>
                             {issue.issues.map((issueItem: any, index: any) => (
                               <tr
@@ -380,7 +380,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                       focusElement(issueItem.selector)
                                     }
                                   >
-                                    <p className="w-[63.5px]">Id-{index + 1}</p>
+                                    <p className="w-[63.5px]">ID-{index + 1}</p>
                                   </Button>
                                 </td>
                                 <td
@@ -398,29 +398,21 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                   <Button
                                     appearance="link"
                                     spacing="none"
+                                    aria-label={`Download ${
+                                      issue.failing_technique
+                                    } ID-${index + 1} Screenshot`}
                                     isDisabled={!issueItem.selector}
                                     onPress={() =>
                                       downloadScreenshot(
                                         issueItem.selector,
                                         issueItem.type,
-                                        parentIndex,
+                                        issue.failing_technique,
                                         index
                                       )
                                     }
                                   >
                                     Download
                                   </Button>
-                                  {/* //   {issueItem.clipBase64 === "" ? (
-                                      //     <p className="text-center">No Image</p>
-                                      //   ) : (
-                                      //     <img
-                                      //       className="h-10 w-full object-contain"
-                                      //       src={`data:image/png;base64,${issueItem.clipBase64}`}
-                                      //       alt={`${getAltText(issueItem.type)}-Id-${
-                                      //         index + 1
-                                      //       }`}
-                                      //     />
-                                      //   )} */}
                                 </td>
                                 <td
                                   headers="issue code"
@@ -450,9 +442,9 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     }
                                     isIconOnly={true}
                                     spacing="compact"
-                                    aria-label={`Copy Id-${
-                                      index + 1
-                                    } code to clipboard`}
+                                    aria-label={`Copy ${
+                                      issue.failing_technique
+                                    } ID-${index + 1} code to clipboard`}
                                   >
                                     <CopyIcon
                                       width={16}
@@ -461,9 +453,12 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                     />
                                   </IconButton>
                                   {activePopup === issueItem.id && (
-                                    <div className="absolute bottom-[110%] -right-[28%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded">
+                                    <span
+                                      aria-live="polite"
+                                      className="absolute bottom-[110%] -right-[28%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded"
+                                    >
                                       Copied to Clipboard!
-                                    </div>
+                                    </span>
                                   )}
                                 </td>
                                 <td

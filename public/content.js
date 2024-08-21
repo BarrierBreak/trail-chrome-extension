@@ -12,7 +12,7 @@ document.body.append(extensionBtn, document.body.firstChild);
 
 // To inject Trail Extension iframe on load
 const iframe = new DOMParser().parseFromString(
-  "<iframe id='trail-iframe' title='Trail AMS Iframe' allow='clipboard-write' aria-hidden='true' style='width: 0px !important; height: 100vh; position: fixed; top: 0; right: 0; border: none; border-radius: 5px; z-index: 999999; box-shadow: -8px 0px 24px 0px rgba(0, 0, 0, 0.12);'></iframe>",
+  "<iframe id='trail-iframe' title='Trail AMS' allow='clipboard-write' aria-hidden='true' tabindex='-1' style='width: 0px !important; height: 100vh; position: fixed; top: 0; right: 0; border: none; border-radius: 5px; z-index: 9999999999; box-shadow: -8px 0px 24px 0px rgba(0, 0, 0, 0.12);'></iframe>",
   "text/html"
 ).body.firstElementChild;
 iframe.src = chrome.runtime.getURL("index.html");
@@ -103,29 +103,38 @@ function showIframe() {
   iframe.style.transition = "width 0.5s ease";
   iframe.style.width = "612px";
   iframe.focus();
-  iframe?.setAttribute("aria-hidden", "false");
+  iframe.removeAttribute("aria-hidden");
+  iframe.removeAttribute("tabindex");
 }
 
 function hideTrailButton() {
   extensionBtn.style.top = "1000px";
   extensionBtn.style.transition = "top 1s ease";
+  extensionBtn.setAttribute("tabindex", "-1");
+
+  setTimeout(() => {
+    extensionBtn.style.display = "none";
+  }, 1000);
 }
 
 // Function to hide extension iframe
 function hideIframe() {
   iframe.style.transition = "width 0.5s ease";
   iframe.style.width = "0px";
-  iframe?.setAttribute("aria-hidden", "true");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.setAttribute("tabindex", "-1");
 
-  setTimeout(() => {
-    showTrailButton();
-  }, 1000);
+  showTrailButton();
 }
 
 function showTrailButton() {
   extensionBtn.style.display = "flex";
-  extensionBtn.style.top = "244px";
-  extensionBtn.style.transition = "top 1s ease";
+  extensionBtn.removeAttribute("tabindex");
+
+  setTimeout(() => {
+    extensionBtn.style.top = "244px";
+    extensionBtn.style.transition = "top 1s ease";
+  }, 1000);
 }
 
 // To handle keyboard shortcut to display / hide iframe

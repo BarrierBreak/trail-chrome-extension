@@ -81,6 +81,7 @@ const Extension = () => {
   const [html, setHtml] = useState("");
   const [rulesets, setRulesets] = useState([]);
   const [currentURL, setCurrentURL] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]));
   const [result, setResult] = useState<[] | any>([]);
   const [scallyResult, setScallyResult] = useState<any>({});
@@ -164,6 +165,7 @@ const Extension = () => {
   }, []);
 
   const getRulesets = useCallback(() => {
+    setIsLoading(true);
     fetch("https://trail-api.barrierbreak.com/api/allRuleSets", {
       method: "GET",
       headers: {
@@ -176,6 +178,7 @@ const Extension = () => {
       .then((response) => response.json())
       .then((data) => {
         setRulesets(data);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error:", error);
@@ -291,18 +294,33 @@ const Extension = () => {
     setResult({});
   };
 
+  const liveRegionAndTabFocus = () => {
+    const liveRegion = document.createElement("span");
+    liveRegion.setAttribute("aria-live", "polite");
+    liveRegion.classList.add("sr-only");
+    liveRegion.textContent = "Results are loaded";
+    const tabsElement = document.querySelector(".tabs");
+
+    if (tabsElement && tabsElement.parentNode) {
+      tabsElement.parentNode.insertBefore(liveRegion, tabsElement);
+    }
+
+    setTimeout(() => {
+      (
+        document.querySelector(".tab")?.childNodes[0].firstChild as HTMLElement
+      ).focus();
+    }, 200);
+  };
+
   const handleResponse = useCallback(() => {
     sessionStorage.removeItem(`auditResults_${tabId}`);
     getRulesets();
     runAudit();
-    (document.querySelector(".live-region") as HTMLElement).innerText =
-      "Results are loaded";
-    // (document.querySelector(".bookmarklet") as HTMLElement)?.focus();
+    liveRegionAndTabFocus();
   }, [getRulesets]);
 
   return (
-    <main className="font-poppins">
-      <span aria-live="polite" className="live-region sr-only"></span>
+    <div className="font-poppins">
       <div className="w-full" aria-label="Trail AMS" role="dialog">
         <div className="flex justify-between items-center sticky bg-white top-0 z-[1] border-b border-neutral-300 h-14 px-6 py-2">
           <div className="flex items-center gap-1">
@@ -366,14 +384,14 @@ const Extension = () => {
           </div>
         </div>
 
-        <div className="flex h-full px-6 pb-6">
+        <div className="tabs flex h-full px-6 pb-6">
           {rulesets.length > 0 ? (
             <div
               className="before:content-[''] before:h-[1px] before:w-6 before:bg-neutral-300 before:left-0 before:top-[103px] before:fixed
                         after:content-[''] after:h-[1px] after:w-6 after:bg-neutral-300 after:right-0 after:top-[103px] after:fixed"
             >
               <Tabs color="purple" classNames={{ tab: "border-0 py-0 pr-1.5" }}>
-                <div className="flex items-center justify-between h-12 w-[564px] border-b border-neutral-300 sticky z-[1] bg-white top-14">
+                <div className="tab flex items-center justify-between h-12 w-[564px] border-b border-neutral-300 sticky z-[1] bg-white top-14">
                   <TabList>
                     {tabData.map((tab) => (
                       <Tab id={tab.id}>
@@ -440,15 +458,16 @@ const Extension = () => {
               <Button
                 appearance="primary"
                 onPress={handleResponse}
+                isLoading={isLoading}
                 className="test-website text-base"
               >
-                Test Website
+                Test Webpage
               </Button>
             </div>
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 
