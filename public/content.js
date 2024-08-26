@@ -184,13 +184,14 @@ function showTabOrderLabels() {
       label.className = "tab-order-label";
       label.textContent = index + 1;
       label.style.position = "absolute";
-      label.style.display = "flex";
+      label.style.display = "inline-flex";
       label.style.justifyContent = "center";
       label.style.alignItems = "center";
       label.style.backgroundColor = "#5928ed";
       label.style.color = "white";
       label.style.border = "2px solid white";
       label.style.fontSize = "12px";
+      label.style.lineHeight = "16px";
       label.style.fontWeight = "bold";
       label.style.width = "32px";
       label.style.height = "32px";
@@ -296,12 +297,12 @@ function showHeadings() {
       headingLabel.style.padding = "2px 4px";
       headingLabel.style.margin = "4px";
       headingLabel.style.fontSize = "12px";
+      headingLabel.style.lineHeight = "16px";
       headingLabel.style.fontWeight = "bold";
       headingLabel.style.borderRadius = "4px";
       headingLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       headingLabel.style.verticalAlign = "middle";
       headingLabel.style.zIndex = "100000";
-      headingLabel.style.speak = "literal-punctuation"; //not supported by some browsers
       headingLabel.textContent = `<${heading.tagName}>`;
       headingLabel.style.textTransform = "lowercase";
       heading.prepend(headingLabel);
@@ -359,14 +360,17 @@ function showListTags() {
       listItemLabel.style.color = labelColors.NEUTRAL_50;
       listItemLabel.style.padding = "2px 4px";
       listItemLabel.style.margin = "4px";
+      listItemLabel.style.height = "23px";
       listItemLabel.style.fontSize = "12px";
+      listItemLabel.style.lineHeight = "16px";
       listItemLabel.style.fontWeight = "bold";
       listItemLabel.style.borderRadius = "4px";
       listItemLabel.style.zIndex = "100000";
       listItemLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       listItemLabel.textContent = `<${listItem.tagName}>`;
       listItemLabel.style.textTransform = "lowercase";
-      listItem.prepend(listItemLabel);
+
+      listItem.insertAdjacentElement("beforebegin", listItemLabel);
 
       switch (listItemLabel.textContent) {
         case "<UL>":
@@ -394,7 +398,7 @@ function showListTags() {
 
       const endLabel = listItemLabel.cloneNode(true);
       endLabel.textContent = `</${listItem.tagName}>`;
-      listItem.appendChild(endLabel);
+      listItem.insertAdjacentElement("afterend", endLabel);
     });
   }
 }
@@ -422,44 +426,48 @@ function showLandMarks() {
       landmarkLabel.className = "landmark-label";
       landmarkLabel.style.backgroundColor = "#5928ed";
       landmarkLabel.style.color = labelColors.NEUTRAL_50;
+      landmarkLabel.style.display = "inline-block";
       landmarkLabel.style.padding = "2px 4px";
-      landmarkLabel.style.margin = "4px";
+      landmarkLabel.style.margin = "2px";
       landmarkLabel.style.fontSize = "12px";
+      landmarkLabel.style.lineHeight = "16px";
       landmarkLabel.style.fontWeight = "bold";
       landmarkLabel.style.borderRadius = "4px";
       landmarkLabel.style.zIndex = "100000";
       landmarkLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
-      landmarkLabel.style.textTransform = "lowercase";
       landmark.prepend(landmarkLabel);
+
+      console.log("landmark",landmark.getAttribute("role"));
+      
 
       const name = ariaLabelledBy || ariaLabel || title;
 
       landmarkLabel.textContent =
         name !== null
-          ? `<${landmark.getAttribute("role")} name = "${name}">`
-          : `<${landmark.getAttribute("role")}>`;
+          ? `<${landmark.getAttribute("role").toLowerCase()} name="${name}">`
+          : `<${landmark.getAttribute("role").toLowerCase()}>`;
 
-      switch (landmarkLabel.textContent) {
-        case "<navigation>":
+      switch (landmark.getAttribute("role")) {
+        case "navigation":
           landmarkLabel.style.backgroundColor = labelColors.RED_700;
           break;
-        case "<main>":
+        case "main":
           landmarkLabel.style.backgroundColor = labelColors.PURPLE_700;
           break;
-        case "<form>":
+        case "form":
           landmarkLabel.style.backgroundColor = labelColors.BLUE_700;
           break;
-        case "<search>":
+        case "search":
           landmarkLabel.style.backgroundColor = labelColors.GREEN_800;
           break;
-        case "<banner>":
+        case "banner":
           landmarkLabel.style.backgroundColor = labelColors.YELLOW_700;
           landmarkLabel.style.color = labelColors.NEUTRAL_900;
           break;
-        case "<complementary>":
+        case "complementary":
           landmarkLabel.style.backgroundColor = labelColors.NEUTRAL_700;
           break;
-        case "<contentinfo>":
+        case "contentinfo":
           landmarkLabel.style.backgroundColor = labelColors.PURPLE_700;
           break;
         default:
@@ -467,7 +475,7 @@ function showLandMarks() {
       }
 
       const endLabel = landmarkLabel.cloneNode(true);
-      endLabel.textContent = `</${landmark.getAttribute("role")}>`;
+      endLabel.textContent = `</${landmark.getAttribute("role").toLowerCase()}>`;
       landmark.appendChild(endLabel);
     });
   }
@@ -478,50 +486,54 @@ function showLandMarks() {
       const ariaLabelledBy = section.getAttribute("aria-labelledby");
       const ariaLabel = section.getAttribute("aria-label");
       const title = section.getAttribute("title");
+
       sectionLabel.className = "section-label";
       sectionLabel.style.backgroundColor = "#5928ed";
       sectionLabel.style.color = labelColors.NEUTRAL_50;
+      sectionLabel.style.display = "inline-block";
       sectionLabel.style.padding = "2px 4px";
-      sectionLabel.style.margin = "4px";
+      sectionLabel.style.margin = "2px";
       sectionLabel.style.fontSize = "12px";
+      sectionLabel.style.lineHeight = "16px";
       sectionLabel.style.fontWeight = "bold";
       sectionLabel.style.borderRadius = "4px";
       sectionLabel.style.zIndex = "100000";
       sectionLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
-      sectionLabel.style.textTransform = "lowercase";
       section.prepend(sectionLabel);
 
       const name = ariaLabelledBy || ariaLabel || title;
+      console.log("section",section.tagName);
+
 
       sectionLabel.textContent =
         name !== null
-          ? `<$${section.tagName} name = "${name}">`
-          : `<${section.tagName}>`;
+          ? `<${section.tagName.toLowerCase()} name="${name}">`
+          : `<${section.tagName.toLowerCase()}>`;
 
-      switch (sectionLabel.textContent) {
-        case "<SECTION>":
+      switch (section.tagName) {
+        case "SECTION":
           sectionLabel.style.backgroundColor = labelColors.RED_700;
           break;
-        case "<ARTICLE>":
+        case "ARTICLE":
           sectionLabel.style.backgroundColor = labelColors.GREEN_800;
           break;
-        case "<ASIDE>":
+        case "ASIDE":
           sectionLabel.style.backgroundColor = labelColors.YELLOW_700;
           sectionLabel.style.color = labelColors.NEUTRAL_900;
           break;
-        case "<NAV>":
+        case "NAV":
           sectionLabel.style.backgroundColor = labelColors.GREEN_800;
           break;
-        case "<HEADER>":
+        case "HEADER":
           sectionLabel.style.backgroundColor = labelColors.PURPLE_700;
           break;
-        case "<FOOTER>":
+        case "FOOTER":
           sectionLabel.style.backgroundColor = labelColors.NEUTRAL_700;
           break;
-        case "<FORM>":
+        case "FORM":
           sectionLabel.style.backgroundColor = labelColors.BLUE_700;
           break;
-        case "<MAIN>":
+        case "MAIN":
           sectionLabel.style.backgroundColor = labelColors.PURPLE_700;
           break;
         default:
@@ -529,7 +541,7 @@ function showLandMarks() {
       }
 
       const endLabel = sectionLabel.cloneNode(true);
-      endLabel.textContent = `</${section.tagName}>`;
+      endLabel.textContent = `</${section.tagName.toLowerCase()}>`;
       section.appendChild(endLabel);
     });
   }
@@ -561,13 +573,13 @@ function showAltText() {
       altTextLabel.style.padding = "2px 4px";
       altTextLabel.style.margin = "4px";
       altTextLabel.style.fontSize = "12px";
+      altTextLabel.style.lineHeight = "16px";
       altTextLabel.style.fontWeight = "bold";
       altTextLabel.style.borderRadius = "4px";
-      altTextLabel.style.zIndex = "100000";
       altTextLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
-      altTextLabel.textContent = altText ? `alt = "${altText}"` : 'alt = ""';
+      altTextLabel.textContent = altText ? `alt="${altText}"` : 'alt=" "';
 
-      if (altTextLabel.textContent === 'alt = ""') {
+      if (altTextLabel.textContent === 'alt=" "') {
         altTextLabel.style.backgroundColor = labelColors.RED_700;
       }
 
@@ -589,25 +601,28 @@ function showLinks() {
       const ariaLabelledBy = link.getAttribute("aria-labelledby");
       const ariaLabel = link.getAttribute("aria-label");
       const title = link.getAttribute("title");
+
       const startLabel = document.createElement("strong");
       startLabel.className = "link-label";
       startLabel.style.backgroundColor = labelColors.PURPLE_700;
       startLabel.style.color = labelColors.NEUTRAL_50;
+      startLabel.style.display = "inline-block";
       startLabel.style.padding = "2px 4px";
-      startLabel.style.margin = "4px";
+      startLabel.style.margin = "2px";
       startLabel.style.fontSize = "12px";
+      startLabel.style.lineHeight = "16px";
       startLabel.style.fontWeight = "bold";
       startLabel.style.borderRadius = "4px";
       startLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       startLabel.style.zIndex = "100000";
-      link.prepend(startLabel);
+      link.insertAdjacentElement("beforebegin", startLabel);
 
       // In the order of: aria-labelledby > aria-label > title
       const name = ariaLabelledBy || ariaLabel || title;
 
       startLabel.textContent =
         name !== null
-          ? `<${link.tagName.toLowerCase()} name = "${name}">`
+          ? `<${link.tagName.toLowerCase()} name="${name}">`
           : `<${link.tagName.toLowerCase()}>`;
 
       if (name === null) {
@@ -616,7 +631,7 @@ function showLinks() {
 
       const endLabel = startLabel.cloneNode(true);
       endLabel.textContent = `</${link.tagName.toLowerCase()}>`;
-      link.appendChild(endLabel);
+      link.insertAdjacentElement("afterend", endLabel);
     });
   }
 }
@@ -624,6 +639,121 @@ function showLinks() {
 function hideLinks() {
   const linkLabels = document.querySelectorAll(".link-label");
   linkLabels.forEach((label) => label.remove());
+}
+
+function showForms() {
+  const forms = document.querySelectorAll(
+    'input, textarea, label, fieldset, form, select, option, legend, [role="form"], [role="radio"], [role="checkbox"], [role="textbox"], [role="listbox"], [role="listitem"], [role="radiogroup"]'
+  );
+
+  if (document.querySelectorAll(".forms-label").length <= 0) {
+    forms.forEach((form) => {
+      const id = form.getAttribute("id");
+      const title = form.getAttribute("title");
+      const role = form.getAttribute("role");
+      const labelFor = form.getAttribute("for");
+      const type = form.getAttribute("type");
+      const ariaLabelledBy = form.getAttribute("aria-labelledby");
+      const ariaLabel = form.getAttribute("aria-label");
+      const ariaDescBy = form.getAttribute("aria-describedby");
+      const ariaExpanded = form.getAttribute("aria-expanded");
+      const ariaPressed = form.getAttribute("aria-pressed");
+      const autoComp = form.getAttribute("autocomplete");
+      const req = form.getAttribute("required");
+
+      const formLabel = document.createElement("strong");
+      formLabel.className = "form-label";
+      formLabel.style.backgroundColor = "#5928ed";
+      formLabel.style.color = labelColors.NEUTRAL_50;
+      formLabel.style.display = "inline-block";
+      formLabel.style.padding = "2px 4px";
+      formLabel.style.margin = "2px";
+      formLabel.style.fontSize = "12px";
+      formLabel.style.lineHeight = "16px";
+      formLabel.style.fontWeight = "bold";
+      formLabel.style.borderRadius = "4px";
+      formLabel.style.zIndex = "100000";
+      formLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
+      formLabel.textContent = `<${form.tagName.toLowerCase()}`;
+
+      form.parentElement.prepend(formLabel);
+
+      switch (formLabel.textContent) {
+        case "<input":
+          formLabel.style.backgroundColor = labelColors.PURPLE_700;
+          break;
+        case "<textarea":
+          formLabel.style.backgroundColor = labelColors.RED_700;
+          break;
+        case "<label":
+          formLabel.style.backgroundColor = labelColors.YELLOW_700;
+          formLabel.style.color = labelColors.NEUTRAL_900;
+          break;
+        case "<fieldset":
+          formLabel.style.backgroundColor = labelColors.GREEN_800;
+          break;
+        case "<form":
+          formLabel.style.backgroundColor = labelColors.BLUE_700;
+          break;
+        case "<select":
+          formLabel.style.backgroundColor = labelColors.YELLOW_700;
+          formLabel.style.color = labelColors.NEUTRAL_900;
+          break;
+        case "<option":
+          formLabel.style.backgroundColor = labelColors.NEUTRAL_700;
+          break;
+        case "<legend":
+          formLabel.style.backgroundColor = labelColors.BLUE_700;
+          break;
+        default:
+          break;
+      }
+
+      if (formLabel.textContent === "<input") {
+        const idAttr = id !== null ? ` id="${id}"` : ` id=" "`;
+        const typeAttr = type !== null ? ` type="${type}"` : ` type="text"`;
+        const reqAttr = req !== null ? ` required` : ``;
+        formLabel.textContent += idAttr;
+        formLabel.textContent += reqAttr;
+        formLabel.textContent += typeAttr;
+      }
+
+      if (formLabel.textContent === "<label") {
+        const labelForAttr = labelFor !== null ? ` for="${labelFor}"` : ``;
+        formLabel.textContent += labelForAttr;
+      }
+
+      const name = ariaLabelledBy || ariaLabel || title;
+      const nameAttr = name !== null ? ` name="${name}"` : ``;
+      const roleAttr = role !== null ? ` role="${role}"` : ``;
+      const autoAttr = autoComp !== null ? ` autocomplete="${autoComp}"` : ``;
+
+      const ariaDescAttr =
+        ariaDescBy !== null ? ` aria-describedby="${ariaDescBy}"` : ``;
+      const ariaExpAttr =
+        ariaExpanded !== null ? ` aria-expanded="${ariaExpanded}"` : ``;
+      const ariaPressedAttr =
+        ariaPressed !== null ? ` aria-pressed="${ariaPressed}"` : ``;
+
+      formLabel.textContent += nameAttr;
+      formLabel.textContent += autoAttr;
+      formLabel.textContent += roleAttr;
+      formLabel.textContent += ariaDescAttr;
+      formLabel.textContent += ariaExpAttr;
+      formLabel.textContent += ariaPressedAttr;
+
+      formLabel.textContent += ">";
+      const endLabel = formLabel.cloneNode(true);
+
+      endLabel.textContent = `</${form.tagName.toLowerCase()}>`;
+      form.parentElement.appendChild(endLabel);
+    });
+  }
+}
+
+function hideForms() {
+  const formLabels = document.querySelectorAll(".form-label");
+  formLabels.forEach((label) => label.remove());
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -653,6 +783,7 @@ window.addEventListener("message", (event) => {
     extensionBtn.focus();
   }
 
+  // To open trail automatically when opened from dashboard
   // if (event.data === "open-trail") {
   //   showIframe();
   // }
@@ -721,5 +852,15 @@ window.addEventListener("message", (event) => {
   // To hide links
   if (event.data === "hide-links") {
     hideLinks();
+  }
+
+  // To show forms
+  if (event.data === "show-forms") {
+    showForms();
+  }
+
+  // To hide forms
+  if (event.data === "hide-forms") {
+    hideForms();
   }
 });

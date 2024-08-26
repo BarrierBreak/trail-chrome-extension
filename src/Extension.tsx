@@ -117,6 +117,7 @@ const Extension = () => {
       "landmarks",
       "alt-text",
       "links",
+      "forms",
     ];
 
     tools.forEach((tool) => {
@@ -290,26 +291,28 @@ const Extension = () => {
 
   const handleReset = () => {
     window.parent.postMessage("reset-results", "*");
+    const liveRegion = document.querySelector(".live-region");
+    if (liveRegion) {
+      liveRegion.textContent = "";
+    }
     setRulesets([]);
     setResult({});
   };
 
   const liveRegionAndTabFocus = () => {
-    const liveRegion = document.createElement("span");
-    liveRegion.setAttribute("aria-live", "polite");
-    liveRegion.classList.add("sr-only");
-    liveRegion.textContent = "Results are loaded";
-    const tabsElement = document.querySelector(".tabs");
-
-    if (tabsElement && tabsElement.parentNode) {
-      tabsElement.parentNode.insertBefore(liveRegion, tabsElement);
-    }
+    setTimeout(() => {
+      const liveRegion = document.querySelector(".live-region");
+      if (liveRegion) {
+        liveRegion.textContent = "Results are loaded";
+      }
+    }, 100);
 
     setTimeout(() => {
       (
-        document.querySelector(".tab")?.childNodes[0].firstChild as HTMLElement
+        document?.querySelector(".tab")?.childNodes[0]
+          ?.firstChild as HTMLElement
       ).focus();
-    }, 200);
+    }, 500);
   };
 
   const handleResponse = useCallback(() => {
@@ -342,12 +345,14 @@ const Extension = () => {
             <MenuTrigger>
               <Button
                 appearance="default"
+                aria-controls="bookmarklet-menu"
                 className="bookmarklet text-base data-[pressed=true]:border-purple-600 data-[pressed=true]:bg-purple-100"
                 endContent={<ChevronDownIcon width={16} height={16} />}
               >
                 Bookmarklets
               </Button>
               <Menu
+                id="bookmarklet-menu"
                 selectionMode="multiple"
                 selectedKeys={selectedTool}
                 onSelectionChange={setSelectedTool}
@@ -371,6 +376,9 @@ const Extension = () => {
                 <MenuItem id="links" classNames={{ title: "text-base" }}>
                   Links
                 </MenuItem>
+                <MenuItem id="forms" classNames={{ title: "text-base" }}>
+                  Forms
+                </MenuItem>
               </Menu>
             </MenuTrigger>
             <IconButton
@@ -384,7 +392,8 @@ const Extension = () => {
           </div>
         </div>
 
-        <div className="tabs flex h-full px-6 pb-6">
+        <span aria-live="polite" className="live-region sr-only"></span>
+        <div className="flex h-full px-6 pb-6">
           {rulesets.length > 0 ? (
             <div
               className="before:content-[''] before:h-[1px] before:w-6 before:bg-neutral-300 before:left-0 before:top-[103px] before:fixed

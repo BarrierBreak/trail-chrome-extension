@@ -141,6 +141,13 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
     navigator.clipboard.writeText(code).then(() => {
       handleShowPopup(id);
     });
+    
+    setTimeout(() => {
+      const copyElement = document.querySelector(".copy");
+      if (copyElement) {
+        copyElement.textContent = "Copied to Clipboard!";
+      }
+    }, 20);
   };
 
   // To handle displaying of copied to clipboard popup
@@ -270,12 +277,14 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                         <tr className="table-header-group w-20 h-10 font-medium border-b border-neutral-200 bg-neutral-100 text-left">
                           <th
                             id="id"
+                            scope="col"
                             className="table-cell p-1 w-20 align-middle border-r border-neutral-200"
                           >
                             <p className="font-medium text-base pl-1">ID</p>
                           </th>
                           <th
                             id="element"
+                            scope="col"
                             className="table-cell p-1 w-20 align-middle border-r border-neutral-200"
                           >
                             <p className="font-medium text-base pl-1">
@@ -284,6 +293,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                           </th>
                           <th
                             id="screenshot"
+                            scope="col"
                             className="table-cell p-1 w-[120px] align-middle border-r border-neutral-200"
                           >
                             <p className="font-medium text-base pl-1">
@@ -292,12 +302,14 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                           </th>
                           <th
                             id="code"
+                            scope="col"
                             className="table-cell p-1 w-[160px] align-middle border-r border-neutral-200"
                           >
                             <p className="font-medium text-base pl-1">Code</p>
                           </th>
                           <th
                             id="attribute"
+                            scope="col"
                             className="table-cell p-1 w-[122px] align-middle"
                           >
                             <p className="font-medium text-base pl-1">
@@ -311,8 +323,9 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                             <tr className={`border-b border-neutral-200`}>
                               <th
                                 id="issue"
-                                className="table-cell p-0"
+                                scope="colgroup"
                                 colSpan={5}
+                                className="table-cell p-0"
                               >
                                 <button
                                   aria-expanded={
@@ -455,10 +468,8 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                   {activePopup === issueItem.id && (
                                     <span
                                       aria-live="polite"
-                                      className="absolute bottom-[110%] -right-[28%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded"
-                                    >
-                                      Copied to Clipboard!
-                                    </span>
+                                      className="copy absolute bottom-[110%] -right-[28%] bg-purple-600 text-sm font-poppins shadow-lg text-neutral-50 px-3 py-2.5 rounded"
+                                    ></span>
                                   )}
                                 </td>
                                 <td
