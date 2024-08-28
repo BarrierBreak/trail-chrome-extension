@@ -437,9 +437,6 @@ function showLandMarks() {
       landmarkLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       landmark.prepend(landmarkLabel);
 
-      console.log("landmark",landmark.getAttribute("role"));
-      
-
       const name = ariaLabelledBy || ariaLabel || title;
 
       landmarkLabel.textContent =
@@ -475,7 +472,9 @@ function showLandMarks() {
       }
 
       const endLabel = landmarkLabel.cloneNode(true);
-      endLabel.textContent = `</${landmark.getAttribute("role").toLowerCase()}>`;
+      endLabel.textContent = `</${landmark
+        .getAttribute("role")
+        .toLowerCase()}>`;
       landmark.appendChild(endLabel);
     });
   }
@@ -502,8 +501,6 @@ function showLandMarks() {
       section.prepend(sectionLabel);
 
       const name = ariaLabelledBy || ariaLabel || title;
-      console.log("section",section.tagName);
-
 
       sectionLabel.textContent =
         name !== null
@@ -742,11 +739,14 @@ function showForms() {
       formLabel.textContent += ariaExpAttr;
       formLabel.textContent += ariaPressedAttr;
 
-      formLabel.textContent += ">";
-      const endLabel = formLabel.cloneNode(true);
+      formLabel.textContent +=
+        form.tagName.toLowerCase() === "input" ? "/>" : ">";
 
-      endLabel.textContent = `</${form.tagName.toLowerCase()}>`;
-      form.parentElement.appendChild(endLabel);
+      if (form.tagName.toLowerCase() !== "input") {
+        const endLabel = formLabel.cloneNode(true);
+        endLabel.textContent = `</${form.tagName.toLowerCase()}>`;
+        form.parentElement.appendChild(endLabel);
+      }
     });
   }
 }

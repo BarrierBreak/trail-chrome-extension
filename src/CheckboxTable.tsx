@@ -147,7 +147,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
       if (copyElement) {
         copyElement.textContent = "Copied to Clipboard!";
       }
-    }, 20);
+    }, 100);
   };
 
   // To handle displaying of copied to clipboard popup
@@ -182,7 +182,6 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
         let lastFocusedElement = null;
         if (element) {
           lastFocusedElement = element;
-          (element as HTMLElement).focus();
           element.classList.add(className);
           element.scrollIntoView({ behavior: "smooth", block: "center" });
         }
