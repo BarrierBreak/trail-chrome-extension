@@ -242,7 +242,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
     <>
       {data.length > 0 ? (
         <>
-          {Object.values(levelData).map((item) => {
+          {Object.values(levelData).map((item, index) => {
             return (
               <>
                 {item.length > 0 && (
@@ -321,7 +321,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                           <>
                             <tr className={`border-b border-neutral-200`}>
                               <th
-                                id="issue"
+                                id={`issue-${index + 1}-${parentIndex + 1}`}
                                 scope="colgroup"
                                 colSpan={5}
                                 className="table-cell p-0"
