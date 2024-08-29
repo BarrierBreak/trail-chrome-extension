@@ -141,7 +141,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
     navigator.clipboard.writeText(code).then(() => {
       handleShowPopup(id);
     });
-    
+
     setTimeout(() => {
       const copyElement = document.querySelector(".copy");
       if (copyElement) {
@@ -430,10 +430,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                   headers="issue code"
                                   className="table-cell p-2 pr-[1px] border-r border-neutral-200 relative font-sourceCode"
                                 >
-                                  <section
-                                    className="h-14 w-[150px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
-                                    tabIndex={0}
-                                  >
+                                  <section className="h-14 w-[150px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2">
                                     {issueItem.context?.length > 300
                                       ? issueItem.context?.split(">")[0] +
                                         "> . . . </" +
@@ -475,10 +472,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                   headers="issue attribute"
                                   className="table-cell p-2 "
                                 >
-                                  <section
-                                    className="w-[104px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
-                                    tabIndex={0}
-                                  >
+                                  <section className="w-[104px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2">
                                     {issue.element === "Contrast" &&
                                     issue.code !== "BB10575" &&
                                     issue.code !== "BB10615" ? (
