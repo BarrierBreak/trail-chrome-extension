@@ -713,6 +713,10 @@ function showForms() {
         formLabel.textContent += idAttr;
         formLabel.textContent += reqAttr;
         formLabel.textContent += typeAttr;
+
+        if (type === "hidden") {
+          formLabel.remove();
+        }
       }
 
       if (formLabel.textContent === "<label") {

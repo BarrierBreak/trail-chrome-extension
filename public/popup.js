@@ -2,13 +2,9 @@ const insertButton = document.getElementById("insertBtn");
 insertButton.addEventListener("click", () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const activeTab = tabs[0];
-    chrome.tabs.sendMessage(
-      activeTab.id,
-      { type: "INSERT_SCALLY" },
-      () => {
-        window.close();
-      }
-    );
+    chrome.tabs.sendMessage(activeTab.id, { type: "INSERT_SCALLY" }, () => {
+      window.close();
+    });
   });
 });
 
@@ -35,7 +31,8 @@ insertButton.addEventListener("click", () => {
 
     localStorage.setItem("authToken", data.authToken);
     // localStorage.setItem("serverUrl", data.serverUrl);
-    location.reload();
+
+    chrome.runtime.sendMessage({ type: "RELOAD" }, () => {});
     window.close();
   });
 })();

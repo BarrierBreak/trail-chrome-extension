@@ -163,6 +163,23 @@ const Extension = () => {
         handleMinimise();
       }
     });
+
+    // Listen for messages from the background script
+    const listener = (request: any) => {
+      if (request.type === "TO_REACT") {
+        setScallyResult((prevResults: any) => ({
+          ...prevResults,
+          [request.tabId]: request.payload,
+        }));
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(listener);
+
+    // Cleanup listener on component unmount
+    return () => {
+      chrome.runtime.onMessage.removeListener(listener);
+    };
   }, []);
 
   const getRulesets = useCallback(() => {
@@ -185,25 +202,6 @@ const Extension = () => {
         console.error("Error:", error);
       });
   }, [apiKey]);
-
-  // Listen for messages from the background script
-  useEffect(() => {
-    const listener = (request: any) => {
-      if (request.type === "TO_REACT") {
-        setScallyResult((prevResults: any) => ({
-          ...prevResults,
-          [request.tabId]: request.payload,
-        }));
-      }
-    };
-
-    chrome.runtime.onMessage.addListener(listener);
-
-    // Cleanup listener on component unmount
-    return () => {
-      chrome.runtime.onMessage.removeListener(listener);
-    };
-  }, []);
 
   useEffect(() => {
     setResult(scallyResult[tabId]);
@@ -289,6 +287,12 @@ const Extension = () => {
     },
   ];
 
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === "RELOAD") {
+      location.reload();
+    }
+  });
+
   const handleReset = () => {
     window.parent.postMessage("reset-results", "*");
     const liveRegion = document.querySelector(".live-region");
@@ -315,12 +319,12 @@ const Extension = () => {
     }, 500);
   };
 
-  const handleResponse = useCallback(() => {
+  const handleResponse = () => {
     sessionStorage.removeItem(`auditResults_${tabId}`);
     getRulesets();
     runAudit();
-    liveRegionAndTabFocus();
-  }, [getRulesets]);
+    apiKey ? liveRegionAndTabFocus() : alert("Please enter your Auth Token");
+  };
 
   return (
     <div className="font-poppins">

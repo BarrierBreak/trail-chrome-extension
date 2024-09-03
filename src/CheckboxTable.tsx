@@ -91,7 +91,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
         levelData.AAA.push(item);
       } else if (item.conformance_level === "Best Practices") {
         levelData.BestPractice.push(item);
-      } else if (item.conformance_level === "Section508") {
+      } else if (item.conformance_level === "508") {
         levelData.Section508.push(item);
       }
     });
