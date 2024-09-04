@@ -8,10 +8,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       console.log('Sending RUN_AUDIT to content script, tabId:', tabId);
       chrome.tabs.sendMessage(tabId, { ...request, tabId }, (response) => {
         console.log('Received response from content script:', response);
-        sendResponse(response);
+        sendResponse(response || { error: "No response from content script" });
       });
     });
-    return true; // Indicates that sendResponse will be called asynchronously
+    return true;
   } else if (request.type === "AUDIT_RESULTS") {
     console.log('Forwarding AUDIT_RESULTS to React component');
     chrome.runtime.sendMessage({
@@ -20,10 +20,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       tabId: request.tabId,
     }, response => {
       console.log('Response from React component:', response);
-      sendResponse(response);
+      sendResponse(response || { error: "No response from React component" });
     });
-    return true; // Indicates that sendResponse will be called asynchronously
+    return true;
   }
+  // If the message type is not recognized, send an error response
+  sendResponse({ error: "Unknown message type" });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

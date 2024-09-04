@@ -141,26 +141,23 @@ const Extension = () => {
           currentWindow: true,
         },
         (tabs) => {
-          const tab = tabs[0]
-          const url = tab.url?.match(/^https?:\/\/[^#?/]+/)?.[0]
-          setCurrentURL(url!)
-          chrome.tabs.sendMessage(tab.id!, {type: 'GET_HTML'}, (response) => {
+          const tab = tabs[0];
+          const url = tab.url?.match(/^https?:\/\/[^#?/]+/)?.[0];
+          setCurrentURL(url!);
+          chrome.tabs.sendMessage(tab.id!, { type: 'GET_HTML' }, (response) => {
             if (chrome.runtime.lastError) {
-              console.error('Error getting HTML:', chrome.runtime.lastError)
-            } else if (response) {
-              console.log(
-                'Received HTML:',
-                response.html.substring(0, 100) + '...'
-              )
-              setHtml(response.html)
+              console.error('Error getting HTML:', chrome.runtime.lastError);
+            } else if (response && response.html) {
+              console.log('Received HTML:', response.html.substring(0, 100) + '...');
+              setHtml(response.html);
             } else {
-              console.error('No response received for GET_HTML')
+              console.error('No HTML received in the response:', response);
             }
-          })
+          });
         }
-      )
+      );
     }
-    getCurrentTabHtmlSource()
+    getCurrentTabHtmlSource();
 
     window.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
@@ -255,7 +252,11 @@ const Extension = () => {
       console.log('Sending RUN_AUDIT message')
 
       chrome.tabs.sendMessage(tabId, {type: 'RUN_AUDIT', options, tabId}, response => {
-        console.log('Response from content script:', response)
+        if (chrome.runtime.lastError) {
+          console.error('Error:', chrome.runtime.lastError.message)
+        } else {
+          console.log('Response from content script:', response)
+        }
       })
     })
   }

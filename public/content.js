@@ -1,3 +1,58 @@
+
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+  console.log('Content script received message:', message);
+  if (message.type === "CAPTURE_AREA") {
+    const { name, x, y, width, height } = message;
+    try {
+      captureSpecificArea(name, x, y, width, height);
+      sendResponse({ success: true });
+    } catch (error) {
+      console.error('Error capturing area:', error);
+      sendResponse({ error: "Failed to capture area" });
+    }
+  } else if (message.type === "SCALLY_SCRIPT") {
+    console.log('Received Scally script');
+    const script = document.createElement('script');
+    script.textContent = message.script;
+    (document.head || document.documentElement).appendChild(script);
+    console.log('Scally script injected');
+    sendResponse({ status: "Scally script injected" });
+  } else if (message.type === "GET_HTML") {
+    console.log('Sending HTML to extension');
+    sendResponse({ html: document.documentElement.outerHTML });
+  } else if (message.type === "INSERT_SCALLY") {
+    insertScally();
+    sendResponse({ status: "Action performed" });
+  } else if (message.type === 'RUN_AUDIT') {
+    if (typeof hr !== "undefined" && typeof __a11y !== "undefined") {
+      console.log('Running audit with options:', message.options);
+      window.hr();
+      window.__a11y.run(message.options)
+        .then(auditData => {
+          console.log('Audit completed, sending results:', auditData);
+          chrome.runtime.sendMessage({
+            type: 'AUDIT_RESULTS',
+            payload: auditData,
+            tabId: message.tabId,
+          }, response => {
+            console.log('Response from background script:', response);
+            sendResponse(response);
+          });
+        })
+        .catch(error => {
+          console.error('Error running audit:', error);
+          sendResponse({ error: 'Failed to run audit' });
+        });
+    } else {
+      console.error('__a11y is still not defined after loading Scally.js');
+      sendResponse({ error: '__a11y is not defined' });
+    }
+  } else {
+    console.error('Unknown message type:', message.type);
+    sendResponse({ error: "Unknown message type" });
+  }
+});
+
 // To add ::before of Trail btn to increase hover area
 const before = document.createElement("style");
 before.innerHTML = `#trail-btn::before { content: ""; display: block; width: 121px; height: 40px; background: transparent; position: absolute; top: -32px; }`;
@@ -60,13 +115,6 @@ function captureSpecificArea(name, x, y, width, height) {
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "CAPTURE_AREA") {
-    const { name, x, y, width, height } = message;
-    captureSpecificArea(name, x, y, width, height);
-  }
-});
 
 // To display iframe
 extensionBtn.addEventListener("click", () => {
@@ -260,23 +308,6 @@ function drawLines(positions) {
     }
   });
 }
-
-// function updateLines() {
-//   const svgLines = document.querySelectorAll("#svg-container line");
-//   svgLines.forEach(line => {
-//     line.remove();
-//   })
-//   labelPositions.forEach(pos => {
-//     const rect = pos.element.getBoundingClientRect();
-//     pos.x = rect.left + (rect.width / 2);
-//     pos.y = rect.top + (rect.height / 2);
-//   });
-//   drawLines(labelPositions);
-// }
-
-// window.addEventListener('resize', () => {
-//   updateLines();
-// });
 
 function showHeadings() {
   const headings = document.querySelectorAll(
@@ -760,17 +791,6 @@ function hideForms() {
   formLabels.forEach((label) => label.remove());
 }
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('Content script received message:', message);
-  if (message.type === "GET_HTML") {
-    console.log('Sending HTML to extension');
-    sendResponse({ html: document.documentElement.outerHTML });
-  } else if (message.type === "INSERT_SCALLY") {
-    insertScally();
-    sendResponse({ status: "Action performed" });
-  }
-  return true; // Indicates that the response is sent asynchronously
-});
 
 function insertScally() {
   if (
