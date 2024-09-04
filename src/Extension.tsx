@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from 'react'
 import {
   Button,
   Chip,
@@ -12,89 +12,89 @@ import {
   TabList,
   TabPanel,
   Tabs,
-} from "@trail-ui/react";
+} from '@trail-ui/react'
 import {
   ChevronDownIcon,
   MinusIcon,
   ResetIcon,
   TrailAMSVerticalIcon,
   TrailIcon,
-} from "@trail-ui/icons";
-import CheckboxTable from "./CheckboxTable";
-import WebsiteLandmarks from "./WebsiteLandmarks";
-import DownloadCSV from "./DownloadCSV";
+} from '@trail-ui/icons'
+import CheckboxTable from './CheckboxTable'
+import WebsiteLandmarks from './WebsiteLandmarks'
+import DownloadCSV from './DownloadCSV'
 
 export type Clip = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
+  x: number
+  y: number
+  width: number
+  height: number
+}
 
 export type Instance = {
-  clip: Clip;
-  clipBase64: string;
-  code: string;
-  context: string;
-  elementTagName: string;
-  id: string;
-  message: string;
-  recurrence: number;
-  selector: string;
-  type: string;
-  typeCode: number;
-};
+  clip: Clip
+  clipBase64: string
+  code: string
+  context: string
+  elementTagName: string
+  id: string
+  message: string
+  recurrence: number
+  selector: string
+  type: string
+  typeCode: number
+}
 
 export type IssueTypes = {
-  code: string;
-  conformance_level: string;
-  criteria_name: string;
-  element: string;
-  failing_issue_variable: string;
-  failing_technique: string;
-  id: string;
-  issues: Instance[];
-  message: string;
-  occurences: number;
-  rule_name: string;
-  severity: string;
-};
+  code: string
+  conformance_level: string
+  criteria_name: string
+  element: string
+  failing_issue_variable: string
+  failing_technique: string
+  id: string
+  issues: Instance[]
+  message: string
+  occurences: number
+  rule_name: string
+  severity: string
+}
 
 export type Conformance = {
-  A: IssueTypes[];
-  AA: IssueTypes[];
-  AAA: IssueTypes[];
-  Section508: IssueTypes[];
-  BestPractice: IssueTypes[];
-};
+  A: IssueTypes[]
+  AA: IssueTypes[]
+  AAA: IssueTypes[]
+  Section508: IssueTypes[]
+  BestPractice: IssueTypes[]
+}
 
 export interface Issues {
   issues: {
-    errors: Conformance;
-    warnings: Conformance;
-    pass: Conformance;
-    notices: Conformance;
-  };
+    errors: Conformance
+    warnings: Conformance
+    pass: Conformance
+    notices: Conformance
+  }
 }
 
 const Extension = () => {
-  const [html, setHtml] = useState("");
-  const [rulesets, setRulesets] = useState([]);
-  const [currentURL, setCurrentURL] = useState("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]));
-  const [result, setResult] = useState<[] | any>([]);
-  const [scallyResult, setScallyResult] = useState<any>({});
-  const [tabId, setTabId] = useState<number>(0);
+  const [html, setHtml] = useState('')
+  const [rulesets, setRulesets] = useState([])
+  const [currentURL, setCurrentURL] = useState('')
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]))
+  const [result, setResult] = useState<[] | any>([])
+  const [scallyResult, setScallyResult] = useState<any>({})
+  const [tabId, setTabId] = useState<number>(0)
 
-  const errorType: any[] = [];
-  const warningType: any[] = [];
-  const passType: any[] = [];
-  const noticeType: any[] = [];
-  const apiKey = localStorage.getItem("authToken");
+  const errorType: any[] = []
+  const warningType: any[] = []
+  const passType: any[] = []
+  const noticeType: any[] = []
+  const apiKey = localStorage.getItem('authToken')
   // const serverUrl = localStorage.getItem('serverUrl')
 
-  console.log("current url", currentURL);
+  console.log('current url', currentURL)
 
   // To check whether the URL has dashboard params and then open Trail automatically
   // if (currentURL.includes("break")) {
@@ -108,223 +108,244 @@ const Extension = () => {
   // }
 
   useEffect(() => {
-    const selectedToolArray = Array.from(selectedTool);
+    const selectedToolArray = Array.from(selectedTool)
 
     const tools = [
-      "tab-order",
-      "headings",
-      "list-tags",
-      "landmarks",
-      "alt-text",
-      "links",
-      "forms",
-    ];
+      'tab-order',
+      'headings',
+      'list-tags',
+      'landmarks',
+      'alt-text',
+      'links',
+      'forms',
+    ]
 
     tools.forEach((tool) => {
       if (selectedToolArray.includes(tool)) {
-        window.parent.postMessage(`show-${tool}`, "*");
+        window.parent.postMessage(`show-${tool}`, '*')
       } else {
-        window.parent.postMessage(`hide-${tool}`, "*");
+        window.parent.postMessage(`hide-${tool}`, '*')
       }
-    });
-  }, [selectedTool]);
+    })
+  }, [selectedTool])
 
   const handleMinimise = () => {
-    window.parent.postMessage("minimise-button-clicked", "*");
-  };
+    window.parent.postMessage('minimise-button-clicked', '*')
+  }
 
   useEffect(() => {
     async function getCurrentTabHtmlSource() {
-      const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true,
-      });
-
-      // To extract only url with https
-      const url = tab.url?.match(/^https?:\/\/[^#?/]+/)?.[0];
-      setCurrentURL(url!);
-      chrome.scripting.executeScript(
+      chrome.tabs.query(
         {
-          target: { tabId: tab.id! },
-          func: () => {
-            const html = document.documentElement.outerHTML;
-            return html;
-          },
+          active: true,
+          currentWindow: true,
         },
-        (results) => {
-          setHtml(results[0].result as string);
+        (tabs) => {
+          const tab = tabs[0]
+          const url = tab.url?.match(/^https?:\/\/[^#?/]+/)?.[0]
+          setCurrentURL(url!)
+          chrome.tabs.sendMessage(tab.id!, {type: 'GET_HTML'}, (response) => {
+            if (chrome.runtime.lastError) {
+              console.error('Error getting HTML:', chrome.runtime.lastError)
+            } else if (response) {
+              console.log(
+                'Received HTML:',
+                response.html.substring(0, 100) + '...'
+              )
+              setHtml(response.html)
+            } else {
+              console.error('No response received for GET_HTML')
+            }
+          })
         }
-      );
+      )
     }
-    getCurrentTabHtmlSource();
+    getCurrentTabHtmlSource()
 
-    window.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        handleMinimise();
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        handleMinimise()
       }
-    });
+    })
 
     // Listen for messages from the background script
     const listener = (request: any) => {
-      if (request.type === "TO_REACT") {
-        setScallyResult((prevResults: any) => ({
-          ...prevResults,
-          [request.tabId]: request.payload,
-        }));
+      console.log('Received message in Extension.tsx:', request)
+      if (request.type === 'TO_REACT') {
+        console.log('Setting Scally result:', request.payload)
+        setScallyResult((prevResults: any) => {
+          const newResults = {
+            ...prevResults,
+            [request.tabId]: request.payload,
+          }
+          console.log('New Scally results:', newResults)
+          return newResults
+        })
+        setTabId(request.tabId)
       }
-    };
+    }
 
-    chrome.runtime.onMessage.addListener(listener);
+    chrome.runtime.onMessage.addListener(listener)
+
+    async function fetchScallyScript() {
+      try {
+        const response = await fetch(
+          'https://cdn.jsdelivr.net/gh/greasy-monk/pagesnow/scally.js'
+        )
+        const scallyCode = await response.text()
+
+        // Send the script to the content script
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+          const tabId = tabs[0].id!
+          chrome.tabs.sendMessage(tabId, {
+            type: 'SCALLY_SCRIPT',
+            script: scallyCode,
+          })
+        })
+      } catch (error) {
+        console.error('Error fetching Scally script:', error)
+      }
+    }
+
+    fetchScallyScript()
 
     // Cleanup listener on component unmount
     return () => {
-      chrome.runtime.onMessage.removeListener(listener);
-    };
-  }, []);
+      chrome.runtime.onMessage.removeListener(listener)
+    }
+  }, [])
 
   const getRulesets = useCallback(() => {
-    setIsLoading(true);
-    fetch("https://trail-api.barrierbreak.com/api/allRuleSets", {
-      method: "GET",
+    setIsLoading(true)
+    fetch('https://trail-api.barrierbreak.com/api/allRuleSets', {
+      method: 'GET',
       headers: {
-        Accept: "*/*",
-        "User-Agent": "Test 123",
-        "x-api-key": `${apiKey}`,
-        "Content-Type": "application/json",
+        Accept: '*/*',
+        'User-Agent': 'Test 123',
+        'x-api-key': `${apiKey}`,
+        'Content-Type': 'application/json',
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        setRulesets(data);
-        setIsLoading(false);
+        setRulesets(data)
+        setIsLoading(false)
       })
       .catch((error) => {
-        console.error("Error:", error);
-      });
-  }, [apiKey]);
+        console.error('Error:', error)
+      })
+  }, [apiKey])
 
   useEffect(() => {
-    setResult(scallyResult[tabId]);
-    sessionStorage.removeItem(`auditResults_${tabId}`);
-  }, [scallyResult, tabId]);
+    setResult(scallyResult[tabId])
+    sessionStorage.removeItem(`auditResults_${tabId}`)
+  }, [scallyResult, tabId])
 
   const runAudit = () => {
     const options = {
-      runners: ["htmlcs"],
+      runners: ['htmlcs'],
       ignore: [],
       clip: true,
-      standard: ["SECTIONBB"],
-    };
+      standard: ['SECTIONBB'],
+    }
 
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tabId = tabs[0].id;
-      setTabId(tabId as number);
-      chrome.runtime.sendMessage({ type: "RUN_AUDIT", options, tabId });
-    });
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      const tabId = tabs[0].id!
+      setTabId(tabId)
+      console.log('Sending RUN_AUDIT message')
 
-    const listener = (request: any) => {
-      if (request.type === "TO_REACT") {
-        setScallyResult((prevResults: any) => ({
-          ...prevResults,
-          [request.tabId]: request.payload,
-        }));
-      }
-    };
-
-    chrome.runtime.onMessage.addListener(listener);
-
-    // Cleanup listener on component unmount
-    return () => {
-      chrome.runtime.onMessage.removeListener(listener);
-    };
-  };
+      chrome.tabs.sendMessage(tabId, {type: 'RUN_AUDIT', options, tabId}, response => {
+        console.log('Response from content script:', response)
+      })
+    })
+  }
 
   result?.issues?.forEach((issue: any) => {
     switch (issue.type) {
-      case "error":
-        errorType.push(issue);
-        break;
-      case "warning":
-        warningType.push(issue);
-        break;
-      case "pass":
-        passType.push(issue);
-        break;
-      case "notice":
-        noticeType.push(issue);
-        break;
+      case 'error':
+        errorType.push(issue)
+        break
+      case 'warning':
+        warningType.push(issue)
+        break
+      case 'pass':
+        passType.push(issue)
+        break
+      case 'notice':
+        noticeType.push(issue)
+        break
     }
-  });
+  })
 
   const getTotalIssueCount = (data: any) => {
-    const total: any = [];
+    const total: any = []
     data?.forEach((item: any) => {
-      total.push(item.code);
-    });
-    return new Set(total).size;
-  };
+      total.push(item.code)
+    })
+    return new Set(total).size
+  }
 
   const tabData = [
     {
-      id: "FAIL",
-      label: "Fail",
+      id: 'FAIL',
+      label: 'Fail',
       issues: getTotalIssueCount(errorType),
     },
     {
-      id: "MANUAL",
-      label: "Manual",
+      id: 'MANUAL',
+      label: 'Manual',
       issues: getTotalIssueCount(warningType),
     },
     {
-      id: "PASS",
-      label: "Pass",
+      id: 'PASS',
+      label: 'Pass',
       issues: getTotalIssueCount(passType),
     },
     {
-      id: "BEST-PRACTICE",
-      label: "BP",
+      id: 'BEST-PRACTICE',
+      label: 'BP',
       issues: getTotalIssueCount(noticeType),
     },
-  ];
+  ]
 
   chrome.runtime.onMessage.addListener((message) => {
-    if (message.type === "RELOAD") {
-      location.reload();
+    if (message.type === 'RELOAD') {
+      location.reload()
     }
-  });
+  })
 
   const handleReset = () => {
-    window.parent.postMessage("reset-results", "*");
-    const liveRegion = document.querySelector(".live-region");
+    window.parent.postMessage('reset-results', '*')
+    const liveRegion = document.querySelector('.live-region')
     if (liveRegion) {
-      liveRegion.textContent = "";
+      liveRegion.textContent = ''
     }
-    setRulesets([]);
-    setResult({});
-  };
+    setRulesets([])
+    setResult({})
+  }
 
   const liveRegionAndTabFocus = () => {
     setTimeout(() => {
-      const liveRegion = document.querySelector(".live-region");
+      const liveRegion = document.querySelector('.live-region')
       if (liveRegion) {
-        liveRegion.textContent = "Results are loaded";
+        liveRegion.textContent = 'Results are loaded'
       }
-    }, 100);
+    }, 100)
 
     setTimeout(() => {
-      (
-        document?.querySelector(".tab")?.childNodes[0]
+      ;(
+        document?.querySelector('.tab')?.childNodes[0]
           ?.firstChild as HTMLElement
-      ).focus();
-    }, 500);
-  };
+      ).focus()
+    }, 500)
+  }
 
   const handleResponse = () => {
-    sessionStorage.removeItem(`auditResults_${tabId}`);
-    getRulesets();
-    runAudit();
-    apiKey ? liveRegionAndTabFocus() : alert("Please enter your Auth Token");
-  };
+    sessionStorage.removeItem(`auditResults_${tabId}`)
+    getRulesets()
+    runAudit()
+    apiKey ? liveRegionAndTabFocus() : alert('Please enter your Auth Token')
+  }
 
   return (
     <div className="font-poppins">
@@ -360,27 +381,27 @@ const Extension = () => {
                 selectionMode="multiple"
                 selectedKeys={selectedTool}
                 onSelectionChange={setSelectedTool}
-                classNames={{ popover: "font-poppins" }}
+                classNames={{popover: 'font-poppins'}}
               >
-                <MenuItem id="tab-order" classNames={{ title: "text-base" }}>
+                <MenuItem id="tab-order" classNames={{title: 'text-base'}}>
                   Tab Order
                 </MenuItem>
-                <MenuItem id="headings" classNames={{ title: "text-base" }}>
+                <MenuItem id="headings" classNames={{title: 'text-base'}}>
                   Headings
                 </MenuItem>
-                <MenuItem id="list-tags" classNames={{ title: "text-base" }}>
+                <MenuItem id="list-tags" classNames={{title: 'text-base'}}>
                   List
                 </MenuItem>
-                <MenuItem id="landmarks" classNames={{ title: "text-base" }}>
+                <MenuItem id="landmarks" classNames={{title: 'text-base'}}>
                   Landmark
                 </MenuItem>
-                <MenuItem id="alt-text" classNames={{ title: "text-base" }}>
+                <MenuItem id="alt-text" classNames={{title: 'text-base'}}>
                   Alt Text
                 </MenuItem>
-                <MenuItem id="links" classNames={{ title: "text-base" }}>
+                <MenuItem id="links" classNames={{title: 'text-base'}}>
                   Links
                 </MenuItem>
-                <MenuItem id="forms" classNames={{ title: "text-base" }}>
+                <MenuItem id="forms" classNames={{title: 'text-base'}}>
                   Forms
                 </MenuItem>
               </Menu>
@@ -403,7 +424,7 @@ const Extension = () => {
               className="before:content-[''] before:h-[1px] before:w-6 before:bg-neutral-300 before:left-0 before:top-[103px] before:fixed
                         after:content-[''] after:h-[1px] after:w-6 after:bg-neutral-300 after:right-0 after:top-[103px] after:fixed"
             >
-              <Tabs color="purple" classNames={{ tab: "border-0 py-0 pr-1.5" }}>
+              <Tabs color="purple" classNames={{tab: 'border-0 py-0 pr-1.5'}}>
                 <div className="tab flex items-center justify-between h-12 w-[564px] border-b border-neutral-300 sticky z-[1] bg-white top-14">
                   <TabList>
                     {tabData.map((tab) => (
@@ -417,8 +438,8 @@ const Extension = () => {
                             radius="full"
                             children={`${tab.issues}`}
                             classNames={{
-                              base: "p-0 h-[18px] min-w-7 hover:bg-purple-100 active:bg-purple-100",
-                              content: "text-xs text-center px-2 py-0",
+                              base: 'p-0 h-[18px] min-w-7 hover:bg-purple-100 active:bg-purple-100',
+                              content: 'text-xs text-center px-2 py-0',
                             }}
                           />
                         </div>
@@ -444,7 +465,7 @@ const Extension = () => {
                       />
                     </IconButton>
                     <DownloadCSV
-                      csvData={{ errorType, warningType, passType, noticeType }}
+                      csvData={{errorType, warningType, passType, noticeType}}
                       rules={rulesets}
                     />
                   </div>
@@ -481,7 +502,7 @@ const Extension = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Extension;
+export default Extension

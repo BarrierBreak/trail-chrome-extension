@@ -761,10 +761,15 @@ function hideForms() {
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "INSERT_SCALLY") {
+  console.log('Content script received message:', message);
+  if (message.type === "GET_HTML") {
+    console.log('Sending HTML to extension');
+    sendResponse({ html: document.documentElement.outerHTML });
+  } else if (message.type === "INSERT_SCALLY") {
     insertScally();
     sendResponse({ status: "Action performed" });
   }
+  return true; // Indicates that the response is sent asynchronously
 });
 
 function insertScally() {
