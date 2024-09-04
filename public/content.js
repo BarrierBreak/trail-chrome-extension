@@ -291,7 +291,7 @@ function showHeadings() {
 
   if (document.querySelectorAll(".heading-label").length <= 0) {
     headings.forEach((heading) => {
-      const headingLabel = document.createElement("strong");
+      const headingLabel = document.createElement("span");
       headingLabel.className = "heading-label";
       headingLabel.style.color = labelColors.NEUTRAL_50;
       headingLabel.style.padding = "2px 4px";
@@ -299,32 +299,32 @@ function showHeadings() {
       headingLabel.style.fontSize = "12px";
       headingLabel.style.lineHeight = "16px";
       headingLabel.style.fontWeight = "bold";
+      headingLabel.style.fontFamily = "Poppins, Roboto";
       headingLabel.style.borderRadius = "4px";
       headingLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       headingLabel.style.verticalAlign = "middle";
-      headingLabel.style.zIndex = "100000";
-      headingLabel.textContent = `<${heading.tagName}>`;
+      headingLabel.textContent = `<${heading.tagName.toLowerCase()}>`;
       headingLabel.style.textTransform = "lowercase";
       heading.prepend(headingLabel);
 
-      switch (headingLabel.textContent) {
-        case "<H1>":
+      switch (heading.tagName) {
+        case "H1":
           headingLabel.style.backgroundColor = labelColors.YELLOW_700;
           headingLabel.style.color = labelColors.NEUTRAL_900;
           break;
-        case "<H2>":
+        case "H2":
           headingLabel.style.backgroundColor = labelColors.PURPLE_700;
           break;
-        case "<H3>":
+        case "H3":
           headingLabel.style.backgroundColor = labelColors.GREEN_800;
           break;
-        case "<H4>":
+        case "H4":
           headingLabel.style.backgroundColor = labelColors.BLUE_700;
           break;
-        case "<H5>":
+        case "H5":
           headingLabel.style.backgroundColor = labelColors.RED_700;
           break;
-        case "<H6>":
+        case "H6":
           headingLabel.style.backgroundColor = labelColors.NEUTRAL_700;
           break;
         default:
@@ -332,7 +332,7 @@ function showHeadings() {
       }
 
       const endLabel = headingLabel.cloneNode(true);
-      endLabel.textContent = `</${heading.tagName}>`;
+      endLabel.textContent = `</${heading.tagName.toLowerCase()}>`;
       heading.appendChild(endLabel);
     });
   }
@@ -355,41 +355,41 @@ function showListTags() {
 
   if (document.querySelectorAll(".list-item-label").length <= 0) {
     listItems.forEach((listItem) => {
-      const listItemLabel = document.createElement("strong");
+      const listItemLabel = document.createElement("span");
       listItemLabel.className = "list-item-label";
       listItemLabel.style.color = labelColors.NEUTRAL_50;
       listItemLabel.style.padding = "2px 4px";
       listItemLabel.style.margin = "4px";
       listItemLabel.style.height = "23px";
       listItemLabel.style.fontSize = "12px";
+      listItemLabel.style.fontFamily = "Poppins, Roboto";
       listItemLabel.style.lineHeight = "16px";
       listItemLabel.style.fontWeight = "bold";
       listItemLabel.style.borderRadius = "4px";
-      listItemLabel.style.zIndex = "100000";
       listItemLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
-      listItemLabel.textContent = `<${listItem.tagName}>`;
+      listItemLabel.textContent = `<${listItem.tagName.toLowerCase()}>`;
       listItemLabel.style.textTransform = "lowercase";
 
       listItem.insertAdjacentElement("beforebegin", listItemLabel);
 
-      switch (listItemLabel.textContent) {
-        case "<UL>":
+      switch (listItem.tagName) {
+        case "UL":
           listItemLabel.style.backgroundColor = labelColors.GREEN_800;
           break;
-        case "<OL>":
+        case "OL":
           listItemLabel.style.backgroundColor = labelColors.YELLOW_700;
           listItemLabel.style.color = labelColors.NEUTRAL_900;
           break;
-        case "<LI>":
+        case "LI":
           listItemLabel.style.backgroundColor = labelColors.PURPLE_700;
           break;
-        case "<DD>":
+        case "DD":
           listItemLabel.style.backgroundColor = labelColors.BLUE_700;
           break;
-        case "<DT>":
+        case "DT":
           listItemLabel.style.backgroundColor = labelColors.RED_700;
           break;
-        case "<DL>":
+        case "DL":
           listItemLabel.style.backgroundColor = labelColors.NEUTRAL_700;
           break;
         default:
@@ -397,7 +397,7 @@ function showListTags() {
       }
 
       const endLabel = listItemLabel.cloneNode(true);
-      endLabel.textContent = `</${listItem.tagName}>`;
+      endLabel.textContent = `</${listItem.tagName.toLowerCase()}>`;
       listItem.insertAdjacentElement("afterend", endLabel);
     });
   }
@@ -419,21 +419,23 @@ function showLandMarks() {
 
   if (document.querySelectorAll(".landmark-label").length <= 0) {
     landmarks.forEach((landmark) => {
-      const landmarkLabel = document.createElement("strong");
+      const landmarkLabel = document.createElement("span");
       const ariaLabelledBy = landmark.getAttribute("aria-labelledby");
       const ariaLabel = landmark.getAttribute("aria-label");
       const title = landmark.getAttribute("title");
+
       landmarkLabel.className = "landmark-label";
       landmarkLabel.style.backgroundColor = "#5928ed";
       landmarkLabel.style.color = labelColors.NEUTRAL_50;
       landmarkLabel.style.display = "inline-block";
       landmarkLabel.style.padding = "2px 4px";
       landmarkLabel.style.margin = "2px";
+      landmarkLabel.style.fontFamily = "Poppins, Roboto";
       landmarkLabel.style.fontSize = "12px";
       landmarkLabel.style.lineHeight = "16px";
       landmarkLabel.style.fontWeight = "bold";
       landmarkLabel.style.borderRadius = "4px";
-      landmarkLabel.style.zIndex = "100000";
+      landmarkLabel.style.textTransform = "lowercase";
       landmarkLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       landmark.prepend(landmarkLabel);
 
@@ -481,7 +483,7 @@ function showLandMarks() {
 
   if (document.querySelectorAll(".section-label").length <= 0) {
     sections.forEach((section) => {
-      const sectionLabel = document.createElement("strong");
+      const sectionLabel = document.createElement("span");
       const ariaLabelledBy = section.getAttribute("aria-labelledby");
       const ariaLabel = section.getAttribute("aria-label");
       const title = section.getAttribute("title");
@@ -493,10 +495,12 @@ function showLandMarks() {
       sectionLabel.style.padding = "2px 4px";
       sectionLabel.style.margin = "2px";
       sectionLabel.style.fontSize = "12px";
+      sectionLabel.style.fontFamily = "Poppins, Roboto";
       sectionLabel.style.lineHeight = "16px";
       sectionLabel.style.fontWeight = "bold";
       sectionLabel.style.borderRadius = "4px";
       sectionLabel.style.zIndex = "100000";
+      sectionLabel.style.textTransform = "lowercase";
       sectionLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       section.prepend(sectionLabel);
 
@@ -558,20 +562,22 @@ function showAltText() {
   if (document.querySelectorAll(".alt-text-label").length <= 0) {
     images.forEach((image) => {
       const altText = image.getAttribute("alt");
-      const altTextLabel = document.createElement("strong");
+      const altTextLabel = document.createElement("span");
 
       altTextLabel.className = "alt-text-label";
-      altTextLabel.style.backgroundColor = labelColors.PURPLE_700;
       altTextLabel.style.position = "absolute";
       altTextLabel.style.top = `${image.offsetTop}px`;
       altTextLabel.style.left = `${image.offsetLeft}px`;
-      altTextLabel.style.minHeight = "24px";
       altTextLabel.style.color = labelColors.NEUTRAL_50;
+      altTextLabel.style.backgroundColor = labelColors.PURPLE_700;
+      altTextLabel.style.minHeight = "23px";
       altTextLabel.style.padding = "2px 4px";
       altTextLabel.style.margin = "4px";
       altTextLabel.style.fontSize = "12px";
+      altTextLabel.style.fontFamily = "Poppins, Roboto";
       altTextLabel.style.lineHeight = "16px";
       altTextLabel.style.fontWeight = "bold";
+      altTextLabel.style.textTransform = "lowercase";
       altTextLabel.style.borderRadius = "4px";
       altTextLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       altTextLabel.textContent = altText ? `alt="${altText}"` : 'alt=" "';
@@ -599,17 +605,20 @@ function showLinks() {
       const ariaLabel = link.getAttribute("aria-label");
       const title = link.getAttribute("title");
 
-      const startLabel = document.createElement("strong");
+      const startLabel = document.createElement("span");
       startLabel.className = "link-label";
       startLabel.style.backgroundColor = labelColors.PURPLE_700;
       startLabel.style.color = labelColors.NEUTRAL_50;
       startLabel.style.display = "inline-block";
       startLabel.style.padding = "2px 4px";
       startLabel.style.margin = "2px";
-      startLabel.style.fontSize = "12px";
+      startLabel.style.height = "23px";
       startLabel.style.lineHeight = "16px";
+      startLabel.style.fontSize = "12px";
       startLabel.style.fontWeight = "bold";
+      startLabel.style.fontFamily = "Poppins, Roboto";
       startLabel.style.borderRadius = "4px";
+      startLabel.style.textTransform = "lowercase";
       startLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       startLabel.style.zIndex = "100000";
       link.insertAdjacentElement("beforebegin", startLabel);
@@ -640,7 +649,9 @@ function hideLinks() {
 
 function showForms() {
   const forms = document.querySelectorAll(
-    'input, textarea, label, fieldset, form, select, option, legend, [role="form"], [role="radio"], [role="checkbox"], [role="textbox"], [role="listbox"], [role="listitem"], [role="radiogroup"]'
+    "input, textarea, label, fieldset, form, select, option, legend",
+    '[role="form"], [role="radio"], [role="checkbox"], [role="textbox"]',
+    '[role="listbox"], [role="listitem"], [role="radiogroup"]'
   );
 
   if (document.querySelectorAll(".forms-label").length <= 0) {
@@ -658,48 +669,50 @@ function showForms() {
       const autoComp = form.getAttribute("autocomplete");
       const req = form.getAttribute("required");
 
-      const formLabel = document.createElement("strong");
+      const formLabel = document.createElement("span");
       formLabel.className = "form-label";
       formLabel.style.backgroundColor = "#5928ed";
       formLabel.style.color = labelColors.NEUTRAL_50;
       formLabel.style.display = "inline-block";
       formLabel.style.padding = "2px 4px";
       formLabel.style.margin = "2px";
-      formLabel.style.fontSize = "12px";
       formLabel.style.lineHeight = "16px";
+      formLabel.style.fontSize = "12px";
+      formLabel.style.fontFamily = "Poppins, Roboto";
       formLabel.style.fontWeight = "bold";
       formLabel.style.borderRadius = "4px";
       formLabel.style.zIndex = "100000";
+      formLabel.style.textTransform = "lowercase";
       formLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       formLabel.textContent = `<${form.tagName.toLowerCase()}`;
 
       form.parentElement.prepend(formLabel);
 
-      switch (formLabel.textContent) {
-        case "<input":
+      switch (form.tagName) {
+        case "INPUT":
           formLabel.style.backgroundColor = labelColors.PURPLE_700;
           break;
-        case "<textarea":
+        case "TEXTAREA":
           formLabel.style.backgroundColor = labelColors.RED_700;
           break;
-        case "<label":
+        case "LABEL":
           formLabel.style.backgroundColor = labelColors.YELLOW_700;
           formLabel.style.color = labelColors.NEUTRAL_900;
           break;
-        case "<fieldset":
+        case "FIELDSET":
           formLabel.style.backgroundColor = labelColors.GREEN_800;
           break;
-        case "<form":
+        case "FORM":
           formLabel.style.backgroundColor = labelColors.BLUE_700;
           break;
-        case "<select":
+        case "SELECT":
           formLabel.style.backgroundColor = labelColors.YELLOW_700;
           formLabel.style.color = labelColors.NEUTRAL_900;
           break;
-        case "<option":
+        case "OPTION":
           formLabel.style.backgroundColor = labelColors.NEUTRAL_700;
           break;
-        case "<legend":
+        case "LEGEND":
           formLabel.style.backgroundColor = labelColors.BLUE_700;
           break;
         default:
