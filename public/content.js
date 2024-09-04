@@ -605,37 +605,37 @@ function showLinks() {
       const ariaLabel = link.getAttribute("aria-label");
       const title = link.getAttribute("title");
 
-      const startLabel = document.createElement("span");
-      startLabel.className = "link-label";
-      startLabel.style.backgroundColor = labelColors.PURPLE_700;
-      startLabel.style.color = labelColors.NEUTRAL_50;
-      startLabel.style.display = "inline-block";
-      startLabel.style.padding = "2px 4px";
-      startLabel.style.margin = "2px";
-      startLabel.style.height = "23px";
-      startLabel.style.lineHeight = "16px";
-      startLabel.style.fontSize = "12px";
-      startLabel.style.fontWeight = "bold";
-      startLabel.style.fontFamily = "Poppins, Roboto";
-      startLabel.style.borderRadius = "4px";
-      startLabel.style.textTransform = "lowercase";
-      startLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
-      startLabel.style.zIndex = "100000";
-      link.insertAdjacentElement("beforebegin", startLabel);
+      const linkLabel = document.createElement("span");
+      linkLabel.className = "link-label";
+      linkLabel.style.backgroundColor = labelColors.PURPLE_700;
+      linkLabel.style.color = labelColors.NEUTRAL_50;
+      linkLabel.style.display = "inline-block";
+      linkLabel.style.padding = "2px 4px";
+      linkLabel.style.margin = "2px";
+      linkLabel.style.height = "23px";
+      linkLabel.style.lineHeight = "16px";
+      linkLabel.style.fontSize = "12px";
+      linkLabel.style.fontWeight = "bold";
+      linkLabel.style.fontFamily = "Poppins, Roboto";
+      linkLabel.style.borderRadius = "4px";
+      linkLabel.style.textTransform = "lowercase";
+      linkLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
+      linkLabel.style.zIndex = "100000";
+      link.insertAdjacentElement("beforebegin", linkLabel);
 
       // In the order of: aria-labelledby > aria-label > title
       const name = ariaLabelledBy || ariaLabel || title;
 
-      startLabel.textContent =
+      linkLabel.textContent =
         name !== null
           ? `<${link.tagName.toLowerCase()} name="${name}">`
           : `<${link.tagName.toLowerCase()}>`;
 
       if (name === null) {
-        startLabel.style.backgroundColor = labelColors.RED_700;
+        linkLabel.style.backgroundColor = labelColors.RED_700;
       }
 
-      const endLabel = startLabel.cloneNode(true);
+      const endLabel = linkLabel.cloneNode(true);
       endLabel.textContent = `</${link.tagName.toLowerCase()}>`;
       link.insertAdjacentElement("afterend", endLabel);
     });
@@ -668,6 +668,7 @@ function showForms() {
       const ariaPressed = form.getAttribute("aria-pressed");
       const autoComp = form.getAttribute("autocomplete");
       const req = form.getAttribute("required");
+      const ariaReq = form.getAttribute("aria-required");
 
       const formLabel = document.createElement("span");
       formLabel.className = "form-label";
@@ -720,11 +721,7 @@ function showForms() {
       }
 
       if (formLabel.textContent === "<input") {
-        const idAttr = id !== null ? ` id="${id}"` : ` id=" "`;
         const typeAttr = type !== null ? ` type="${type}"` : ` type="text"`;
-        const reqAttr = req !== null ? ` required` : ``;
-        formLabel.textContent += idAttr;
-        formLabel.textContent += reqAttr;
         formLabel.textContent += typeAttr;
 
         if (type === "hidden") {
@@ -737,11 +734,17 @@ function showForms() {
         formLabel.textContent += labelForAttr;
       }
 
-      const name = ariaLabelledBy || ariaLabel || title;
-      const nameAttr = name !== null ? ` name="${name}"` : ``;
+      const idAttr = id !== null ? ` id="${id}"` : ``;
       const roleAttr = role !== null ? ` role="${role}"` : ``;
+      const titleAttr = title !== null ? ` title="${title}"` : ``;
       const autoAttr = autoComp !== null ? ` autocomplete="${autoComp}"` : ``;
+      const reqAttr = req !== null ? ` required="true"` : ``;
+      const ariaReqAttr = ariaReq !== null ? ` aria-required="${ariaReq}"` : ``;
 
+      const ariaLabelledByAttr =
+        ariaLabelledBy !== null ? ` aria-labelledby="${ariaLabelledBy}"` : ``;
+      const ariaLabelAttr =
+        ariaLabel !== null ? ` aria-label="${ariaLabel}"` : ``;
       const ariaDescAttr =
         ariaDescBy !== null ? ` aria-describedby="${ariaDescBy}"` : ``;
       const ariaExpAttr =
@@ -749,9 +752,14 @@ function showForms() {
       const ariaPressedAttr =
         ariaPressed !== null ? ` aria-pressed="${ariaPressed}"` : ``;
 
-      formLabel.textContent += nameAttr;
+      formLabel.textContent += idAttr;
+      formLabel.textContent += titleAttr;
+      formLabel.textContent += reqAttr;
       formLabel.textContent += autoAttr;
       formLabel.textContent += roleAttr;
+      formLabel.textContent += ariaReqAttr;
+      formLabel.textContent += ariaLabelledByAttr;
+      formLabel.textContent += ariaLabelAttr;
       formLabel.textContent += ariaDescAttr;
       formLabel.textContent += ariaExpAttr;
       formLabel.textContent += ariaPressedAttr;

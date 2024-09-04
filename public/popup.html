@@ -71,6 +71,10 @@
         border-radius: 4px;
       }
 
+      ::placeholder {
+        color: #625d71;
+      }
+
       .cta {
         display: flex;
         gap: 12px;
@@ -157,7 +161,12 @@
     <form class="info">
       <label for="authToken">Auth Token</label>
       <div class="cta">
-        <input type="text" name="authToken" id="authToken" />
+        <input
+          type="text"
+          name="authToken"
+          id="authToken"
+          placeholder="Enter Auth Token"
+        />
         <button id="saveBtn">Save</button>
         <!-- 
           <label for="serverUrl" style="width: 80px;">Server URL:</label>

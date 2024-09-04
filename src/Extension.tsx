@@ -323,7 +323,7 @@ const Extension = () => {
     sessionStorage.removeItem(`auditResults_${tabId}`);
     getRulesets();
     runAudit();
-    apiKey ? liveRegionAndTabFocus() : alert("Please enter your Auth Token");
+    apiKey ? liveRegionAndTabFocus() : alert("Please enter your Auth Token in the Auth Token dialog");
   };
 
   return (
