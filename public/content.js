@@ -13,8 +13,10 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   } else if (message.type === "SCALLY_SCRIPT") {
     console.log('Received Scally script');
     const script = document.createElement('script');
-    script.textContent = message.script;
-    (document.head || document.documentElement).appendChild(script);
+    // script.src = chrome.runtime.getURL('scally.js');
+    script.src = 'https://cdn.jsdelivr.net/gh/greasy-monk/pagesnow/scally.js';
+    script.type = 'text/javascript';
+    (document.head || document.documentElement).append(script);
     console.log('Scally script injected');
     sendResponse({ status: "Scally script injected" });
   } else if (message.type === "GET_HTML") {
