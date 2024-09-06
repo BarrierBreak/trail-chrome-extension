@@ -229,6 +229,16 @@ function showTabOrderLabels() {
   }
 }
 
+function hideTabOrderLabels() {
+  const tabOrderLabels = document.querySelectorAll(".tab-order-label");
+  tabOrderLabels.forEach((label) => label.remove());
+
+  const svgContainer = document.querySelector("#svg-container");
+  if (svgContainer) {
+    svgContainer.remove();
+  }
+}
+
 function drawLines(positions) {
   const svgContainer = document.createElementNS(
     "http://www.w3.org/2000/svg",
@@ -408,7 +418,7 @@ function hideListTags() {
   listItemLabels.forEach((label) => label.remove());
 }
 
-function showLandMarks() {
+function showLandmarks() {
   const landmarks = document.querySelectorAll(
     '[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="main"], [role="navigation"], [role="search"]'
   );
@@ -548,7 +558,7 @@ function showLandMarks() {
   }
 }
 
-function hideLandMarks() {
+function hideLandmarks() {
   const landmarkLabels = document.querySelectorAll(".landmark-label");
   landmarkLabels.forEach((label) => label.remove());
 
@@ -802,90 +812,74 @@ function insertScally() {
 }
 
 window.addEventListener("message", (event) => {
-  // To minimize iframe
-  if (event.data === "minimise-button-clicked") {
-    hideIframe();
-    extensionBtn.focus();
-  }
+  switch (event.data) {
+    // To run trail automatically when opened from dashboard
+    // case "open-trail":
+    //   showIframe();
+    //   break;
 
-  // To open trail automatically when opened from dashboard
-  // if (event.data === "open-trail") {
-  //   showIframe();
-  // }
+    case "minimise-button-clicked":
+      hideIframe();
+      extensionBtn.focus();
+      break;
 
-  // To show tab order
-  if (event.data === "show-tab-order") {
-    showTabOrderLabels();
-  }
+    case "show-tab-order":
+      showTabOrderLabels();
+      break;
 
-  // To hide tab order
-  if (event.data === "hide-tab-order") {
-    const tabOrderLabels = document.querySelectorAll(".tab-order-label");
-    tabOrderLabels.forEach((label) => label.remove());
+    case "hide-tab-order":
+      hideTabOrderLabels();
+      break;
 
-    const svgContainer = document.querySelector("#svg-container");
-    if (svgContainer) {
-      svgContainer.remove();
-    }
-  }
+    case "show-headings":
+      showHeadings();
+      break;
 
-  // To show headings
-  if (event.data === "show-headings") {
-    showHeadings();
-  }
+    case "hide-headings":
+      hideHeadings();
+      break;
 
-  // To hide headings
-  if (event.data === "hide-headings") {
-    hideHeadings();
-  }
+    case "show-list-tags":
+      showListTags();
+      break;
 
-  // To show list tags
-  if (event.data === "show-list-tags") {
-    showListTags();
-  }
+    case "hide-list-tags":
+      hideListTags();
+      break;
 
-  // To hide list tags
-  if (event.data === "hide-list-tags") {
-    hideListTags();
-  }
+    case "show-landmarks":
+      showLandmarks();
+      break;
 
-  // To show landmarks
-  if (event.data === "show-landmarks") {
-    showLandMarks();
-  }
+    case "hide-landmarks":
+      hideLandmarks();
+      break;
 
-  // To hide landmarks
-  if (event.data === "hide-landmarks") {
-    hideLandMarks();
-  }
+    case "show-alt-text":
+      showAltText();
+      break;
 
-  // To show alt text
-  if (event.data === "show-alt-text") {
-    showAltText();
-  }
+    case "hide-alt-text":
+      hideAltText();
+      break;
 
-  // To hide alt text
-  if (event.data === "hide-alt-text") {
-    hideAltText();
-  }
+    case "show-links":
+      showLinks();
+      break;
 
-  // To show links
-  if (event.data === "show-links") {
-    showLinks();
-  }
+    case "hide-links":
+      hideLinks();
+      break;
 
-  // To hide links
-  if (event.data === "hide-links") {
-    hideLinks();
-  }
+    case "show-forms":
+      showForms();
+      break;
 
-  // To show forms
-  if (event.data === "show-forms") {
-    showForms();
-  }
+    case "hide-forms":
+      hideForms();
+      break;
 
-  // To hide forms
-  if (event.data === "hide-forms") {
-    hideForms();
+    default:
+      break;
   }
 });
