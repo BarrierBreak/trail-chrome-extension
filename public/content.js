@@ -663,8 +663,8 @@ function showForms() {
     '[role="form"], [role="radio"], [role="checkbox"], [role="textbox"]',
     '[role="listbox"], [role="listitem"], [role="radiogroup"]'
   );
-
-  if (document.querySelectorAll(".forms-label").length <= 0) {
+  
+  if (document.querySelectorAll(".form-label").length <= 0) {
     forms.forEach((form) => {
       const id = form.getAttribute("id");
       const title = form.getAttribute("title");

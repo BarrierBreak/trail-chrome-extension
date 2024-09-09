@@ -12,14 +12,14 @@ importers:
         specifier: ^1.0.14
         version: 1.0.14(vite@5.2.11(@types/node@20.12.12))
       '@trail-ui/icons':
-        specifier: ^1.0.19
-        version: 1.0.19(react@18.3.1)
+        specifier: ^1.0.21
+        version: 1.0.21(react@18.3.1)
       '@trail-ui/react':
-        specifier: ^1.1.21
-        version: 1.1.21(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.3)
+        specifier: ^1.1.23
+        version: 1.1.23(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.3)
       '@trail-ui/theme':
-        specifier: ^1.1.21
-        version: 1.1.21(tailwindcss@3.4.3)
+        specifier: ^1.1.23
+        version: 1.1.23(tailwindcss@3.4.3)
       framer-motion:
         specifier: ^11.1.9
         version: 11.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1065,13 +1065,13 @@ packages:
     resolution: {integrity: sha512-dCG8vQGk4js5v88/k83tTedWOwjGnIyONrKpHpfmSJB8jwFHl8GSu1sBBxbtACVAPtAQgwNxl0rw1d3RqRM1Tg==}
     engines: {node: '>=12'}
 
-  '@trail-ui/hooks@1.0.9':
-    resolution: {integrity: sha512-RjHX2nvuMUn2K23vmpO5tBMuIi3db+IaEwKsprgUKJn0cFJkVw3of2OlCHXKDHGKl9AqDTemx5JxxZugmFhq1w==}
+  '@trail-ui/hooks@1.0.11':
+    resolution: {integrity: sha512-Hn8wIdhW21ThwniH4BHqH0WLqRfptrzp6zb82RV7+dODA0inNDH58Iorg/98W4Zn6krsNNLI1lls4SY071aEpQ==}
     peerDependencies:
       react: '>=18'
 
-  '@trail-ui/icons@1.0.19':
-    resolution: {integrity: sha512-b32CFWOtL8AjsTmnrKoIGSMCE9TkvTWAsP5BVr1SW51IAZ3qph1YDhTAb7spV7Rhgd50WVWQFIdPu4y6sCVdHA==}
+  '@trail-ui/icons@1.0.21':
+    resolution: {integrity: sha512-0ZKhwVlri/SpsAGa63h84gB45Cc1Z40cbkz6LEHaMx5cj3s1NdngR7Xi7mDMSjr31NX9UnQ5YZaDCsiiTsapNA==}
     peerDependencies:
       react: '>=18'
 
@@ -1080,17 +1080,17 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@trail-ui/react@1.1.21':
-    resolution: {integrity: sha512-hds+cZv6YOQqTCl2A2wf8o2GK/dG1+2KfIfN2QZiK0b+FA379kDYLpRprA4EimmzyaKp82VN/4FDjaZbpoJH/Q==}
+  '@trail-ui/react@1.1.23':
+    resolution: {integrity: sha512-c06Ysuviu5pDMvmFblnWHAPzxfByP/t+KtYMkkp9J+dYCc+nG54vccHGR8YaW2dKw7AMOrIDuHxxVXrHo4UIYw==}
     peerDependencies:
       react: ^18.2.0
       react-dom: ^18.2.0
 
-  '@trail-ui/shared-utils@1.0.7':
-    resolution: {integrity: sha512-WSPgFEZ/JAINd/4wgH6a7gOjRSmYCzlqJVt5NzmSVe7XkMDdQKfWh6O78bVnPRiGf22eFD11Lvftq5MODZJmRw==}
+  '@trail-ui/shared-utils@1.0.9':
+    resolution: {integrity: sha512-92e/OSV24BbSAiMclu8j+MS5NOGpfyWbOXzAjCwEd2ofXiST0M7QUBaQj5xHUvLxEA0VgGB39WTNDLgXFOVJyw==}
 
-  '@trail-ui/theme@1.1.21':
-    resolution: {integrity: sha512-7ixtpOMqSAzXZS95Ih5/UlWt4EatezDiwbpyF7Njje9q7qfGI0OFQyZUqPyqCO6jUK9tfTsJ1BrhNGgbBePsKQ==}
+  '@trail-ui/theme@1.1.23':
+    resolution: {integrity: sha512-5hSp6RUUaGrAhNzKC0h43kUjMoheIZsJCCu9tB5DbdPKLlIEX3EdFlugU8S6Jrqwf0xSVAyOnWHaPU8G86E88g==}
     peerDependencies:
       tailwindcss: '*'
 
@@ -2182,6 +2182,11 @@ packages:
   tailwind-variants@0.2.1:
     resolution: {integrity: sha512-2xmhAf4UIc3PijOUcJPA1LP4AbxhpcHuHM2C26xM0k81r0maAO6uoUSHl3APmvHZcY5cZCY/bYuJdfFa4eGoaw==}
     engines: {node: '>=16.x', pnpm: '>=7.x'}
+    peerDependencies:
+      tailwindcss: '*'
+
+  tailwindcss-react-aria-components@1.1.5:
+    resolution: {integrity: sha512-0qNr/RlKe5MtDMGMsCFbCoQzpURzEg1raQgnssvOyOWtIIpqleu0lwj8KVRbiZGh8DvX9fNxT+GnfYdiNLJ+Bw==}
     peerDependencies:
       tailwindcss: '*'
 
@@ -3746,14 +3751,14 @@ snapshots:
 
   '@tanstack/table-core@8.16.0': {}
 
-  '@trail-ui/hooks@1.0.9(react@18.3.1)':
+  '@trail-ui/hooks@1.0.11(react@18.3.1)':
     dependencies:
-      '@trail-ui/shared-utils': 1.0.7
+      '@trail-ui/shared-utils': 1.0.9
       '@types/lodash.debounce': 4.0.9
       lodash.debounce: 4.0.8
       react: 18.3.1
 
-  '@trail-ui/icons@1.0.19(react@18.3.1)':
+  '@trail-ui/icons@1.0.21(react@18.3.1)':
     dependencies:
       react: 18.3.1
 
@@ -3761,7 +3766,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  '@trail-ui/react@1.1.21(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.3)':
+  '@trail-ui/react@1.1.23(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.3)':
     dependencies:
       '@react-aria/focus': 3.18.2(react@18.3.1)
       '@react-aria/interactions': 3.22.2(react@18.3.1)
@@ -3772,27 +3777,29 @@ snapshots:
       '@react-stately/utils': 3.10.3(react@18.3.1)
       '@react-types/shared': 3.24.1(react@18.3.1)
       '@tanstack/react-table': 8.16.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@trail-ui/hooks': 1.0.9(react@18.3.1)
-      '@trail-ui/icons': 1.0.19(react@18.3.1)
+      '@trail-ui/hooks': 1.0.11(react@18.3.1)
+      '@trail-ui/icons': 1.0.21(react@18.3.1)
       '@trail-ui/react-utils': 1.0.6(react@18.3.1)
-      '@trail-ui/shared-utils': 1.0.7
-      '@trail-ui/theme': 1.1.21(tailwindcss@3.4.3)
+      '@trail-ui/shared-utils': 1.0.9
+      '@trail-ui/theme': 1.1.23(tailwindcss@3.4.3)
       react: 18.3.1
       react-aria: 3.34.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-aria-components: 1.3.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       react-stately: 3.32.2(react@18.3.1)
       react-textarea-autosize: 8.5.3(@types/react@18.3.1)(react@18.3.1)
+      tailwind-merge: 2.5.2
+      tailwindcss-react-aria-components: 1.1.5(tailwindcss@3.4.3)
     transitivePeerDependencies:
       - '@types/react'
       - tailwindcss
 
-  '@trail-ui/shared-utils@1.0.7':
+  '@trail-ui/shared-utils@1.0.9':
     dependencies:
       clsx: 2.1.1
       tailwind-merge: 2.5.2
 
-  '@trail-ui/theme@1.1.21(tailwindcss@3.4.3)':
+  '@trail-ui/theme@1.1.23(tailwindcss@3.4.3)':
     dependencies:
       color: 4.2.3
       color2k: 2.0.3
@@ -4996,6 +5003,10 @@ snapshots:
   tailwind-variants@0.2.1(tailwindcss@3.4.3):
     dependencies:
       tailwind-merge: 2.5.2
+      tailwindcss: 3.4.3
+
+  tailwindcss-react-aria-components@1.1.5(tailwindcss@3.4.3):
+    dependencies:
       tailwindcss: 3.4.3
 
   tailwindcss@3.4.3:
