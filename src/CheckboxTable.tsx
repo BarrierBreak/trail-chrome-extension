@@ -1,24 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useEffect, useState } from "react";
-import { Button, Chip, IconButton } from "@trail-ui/react";
-import { ChevronDownIcon, ChevronUpIcon, CopyIcon } from "@trail-ui/icons";
-import { Conformance, IssueTypes } from "./Extension";
-import { formatInput, getAltText } from "./utils";
+import {useCallback, useEffect, useState} from 'react'
+import {Button, Chip, IconButton} from '@trail-ui/react'
+import {ChevronDownIcon, ChevronUpIcon, CopyIcon} from '@trail-ui/icons'
+import {Conformance, IssueTypes} from './Extension'
+import {formatInput, getAltText} from './utils'
 
 interface CheckboxTableProps {
-  data: any;
-  rules: any;
+  data: any
+  rules: any
 }
 
 interface DropdownState {
-  id: string;
-  isExpanded: boolean;
+  id: string
+  isExpanded: boolean
 }
 
-const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
-  const [activePopup, setActivePopup] = useState<string>("");
-  const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([]);
-  const updatedStates: DropdownState[] = [];
+const CheckboxTable = ({data, rules}: CheckboxTableProps) => {
+  const [activePopup, setActivePopup] = useState<string>('')
+  const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([])
+  const updatedStates: DropdownState[] = []
 
   const levelData: Conformance = {
     A: [],
@@ -26,177 +26,189 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
     AAA: [],
     BestPractice: [],
     Section508: [],
-  };
+  }
 
   // To count the total number of instances of issues
   const getTotalInstanceCount = (data: any) => {
-    let count = 0;
+    let count = 0
     data.forEach((element: any) => {
-      count += element.issues.length;
-    });
-    return count;
-  };
+      count += element.issues.length
+    })
+    return count
+  }
 
-  const mergedData: any = [];
+  const mergedData: any = []
 
   const mergeIssuesAndRulesets = () => {
     rules.forEach((rule: any, rule_index: number) => {
       data.forEach((issue: any, data_index: number) => {
         if (rule.ruleset_id === issue.code) {
           const format = {
-            code: issue["code"],
-            conformance_level: rule["conformance_level"],
-            criteria_name: rule["wcag_criteria"],
-            element: rule["element"],
-            failing_issue_variable: rule["failing_issue_variable"],
-            failing_technique: rule["failing_technique"],
+            code: issue['code'],
+            conformance_level: rule['conformance_level'],
+            criteria_name: rule['wcag_criteria'],
+            element: rule['element'],
+            failing_issue_variable: rule['failing_issue_variable'],
+            failing_technique: rule['failing_technique'],
             issues: [
               {
-                clip: { x: 0, y: 0, width: 0, height: 0 },
-                clipBase64: "",
-                code: issue["code"],
-                context: issue["context"],
-                elementTagName: issue["elementTagName"],
+                clip: {x: 0, y: 0, width: 0, height: 0},
+                clipBase64: '',
+                code: issue['code'],
+                context: issue['context'],
+                elementTagName: issue['elementTagName'],
                 id: `${rule_index}-${data_index}`,
-                message: issue["message"],
-                recurrence: issue["recurrence"],
-                selector: issue["selector"],
-                type: issue["type"],
-                typeCode: issue["typeCode"],
+                message: issue['message'],
+                recurrence: issue['recurrence'],
+                selector: issue['selector'],
+                type: issue['type'],
+                typeCode: issue['typeCode'],
               },
             ],
-            message: issue["message"],
+            message: issue['message'],
             occurences: 0,
-            severity: rule["severity"],
-          };
+            severity: rule['severity'],
+          }
 
           const existingEntry = mergedData.find(
             (entry: any) => entry.code === issue.code
-          );
+          )
           if (existingEntry) {
-            existingEntry.issues.push(...format.issues);
+            existingEntry.issues.push(...format.issues)
           } else {
-            mergedData.push(format);
+            mergedData.push(format)
           }
         }
-      });
-    });
+      })
+    })
 
     mergedData.forEach((item: any) => {
-      if (item.conformance_level === "A") {
-        levelData.A.push(item);
-      } else if (item.conformance_level === "AA") {
-        levelData.AA.push(item);
-      } else if (item.conformance_level === "AAA") {
-        levelData.AAA.push(item);
-      } else if (item.conformance_level === "Best Practices") {
-        levelData.BestPractice.push(item);
-      } else if (item.conformance_level === "508") {
-        levelData.Section508.push(item);
+      if (item.conformance_level === 'A') {
+        levelData.A.push(item)
+      } else if (item.conformance_level === 'AA') {
+        levelData.AA.push(item)
+      } else if (item.conformance_level === 'AAA') {
+        levelData.AAA.push(item)
+      } else if (item.conformance_level === 'Best Practices') {
+        levelData.BestPractice.push(item)
+      } else if (item.conformance_level === '508') {
+        levelData.Section508.push(item)
       }
-    });
-  };
+    })
+  }
 
-  mergeIssuesAndRulesets();
+  mergeIssuesAndRulesets()
 
   // To assign initial state for dropdown
   useEffect(() => {
     Object.values(levelData)?.forEach((item) => {
       item?.forEach((issue) => {
-        updatedStates.push({ id: issue.code, isExpanded: true });
-        setDropdownStates(updatedStates);
-      });
-    });
-  }, [data]);
+        updatedStates.push({id: issue.code, isExpanded: true})
+        setDropdownStates(updatedStates)
+      })
+    })
+  }, [data])
 
   // To handle accordion dropdown click
   const handleDropdownClick = useCallback(
     (issue: IssueTypes, id: string) => {
-      const currentDropdown = dropdownStates.find((item) => item.id === id);
+      const currentDropdown = dropdownStates.find((item) => item.id === id)
 
       if (currentDropdown) {
         const updatedStates = dropdownStates.map((item) => {
           if (item.id === id) {
-            return { ...item, isExpanded: !item.isExpanded };
+            return {...item, isExpanded: !item.isExpanded}
           }
-          return item;
-        });
-        setDropdownStates(updatedStates);
+          return item
+        })
+        setDropdownStates(updatedStates)
       }
 
       issue.issues.forEach((item) => {
-        const issueRows = document.getElementById(item.id);
+        const issueRows = window.document.getElementById(item.id)
         if (issueRows) {
           currentDropdown?.isExpanded
-            ? (issueRows.style.display = "table-row")
-            : (issueRows.style.display = "none");
+            ? (issueRows.style.display = 'table-row')
+            : (issueRows.style.display = 'none')
         }
-      });
+      })
     },
     [dropdownStates]
-  );
+  )
 
   // To handle copy to clipboard functionality
   const handleCopyToClipboard = (code: string, id: string) => {
     navigator.clipboard.writeText(code).then(() => {
-      handleShowPopup(id);
-    });
+      handleShowPopup(id)
+    })
 
     setTimeout(() => {
-      const copyElement = document.querySelector(".copy");
+      const copyElement = window.document.querySelector('.copy')
       if (copyElement) {
-        copyElement.textContent = "Copied to Clipboard!";
+        copyElement.textContent = 'Copied to Clipboard!'
       }
-    }, 100);
-  };
+    }, 100)
+  }
 
   // To handle displaying of copied to clipboard popup
   const handleShowPopup = (id: string) => {
-    setActivePopup(id);
+    setActivePopup(id)
     setTimeout(() => {
-      setActivePopup("");
-    }, 3000);
-  };
+      setActivePopup('')
+    }, 3000)
+  }
+
 
   // To focus on element functionality
   const focusElement = async (elementId: string) => {
-    window.parent.postMessage("minimise-button-clicked", "*");
+    window.parent.postMessage('minimise-button-clicked', '*')
 
     const [tab] = await chrome.tabs.query({
       active: true,
       currentWindow: true,
-    });
+    })
+
 
     chrome.scripting.executeScript({
-      target: { tabId: tab.id! },
+      target: {tabId: tab.id!},
       func: (elementId) => {
-        const element = document.querySelector(elementId);
+        const element = window.document.querySelector(elementId)
+
+        console.log(elementId,'from React')
+
         const className = `focused-element-${Math.random()
           .toString(36)
-          .substring(7)}`;
-        const styleElement = document.createElement("style");
-        styleElement.innerText = `.${className} { outline: 4px solid red !important; outline-offset: 8px; }`;
-        document.body.appendChild(styleElement);
+          .substring(7)}`
+        const styleElement = window.document.createElement('style')
+        styleElement.innerText = `.${className} { outline: 4px solid red !important; outline-offset: 8px; }`
+        window.document.body.appendChild(styleElement)
+
+        chrome.runtime.sendMessage({
+          type: 'inspect',
+          payload: elementId,
+        }, (response) => {
+          console.log(response)
+        })
 
         /** @type {Element | null} */
-        let lastFocusedElement = null;
+        let lastFocusedElement = null
         if (element) {
-          lastFocusedElement = element;
-          element.classList.add(className);
-          element.scrollIntoView({ behavior: "smooth", block: "center" });
+          lastFocusedElement = element
+          element.classList.add(className)
+          element.scrollIntoView({behavior: 'smooth', block: 'center'})
         }
 
         // To keep the focus on the element for 2 seconds
         setTimeout(() => {
           if (lastFocusedElement) {
-            lastFocusedElement.classList.remove(className);
+            lastFocusedElement.classList.remove(className)
           }
-          styleElement.remove();
-        }, 3000);
+          styleElement.remove()
+        }, 3000)
       },
       args: [elementId],
-    });
-  };
+    })
+  }
 
   const downloadScreenshot = (
     elementId: string,
@@ -204,39 +216,50 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
     failing_technique: string,
     index: number
   ) => {
-    focusElement(elementId);
-    const name = `${getAltText(issue)}-${failing_technique}-ID-${index + 1}`;
+    focusElement(elementId)
+    const name = `${getAltText(issue)}-${failing_technique}-ID-${index + 1}`
+
+    chrome.runtime.sendMessage(
+      {
+        type: 'capture-screenshot-node',
+        payload: elementId,
+      },
+      (response) => {
+        console.log(response)
+        
+      }
+    )
 
     setTimeout(() => {
-      if (navigator.userAgent.indexOf("Mac OS X") != -1) {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          const tabId = tabs[0].id;
+      if (navigator.userAgent.indexOf('Mac OS X') != -1) {
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+          const tabId = tabs[0].id
 
           chrome.tabs.sendMessage(tabId as number, {
-            type: "CAPTURE_AREA",
+            type: 'CAPTURE_AREA',
             name: name,
             x: 0,
             y: 0,
             width: 3000,
             height: 1500,
-          });
-        });
+          })
+        })
       } else {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          const tabId = tabs[0].id;
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+          const tabId = tabs[0].id
 
           chrome.tabs.sendMessage(tabId as number, {
-            type: "CAPTURE_AREA",
+            type: 'CAPTURE_AREA',
             name: name,
             x: 0,
             y: 0,
             width: 1400,
             height: 650,
-          });
-        });
+          })
+        })
       }
-    }, 1000);
-  };
+    }, 1000)
+  }
 
   return (
     <>
@@ -262,12 +285,12 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                         radius="full"
                         children={`${getTotalInstanceCount(item)} ${
                           getTotalInstanceCount(item) === 1
-                            ? "Instance"
-                            : "Instances"
+                            ? 'Instance'
+                            : 'Instances'
                         }`}
                         classNames={{
-                          content: "font-medium",
-                          base: "hover:bg-purple-100 active:bg-purple-100",
+                          content: 'font-medium',
+                          base: 'hover:bg-purple-100 active:bg-purple-100',
                         }}
                       />
                     </div>
@@ -347,8 +370,8 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                         issue.failing_technique
                                       } (${issue.issues.length} ${
                                         issue.issues.length === 1
-                                          ? "instance"
-                                          : "instances"
+                                          ? 'instance'
+                                          : 'instances'
                                       })`}
                                     </p>
                                     <div className="h-6 w-6">
@@ -432,13 +455,13 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                 >
                                   <section className="h-14 w-[150px] text-sm pr-10 break-words overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2">
                                     {issueItem.context?.length > 300
-                                      ? issueItem.context?.split(">")[0] +
-                                        "> . . . </" +
+                                      ? issueItem.context?.split('>')[0] +
+                                        '> . . . </' +
                                         issueItem.context
                                           ?.slice(1)
-                                          .split(" ")[0]
-                                          .split(">")[0] +
-                                        ">"
+                                          .split(' ')[0]
+                                          .split('>')[0] +
+                                        '>'
                                       : issueItem.context}
                                   </section>
                                   <IconButton
@@ -473,23 +496,23 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                   className="table-cell p-2 "
                                 >
                                   <section className="w-[104px] h-[62px] text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2">
-                                    {issue.element === "Contrast" &&
-                                    issue.code !== "BB10575" &&
-                                    issue.code !== "BB10615" ? (
+                                    {issue.element === 'Contrast' &&
+                                    issue.code !== 'BB10575' &&
+                                    issue.code !== 'BB10615' ? (
                                       <div className="flex flex-col gap-1">
                                         <div>
                                           <span className="font-semibold">
                                             {
                                               formatInput(issueItem.message)
                                                 .ratio
-                                            }{" "}
+                                            }{' '}
                                           </span>
                                           <span>
-                                            -{" "}
+                                            -{' '}
                                             {
                                               formatInput(issueItem.message)
                                                 .fontsize
-                                            }{" "}
+                                            }{' '}
                                             {
                                               formatInput(issueItem.message)
                                                 .fontweight
@@ -539,7 +562,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                   </>
                 )}
               </>
-            );
+            )
           })}
         </>
       ) : (
@@ -548,7 +571,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
         </div>
       )}
     </>
-  );
-};
+  )
+}
 
-export default CheckboxTable;
+export default CheckboxTable
