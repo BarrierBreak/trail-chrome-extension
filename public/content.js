@@ -614,6 +614,9 @@ function showLinks() {
       const ariaLabelledBy = link.getAttribute("aria-labelledby");
       const ariaLabel = link.getAttribute("aria-label");
       const title = link.getAttribute("title");
+      const ariaHidden = link.getAttribute("aria-hidden");
+      const tabIndex = link.getAttribute("tabindex");
+      const display = link.style.display;
 
       const linkLabel = document.createElement("span");
       linkLabel.className = "link-label";
@@ -622,7 +625,7 @@ function showLinks() {
       linkLabel.style.display = "inline-block";
       linkLabel.style.padding = "2px 4px";
       linkLabel.style.margin = "2px";
-      linkLabel.style.height = "23px";
+      linkLabel.style.minHeight = "23px";
       linkLabel.style.lineHeight = "16px";
       linkLabel.style.fontSize = "12px";
       linkLabel.style.fontWeight = "bold";
@@ -631,16 +634,21 @@ function showLinks() {
       linkLabel.style.textTransform = "lowercase";
       linkLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       linkLabel.style.zIndex = "100000";
+      linkLabel.textContent = `<${link.tagName.toLowerCase()}`;
       link.insertAdjacentElement("beforebegin", linkLabel);
 
-      // In the order of: aria-labelledby > aria-label > title
+      const ariaLabelledByAttr =
+        ariaLabelledBy !== null ? ` aria-labelledby="${ariaLabelledBy}"` : ``;
+      const ariaLabelAttr =
+        ariaLabel !== null ? ` aria-label="${ariaLabel}"` : ``;
+      const titleAttr = title !== null ? ` title="${title}"` : ``;
+
+      linkLabel.textContent += ariaLabelledByAttr;
+      linkLabel.textContent += ariaLabelAttr;
+      linkLabel.textContent += titleAttr;
+      linkLabel.textContent += ">";
+
       const name = ariaLabelledBy || ariaLabel || title;
-
-      linkLabel.textContent =
-        name !== null
-          ? `<${link.tagName.toLowerCase()} name="${name}">`
-          : `<${link.tagName.toLowerCase()}>`;
-
       if (name === null) {
         linkLabel.style.backgroundColor = labelColors.RED_700;
       }
@@ -648,6 +656,11 @@ function showLinks() {
       const endLabel = linkLabel.cloneNode(true);
       endLabel.textContent = `</${link.tagName.toLowerCase()}>`;
       link.insertAdjacentElement("afterend", endLabel);
+
+      if (ariaHidden === "true" || tabIndex === "-1" || display === "none") {
+        linkLabel.remove();
+        endLabel.remove();
+      }
     });
   }
 }
@@ -663,7 +676,7 @@ function showForms() {
     '[role="form"], [role="radio"], [role="checkbox"], [role="textbox"]',
     '[role="listbox"], [role="listitem"], [role="radiogroup"]'
   );
-  
+
   if (document.querySelectorAll(".form-label").length <= 0) {
     forms.forEach((form) => {
       const id = form.getAttribute("id");
@@ -671,14 +684,17 @@ function showForms() {
       const role = form.getAttribute("role");
       const labelFor = form.getAttribute("for");
       const type = form.getAttribute("type");
+      const autoComp = form.getAttribute("autocomplete");
+      const req = form.getAttribute("required");
+      const tabIndex = form.getAttribute("tabindex");
+      const display = form.style.display;
       const ariaLabelledBy = form.getAttribute("aria-labelledby");
       const ariaLabel = form.getAttribute("aria-label");
       const ariaDescBy = form.getAttribute("aria-describedby");
       const ariaExpanded = form.getAttribute("aria-expanded");
       const ariaPressed = form.getAttribute("aria-pressed");
-      const autoComp = form.getAttribute("autocomplete");
-      const req = form.getAttribute("required");
       const ariaReq = form.getAttribute("aria-required");
+      const ariaHidden = form.getAttribute("aria-hidden");
 
       const formLabel = document.createElement("span");
       formLabel.className = "form-label";
@@ -777,10 +793,16 @@ function showForms() {
       formLabel.textContent +=
         form.tagName.toLowerCase() === "input" ? "/>" : ">";
 
+      const endLabel = formLabel.cloneNode(true);
+      endLabel.textContent = `</${form.tagName.toLowerCase()}>`;
+
       if (form.tagName.toLowerCase() !== "input") {
-        const endLabel = formLabel.cloneNode(true);
-        endLabel.textContent = `</${form.tagName.toLowerCase()}>`;
         form.parentElement.appendChild(endLabel);
+      }
+
+      if (ariaHidden === "true" || tabIndex === "-1" || display === "none") {
+        formLabel.remove();
+        endLabel.remove();
       }
     });
   }
