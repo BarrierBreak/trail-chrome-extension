@@ -526,7 +526,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                                         </div>
                                       </div>
                                     ) : (
-                                      issueItem.message.toString()
+                                      issueItem.message?.toString()
                                     )}
                                   </section>
                                 </td>
