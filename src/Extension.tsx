@@ -452,16 +452,16 @@ const Extension = () => {
                   </div>
                 </div>
                 <TabPanel id="FAIL">
-                  <CheckboxTable data={errorType} rules={rulesets} />
+                  <CheckboxTable data={errorType} rules={rulesets} issueType="fail" />
                 </TabPanel>
                 <TabPanel id="MANUAL">
-                  <CheckboxTable data={warningType} rules={rulesets} />
+                  <CheckboxTable data={warningType} rules={rulesets} issueType="manual" />
                 </TabPanel>
                 <TabPanel id="PASS">
-                  <CheckboxTable data={passType} rules={rulesets} />
+                  <CheckboxTable data={passType} rules={rulesets} issueType="pass" />
                 </TabPanel>
                 <TabPanel id="BEST-PRACTICE">
-                  <CheckboxTable data={noticeType} rules={rulesets} />
+                  <CheckboxTable data={noticeType} rules={rulesets} issueType="best-practice" />
                 </TabPanel>
                 <TabPanel id="STRUCTURE">
                   <WebsiteLandmarks html={html} />

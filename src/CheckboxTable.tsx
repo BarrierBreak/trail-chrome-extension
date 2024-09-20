@@ -8,6 +8,7 @@ import { formatInput, getAltText } from "./utils";
 interface CheckboxTableProps {
   data: any;
   rules: any;
+  issueType: string;
 }
 
 interface DropdownState {
@@ -15,7 +16,7 @@ interface DropdownState {
   isExpanded: boolean;
 }
 
-const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
+const CheckboxTable = ({ data, rules, issueType }: CheckboxTableProps) => {
   const [activePopup, setActivePopup] = useState<string>("");
   const [dropdownStates, setDropdownStates] = useState<DropdownState[]>([]);
   const updatedStates: DropdownState[] = [];
@@ -27,6 +28,28 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
     BestPractice: [],
     Section508: [],
   };
+
+  let nothingToDisplay;
+  switch (issueType) {
+    case "fail":
+      nothingToDisplay =
+        "Great news! No errors were found. Please review the Manual tab for further details.";
+      break;
+    case "manual":
+      nothingToDisplay = "No manual checks were found!";
+      break;
+    case "pass":
+      nothingToDisplay =
+        "No passes were detected! Please review the Fail and Manual tabs for potential issues.";
+      break;
+    case "best-practice":
+      nothingToDisplay =
+        "All best practices are in place! Be sure to check other tabs for additional information.";
+      break;
+
+    default:
+      break;
+  }
 
   // To count the total number of instances of issues
   const getTotalInstanceCount = (data: any) => {
@@ -272,7 +295,7 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
                       />
                     </div>
                     <div className="overflow-hidden rounded border border-neutral-200">
-                      <table className="table">
+                      <table className="table table-fixed">
                         <tr className="table-header-group w-20 h-10 font-medium border-b border-neutral-200 bg-neutral-100 text-left">
                           <th
                             id="id"
@@ -549,8 +572,10 @@ const CheckboxTable = ({ data, rules }: CheckboxTableProps) => {
           })}
         </>
       ) : (
-        <div className="h-[600px] flex items-center justify-center">
-          <p className="text-base">Nothing to display!</p>
+        <div className="flex justify-center pt-[150px]">
+          <p className="text-base text-center font-poppins text-balance w-[400px]">
+            {nothingToDisplay}
+          </p>
         </div>
       )}
     </>
