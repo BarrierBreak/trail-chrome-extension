@@ -1,7 +1,7 @@
 // To add ::before of Trail btn to increase hover area
-const before = document.createElement("style");
-before.innerHTML = `#trail-btn::before { content: ""; display: block; width: 121px; height: 40px; background: transparent; position: absolute; top: -32px; }`;
-document.head.appendChild(before);
+// const before = document.createElement("style");
+// before.innerHTML = `#trail-btn::before { content: ""; display: block; width: 121px; height: 40px; background: transparent; position: absolute; top: -32px; }`;
+// document.head.appendChild(before);
 
 // To inject Trail extension button on load
 // const extensionBtn = new DOMParser().parseFromString(
@@ -138,10 +138,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // }
 
 // To handle keyboard shortcut to display / hide iframe
-let keys = {};
-window.addEventListener("keydown", (event) => {
-  keys[event.key] = true;
-});
+// let keys = {};
+// window.addEventListener("keydown", (event) => {
+//   keys[event.key] = true;
+// });
 
 // window.addEventListener("keyup", () => {
 //   if (keys["Control"] && keys["b"]) {
@@ -278,6 +278,16 @@ function drawLines(positions) {
 //   updateLines();
 // });
 
+function hideTabOrderLabels() {
+  const tabOrderLabels = document.querySelectorAll(".tab-order-label");
+  tabOrderLabels.forEach((label) => label.remove());
+
+  const svgContainer = document.querySelector("#svg-container");
+  if (svgContainer) {
+    svgContainer.remove();
+  }
+}
+
 function showHeadings() {
   const headings = document.querySelectorAll(
     "h1, h2, h3, h4, h5, h6",
@@ -408,9 +418,10 @@ function hideListTags() {
   listItemLabels.forEach((label) => label.remove());
 }
 
-function showLandMarks() {
+function showLandmarks() {
   const landmarks = document.querySelectorAll(
-    '[role="banner"], [role="complementary"], [role="contentinfo"], [role="form"], [role="main"], [role="navigation"], [role="search"]'
+    '[role="banner"], [role="complementary"], [role="contentinfo"]',
+    '[role="form"], [role="main"], [role="navigation"], [role="search"]'
   );
 
   const sections = document.querySelectorAll(
@@ -548,7 +559,7 @@ function showLandMarks() {
   }
 }
 
-function hideLandMarks() {
+function hideLandmarks() {
   const landmarkLabels = document.querySelectorAll(".landmark-label");
   landmarkLabels.forEach((label) => label.remove());
 
@@ -579,6 +590,7 @@ function showAltText() {
       altTextLabel.style.fontWeight = "bold";
       altTextLabel.style.textTransform = "lowercase";
       altTextLabel.style.borderRadius = "4px";
+      altTextLabel.style.zIndex = "100000";
       altTextLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       altTextLabel.textContent = altText ? `alt="${altText}"` : 'alt=" "';
 
@@ -604,40 +616,53 @@ function showLinks() {
       const ariaLabelledBy = link.getAttribute("aria-labelledby");
       const ariaLabel = link.getAttribute("aria-label");
       const title = link.getAttribute("title");
+      const ariaHidden = link.getAttribute("aria-hidden");
+      const tabIndex = link.getAttribute("tabindex");
+      const display = link.style.display;
 
-      const startLabel = document.createElement("span");
-      startLabel.className = "link-label";
-      startLabel.style.backgroundColor = labelColors.PURPLE_700;
-      startLabel.style.color = labelColors.NEUTRAL_50;
-      startLabel.style.display = "inline-block";
-      startLabel.style.padding = "2px 4px";
-      startLabel.style.margin = "2px";
-      startLabel.style.height = "23px";
-      startLabel.style.lineHeight = "16px";
-      startLabel.style.fontSize = "12px";
-      startLabel.style.fontWeight = "bold";
-      startLabel.style.fontFamily = "Poppins, Roboto";
-      startLabel.style.borderRadius = "4px";
-      startLabel.style.textTransform = "lowercase";
-      startLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
-      startLabel.style.zIndex = "100000";
-      link.insertAdjacentElement("beforebegin", startLabel);
+      const linkLabel = document.createElement("span");
+      linkLabel.className = "link-label";
+      linkLabel.style.backgroundColor = labelColors.PURPLE_700;
+      linkLabel.style.color = labelColors.NEUTRAL_50;
+      linkLabel.style.display = "inline-block";
+      linkLabel.style.padding = "2px 4px";
+      linkLabel.style.margin = "2px";
+      linkLabel.style.minHeight = "23px";
+      linkLabel.style.lineHeight = "16px";
+      linkLabel.style.fontSize = "12px";
+      linkLabel.style.fontWeight = "bold";
+      linkLabel.style.fontFamily = "Poppins, Roboto";
+      linkLabel.style.borderRadius = "4px";
+      linkLabel.style.textTransform = "lowercase";
+      linkLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
+      linkLabel.style.zIndex = "100000";
+      linkLabel.textContent = `<${link.tagName.toLowerCase()}`;
+      link.insertAdjacentElement("beforebegin", linkLabel);
 
-      // In the order of: aria-labelledby > aria-label > title
+      const ariaLabelledByAttr =
+        ariaLabelledBy !== null ? ` aria-labelledby="${ariaLabelledBy}"` : ``;
+      const ariaLabelAttr =
+        ariaLabel !== null ? ` aria-label="${ariaLabel}"` : ``;
+      const titleAttr = title !== null ? ` title="${title}"` : ``;
+
+      linkLabel.textContent += ariaLabelledByAttr;
+      linkLabel.textContent += ariaLabelAttr;
+      linkLabel.textContent += titleAttr;
+      linkLabel.textContent += ">";
+
       const name = ariaLabelledBy || ariaLabel || title;
-
-      startLabel.textContent =
-        name !== null
-          ? `<${link.tagName.toLowerCase()} name="${name}">`
-          : `<${link.tagName.toLowerCase()}>`;
-
       if (name === null) {
-        startLabel.style.backgroundColor = labelColors.RED_700;
+        linkLabel.style.backgroundColor = labelColors.RED_700;
       }
 
-      const endLabel = startLabel.cloneNode(true);
+      const endLabel = linkLabel.cloneNode(true);
       endLabel.textContent = `</${link.tagName.toLowerCase()}>`;
       link.insertAdjacentElement("afterend", endLabel);
+
+      if (ariaHidden === "true" || tabIndex === "-1" || display === "none") {
+        linkLabel.remove();
+        endLabel.remove();
+      }
     });
   }
 }
@@ -654,20 +679,24 @@ function showForms() {
     '[role="listbox"], [role="listitem"], [role="radiogroup"]'
   );
 
-  if (document.querySelectorAll(".forms-label").length <= 0) {
+  if (document.querySelectorAll(".form-label").length <= 0) {
     forms.forEach((form) => {
       const id = form.getAttribute("id");
       const title = form.getAttribute("title");
       const role = form.getAttribute("role");
       const labelFor = form.getAttribute("for");
       const type = form.getAttribute("type");
+      const autoComp = form.getAttribute("autocomplete");
+      const req = form.getAttribute("required");
+      const tabIndex = form.getAttribute("tabindex");
+      const display = form.style.display;
       const ariaLabelledBy = form.getAttribute("aria-labelledby");
       const ariaLabel = form.getAttribute("aria-label");
       const ariaDescBy = form.getAttribute("aria-describedby");
       const ariaExpanded = form.getAttribute("aria-expanded");
       const ariaPressed = form.getAttribute("aria-pressed");
-      const autoComp = form.getAttribute("autocomplete");
-      const req = form.getAttribute("required");
+      const ariaReq = form.getAttribute("aria-required");
+      const ariaHidden = form.getAttribute("aria-hidden");
 
       const formLabel = document.createElement("span");
       formLabel.className = "form-label";
@@ -720,11 +749,7 @@ function showForms() {
       }
 
       if (formLabel.textContent === "<input") {
-        const idAttr = id !== null ? ` id="${id}"` : ` id=" "`;
         const typeAttr = type !== null ? ` type="${type}"` : ` type="text"`;
-        const reqAttr = req !== null ? ` required` : ``;
-        formLabel.textContent += idAttr;
-        formLabel.textContent += reqAttr;
         formLabel.textContent += typeAttr;
 
         if (type === "hidden") {
@@ -737,11 +762,17 @@ function showForms() {
         formLabel.textContent += labelForAttr;
       }
 
-      const name = ariaLabelledBy || ariaLabel || title;
-      const nameAttr = name !== null ? ` name="${name}"` : ``;
+      const idAttr = id !== null ? ` id="${id}"` : ``;
       const roleAttr = role !== null ? ` role="${role}"` : ``;
+      const titleAttr = title !== null ? ` title="${title}"` : ``;
       const autoAttr = autoComp !== null ? ` autocomplete="${autoComp}"` : ``;
+      const reqAttr = req !== null ? ` required="true"` : ``;
+      const ariaReqAttr = ariaReq !== null ? ` aria-required="${ariaReq}"` : ``;
 
+      const ariaLabelledByAttr =
+        ariaLabelledBy !== null ? ` aria-labelledby="${ariaLabelledBy}"` : ``;
+      const ariaLabelAttr =
+        ariaLabel !== null ? ` aria-label="${ariaLabel}"` : ``;
       const ariaDescAttr =
         ariaDescBy !== null ? ` aria-describedby="${ariaDescBy}"` : ``;
       const ariaExpAttr =
@@ -749,9 +780,14 @@ function showForms() {
       const ariaPressedAttr =
         ariaPressed !== null ? ` aria-pressed="${ariaPressed}"` : ``;
 
-      formLabel.textContent += nameAttr;
+      formLabel.textContent += idAttr;
+      formLabel.textContent += titleAttr;
+      formLabel.textContent += reqAttr;
       formLabel.textContent += autoAttr;
       formLabel.textContent += roleAttr;
+      formLabel.textContent += ariaReqAttr;
+      formLabel.textContent += ariaLabelledByAttr;
+      formLabel.textContent += ariaLabelAttr;
       formLabel.textContent += ariaDescAttr;
       formLabel.textContent += ariaExpAttr;
       formLabel.textContent += ariaPressedAttr;
@@ -759,10 +795,16 @@ function showForms() {
       formLabel.textContent +=
         form.tagName.toLowerCase() === "input" ? "/>" : ">";
 
+      const endLabel = formLabel.cloneNode(true);
+      endLabel.textContent = `</${form.tagName.toLowerCase()}>`;
+
       if (form.tagName.toLowerCase() !== "input") {
-        const endLabel = formLabel.cloneNode(true);
-        endLabel.textContent = `</${form.tagName.toLowerCase()}>`;
         form.parentElement.appendChild(endLabel);
+      }
+
+      if (ariaHidden === "true" || tabIndex === "-1" || display === "none") {
+        formLabel.remove();
+        endLabel.remove();
       }
     });
   }
@@ -794,90 +836,74 @@ function hideForms() {
 // }
 
 window.addEventListener("message", (event) => {
-  // To minimize iframe
-  // if (event.data === "minimise-button-clicked") {
-  //   hideIframe();
-  //   extensionBtn.focus();
-  // }
+  switch (event.data) {
+    // To run trail automatically when opened from dashboard
+    // case "open-trail":
+    //   showIframe();
+    //   break;
 
-  // To open trail automatically when opened from dashboard
-  // if (event.data === "open-trail") {
-  //   showIframe();
-  // }
+    // case "minimise-button-clicked":
+    //   hideIframe();
+    //   extensionBtn.focus();
+    //   break;
 
-  // To show tab order
-  if (event.data === "show-tab-order") {
-    showTabOrderLabels();
-  }
+    case "show-tab-order":
+      showTabOrderLabels();
+      break;
 
-  // To hide tab order
-  if (event.data === "hide-tab-order") {
-    const tabOrderLabels = document.querySelectorAll(".tab-order-label");
-    tabOrderLabels.forEach((label) => label.remove());
+    case "hide-tab-order":
+      hideTabOrderLabels();
+      break;
 
-    const svgContainer = document.querySelector("#svg-container");
-    if (svgContainer) {
-      svgContainer.remove();
-    }
-  }
+    case "show-headings":
+      showHeadings();
+      break;
 
-  // To show headings
-  if (event.data === "show-headings") {
-    showHeadings();
-  }
+    case "hide-headings":
+      hideHeadings();
+      break;
 
-  // To hide headings
-  if (event.data === "hide-headings") {
-    hideHeadings();
-  }
+    case "show-list-tags":
+      showListTags();
+      break;
 
-  // To show list tags
-  if (event.data === "show-list-tags") {
-    showListTags();
-  }
+    case "hide-list-tags":
+      hideListTags();
+      break;
 
-  // To hide list tags
-  if (event.data === "hide-list-tags") {
-    hideListTags();
-  }
+    case "show-landmarks":
+      showLandmarks();
+      break;
 
-  // To show landmarks
-  if (event.data === "show-landmarks") {
-    showLandMarks();
-  }
+    case "hide-landmarks":
+      hideLandmarks();
+      break;
 
-  // To hide landmarks
-  if (event.data === "hide-landmarks") {
-    hideLandMarks();
-  }
+    case "show-alt-text":
+      showAltText();
+      break;
 
-  // To show alt text
-  if (event.data === "show-alt-text") {
-    showAltText();
-  }
+    case "hide-alt-text":
+      hideAltText();
+      break;
 
-  // To hide alt text
-  if (event.data === "hide-alt-text") {
-    hideAltText();
-  }
+    case "show-links":
+      showLinks();
+      break;
 
-  // To show links
-  if (event.data === "show-links") {
-    showLinks();
-  }
+    case "hide-links":
+      hideLinks();
+      break;
 
-  // To hide links
-  if (event.data === "hide-links") {
-    hideLinks();
-  }
+    case "show-forms":
+      showForms();
+      break;
 
-  // To show forms
-  if (event.data === "show-forms") {
-    showForms();
-  }
+    case "hide-forms":
+      hideForms();
+      break;
 
-  // To hide forms
-  if (event.data === "hide-forms") {
-    hideForms();
+    default:
+      break;
   }
 });

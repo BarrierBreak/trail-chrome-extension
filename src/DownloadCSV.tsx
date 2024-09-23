@@ -50,7 +50,6 @@ const DownloadCSV = ({ csvData, rules }) => {
         [
           "ISSUE VARIABLE",
           "ELEMENT",
-          "SCREENSHOT",
           "CODE",
           "ATTRIBUTE",
           "CONFORMANCE LEVEL",
@@ -164,7 +163,6 @@ const DownloadCSV = ({ csvData, rules }) => {
           const dataformat = [
             issue.failing_technique,
             item.elementTagName,
-            item.code,
             codeSnippet,
             attribute,
             issue.conformance_level,

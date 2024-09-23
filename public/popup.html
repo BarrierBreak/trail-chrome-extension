@@ -12,7 +12,7 @@
       body {
         margin: 0;
         padding: 24px;
-        width: 400px;
+        width: 272px;
         font-family: Poppins, sans-serif;
         font-size: 14px;
         font-weight: 500;
@@ -21,38 +21,12 @@
         gap: 12px;
       }
 
-      .bullet {
-        margin-right: 3px;
-      }
-
-      .instruction {
-        color: #302e38;
-        font-size: 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid #e5e4e9;
-      }
-
-      .keys {
-        margin: 0px 3px;
-        padding: 2px 8px;
-        font-size: 14px;
-        color: #0b0b0d;
-        background-color: #eae9fe;
-        border: 1px solid #5928ed;
-        border-radius: 4px;
-      }
-
-      .trail {
-        color: #5928ed;
-      }
-
       .info {
         display: flex;
-        flex-direction: column;
         gap: 4px;
+        flex-direction: column;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #e5e4e9;
       }
 
       label {
@@ -61,8 +35,8 @@
       }
 
       input {
-        height: 28px;
-        width: 154px;
+        height: 32px;
+        width: 162px;
         padding: 0px 8px;
         font-family: Poppins, sans-serif;
         color: #19171d;
@@ -77,7 +51,6 @@
       }
 
       button {
-        padding: 0px 12px;
         font-family: Poppins, sans-serif;
         font-weight: 500;
         border: none;
@@ -86,74 +59,14 @@
       }
 
       #saveBtn {
+        height: 32px;
+        width: 80px;
         color: #fefefe;
         background-color: #5928ed;
-      }
-
-      #insertBtn {
-        padding-right: 8px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        color: #302e38;
-        background-color: #fefefe;
-        border: 1px solid #cac7d1;
       }
     </style>
   </head>
   <body>
-    <div class="instruction">
-      <div>
-        <svg
-          class="bullet"
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect
-            y="6"
-            width="8"
-            height="8"
-            transform="rotate(-45 0 6)"
-            fill="#5928ED"
-          />
-        </svg>
-
-        <span>
-          Press
-          <span class="keys">Ctrl</span> + <span class="keys">B</span>&nbsp;to
-          open <span class="trail">Trail Extension</span>
-        </span>
-      </div>
-
-      <div>
-        <svg
-          class="bullet"
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect
-            y="6"
-            width="8"
-            height="8"
-            transform="rotate(-45 0 6)"
-            fill="#5928ED"
-          />
-        </svg>
-
-        <span>
-          Press
-          <span class="keys">Esc</span>&nbsp;to close
-          <span class="trail">Trail Extension</span>
-        </span>
-      </div>
-    </div>
-
     <form class="info">
       <label for="authToken">Auth Token</label>
       <div class="cta">
@@ -163,21 +76,6 @@
           <label for="serverUrl" style="width: 80px;">Server URL:</label>
           <input type="text" name="serverUrl" id="serverUrl" style="width: 350px;" />
         -->
-        <button id="insertBtn">
-          Open Extension
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-          >
-            <path
-              d="M2.66634 10H3.99967V13.3333H11.9997V2.66666H3.99967V6H2.66634V1.99999C2.66634 1.63181 2.96482 1.33333 3.33301 1.33333H12.6663C13.0345 1.33333 13.333 1.63181 13.333 1.99999V14C13.333 14.3682 13.0345 14.6667 12.6663 14.6667H3.33301C2.96482 14.6667 2.66634 14.3682 2.66634 14V10ZM6.66634 7.33333V5.33333L9.99967 8L6.66634 10.6667V8.66666H1.33301V7.33333H6.66634Z"
-              fill="#302E38"
-            />
-          </svg>
-        </button>
       </div>
     </form>
 

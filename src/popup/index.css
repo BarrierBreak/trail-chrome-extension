@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.text-sm {
+  @apply leading-sm;
+}
+.text-base {
+  @apply leading-base;
+}
+.text-lg {
+  @apply leading-lg;
+}
+.text-xl {
+  @apply leading-xl;
+}

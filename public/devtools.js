@@ -1,28 +1,25 @@
-// To add ::before of Trail btn to increase hover area
-
 var browser = browser || chrome;
 
 if (browser.devtools.panels.elements) {
-  browser.devtools.panels.elements.createSidebarPane('TRAIL AMS', (sidebar) => {
+  browser.devtools.panels.elements.createSidebarPane("Trail AMS", (sidebar) => {
     sidebar.setPage(chrome.runtime.getURL("index.html"));
   });
 }
 
-
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'inspect') {
-    console.log(message)
+  if (message.type === "inspect") {
+    console.log(message);
 
     browser.devtools.inspectedWindow.eval(
       `inspect(window.document.querySelector('${message.payload}'))`,
       (result, exceptionInfo) => {
         console.log(result, exceptionInfo);
       }
-    )
+    );
 
-    sendResponse({ success: true })
-  } else if (message.type === 'capture-screenshot-node') {
-    console.log(message, 'capture-screenshot-node')
+    sendResponse({ success: true });
+  } else if (message.type === "capture-screenshot-node") {
+    console.log(message, "capture-screenshot-node");
     browser.devtools.inspectedWindow.eval(
       `
       const node = window.document.querySelector('${message.payload}')
@@ -42,9 +39,9 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       (result, exceptionInfo) => {
         console.log(result, exceptionInfo);
       }
-    )
+    );
 
-    sendResponse({ success: true })
+    sendResponse({ success: true });
   }
 });
 

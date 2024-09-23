@@ -4,22 +4,12 @@ import {
   Button,
   Chip,
   IconButton,
-  Menu,
-  MenuItem,
-  MenuTrigger,
-  Selection,
   Tab,
   TabList,
   TabPanel,
   Tabs,
 } from "@trail-ui/react";
-import {
-  ChevronDownIcon,
-  MinusIcon,
-  ResetIcon,
-  TrailAMSVerticalIcon,
-  TrailIcon,
-} from "@trail-ui/icons";
+import { ResetIcon, TrailAMSVerticalIcon, TrailIcon } from "@trail-ui/icons";
 import CheckboxTable from "./CheckboxTable";
 import WebsiteLandmarks from "./WebsiteLandmarks";
 import DownloadCSV from "./DownloadCSV";
@@ -82,8 +72,8 @@ const Extension = () => {
   const [rulesets, setRulesets] = useState([]);
   const [currentURL, setCurrentURL] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]));
   const [result, setResult] = useState<[] | any>([]);
+  const [dataFromTable, setDataFromTable] = useState([]);
   const [scallyResult, setScallyResult] = useState<any>({});
   const [tabId, setTabId] = useState<number>(0);
 
@@ -107,27 +97,11 @@ const Extension = () => {
   //   console.log("match not found");
   // }
 
-  useEffect(() => {
-    const selectedToolArray = Array.from(selectedTool);
+  const handleDataFromTable = (data: any) => {
+    setDataFromTable(data);
 
-    const tools = [
-      "tab-order",
-      "headings",
-      "list-tags",
-      "landmarks",
-      "alt-text",
-      "links",
-      "forms",
-    ];
-
-    tools.forEach((tool) => {
-      if (selectedToolArray.includes(tool)) {
-        window.parent.postMessage(`show-${tool}`, "*");
-      } else {
-        window.parent.postMessage(`hide-${tool}`, "*");
-      }
-    });
-  }, [selectedTool]);
+    console.log("dataFromTable", dataFromTable);
+  };
 
   const handleMinimise = () => {
     window.parent.postMessage("minimise-button-clicked", "*");
@@ -323,13 +297,15 @@ const Extension = () => {
     sessionStorage.removeItem(`auditResults_${tabId}`);
     getRulesets();
     runAudit();
-    apiKey ? liveRegionAndTabFocus() : alert("Please enter your Auth Token");
+    apiKey
+      ? liveRegionAndTabFocus()
+      : alert("Please enter your Auth Token in the Auth Token dialog");
   };
 
   return (
     <div className="font-poppins">
       <div className="w-full" aria-label="Trail AMS" role="dialog">
-        <div className="flex justify-between items-center sticky bg-white top-0 z-[1] border-b border-neutral-300 h-14 px-6 py-2">
+        <div className="flex justify-between items-center w-full fixed bg-neutral-50 top-0 z-[1] border-b border-neutral-200 h-14 px-6 py-2">
           <div className="flex items-center gap-1">
             <TrailIcon
               width={40}
@@ -345,79 +321,58 @@ const Extension = () => {
               className="text-neutral-800"
             />
           </div>
-          <div className="flex gap-4">
-            <MenuTrigger>
-              <Button
+          {rulesets.length > 0 && (
+            <div className="flex gap-4">
+              <IconButton
                 appearance="default"
-                aria-controls="bookmarklet-menu"
-                className="bookmarklet text-base data-[pressed=true]:border-purple-600 data-[pressed=true]:bg-purple-100"
-                endContent={<ChevronDownIcon width={16} height={16} />}
+                isIconOnly={true}
+                onPress={handleReset}
+                aria-label="Reset Results"
               >
-                Bookmarklets
-              </Button>
-              <Menu
-                id="bookmarklet-menu"
-                selectionMode="multiple"
-                selectedKeys={selectedTool}
-                onSelectionChange={setSelectedTool}
-                classNames={{ popover: "font-poppins" }}
-              >
-                <MenuItem id="tab-order" classNames={{ title: "text-base" }}>
-                  Tab Order
-                </MenuItem>
-                <MenuItem id="headings" classNames={{ title: "text-base" }}>
-                  Headings
-                </MenuItem>
-                <MenuItem id="list-tags" classNames={{ title: "text-base" }}>
-                  List
-                </MenuItem>
-                <MenuItem id="landmarks" classNames={{ title: "text-base" }}>
-                  Landmark
-                </MenuItem>
-                <MenuItem id="alt-text" classNames={{ title: "text-base" }}>
-                  Alt Text
-                </MenuItem>
-                <MenuItem id="links" classNames={{ title: "text-base" }}>
-                  Links
-                </MenuItem>
-                <MenuItem id="forms" classNames={{ title: "text-base" }}>
-                  Forms
-                </MenuItem>
-              </Menu>
-            </MenuTrigger>
-            <IconButton
-              appearance="textLink"
-              isIconOnly={true}
-              onPress={handleMinimise}
-              aria-label="Minimise"
-            >
-              <MinusIcon width={24} height={24} className="text-neutral-800" />
-            </IconButton>
-          </div>
+                <ResetIcon
+                  width={16}
+                  height={16}
+                  className="text-neutral-800"
+                />
+              </IconButton>
+              <DownloadCSV
+                csvData={{ errorType, warningType, passType, noticeType }}
+                rules={rulesets}
+              />
+            </div>
+          )}
         </div>
 
         <span aria-live="polite" className="live-region sr-only"></span>
-        <div className="flex h-full px-6 pb-6">
+        <div className="flex h-full pr-6 pb-6">
           {rulesets.length > 0 ? (
-            <div
-              className="before:content-[''] before:h-[1px] before:w-6 before:bg-neutral-300 before:left-0 before:top-[103px] before:fixed
-                        after:content-[''] after:h-[1px] after:w-6 after:bg-neutral-300 after:right-0 after:top-[103px] after:fixed"
-            >
-              <Tabs color="purple" classNames={{ tab: "border-0 py-0 pr-1.5" }}>
-                <div className="tab flex items-center justify-between h-12 w-[564px] border-b border-neutral-300 sticky z-[1] bg-white top-14">
+            <div>
+              <Tabs
+                color="purple"
+                orientation="vertical"
+                classNames={{
+                  tab: "border-b border-neutral-200 py-0 pr-1.5 justify-start data-[selected=true]:bg-purple-50 data-[focus-visible=true]:outline-purple-600 data-[focus-visible=true]:-outline-offset-2",
+                  tabList:
+                    "flex flex-col w-[120px] fixed bg-neutral-50 mt-[309px] p-0 before:content-[''] before:h-full before:fixed before:w-[1px] before:bg-neutral-200 before:left-[120px] after:content-[''] after:h-full after:fixed after:w-[120px] after:bg-neutral-50 after:left-[0px] after:top-[301px]",
+                  panel:
+                    "mt-[8px] mr-6 ml-[144px] sm:w-[74vw] md:w-[79vw] lg:w-[84vw] xl:w-[87vw]",
+                  cursor: "h-full w-1 left-0",
+                }}
+              >
+                <div className="tab flex items-center text-start justify-between h-12 w-[120px] sticky z-[1] bg-neutral-50 top-14">
                   <TabList>
                     {tabData.map((tab) => (
                       <Tab id={tab.id}>
-                        <div className="flex items-center gap-1 text-base h-12">
+                        <div className="flex items-center justify-between w-[105px] gap-1 text-sm h-12 pl-3">
                           <p>{tab.label}</p>
                           <Chip
                             variant="solid"
-                            color="purple"
+                            color="default"
                             size="md"
                             radius="full"
                             children={`${tab.issues}`}
                             classNames={{
-                              base: "p-0 h-[18px] min-w-7 hover:bg-purple-100 active:bg-purple-100",
+                              base: "p-0 h-[18px] min-w-7 hover:bg-neutral-200 active:bg-neutral-200",
                               content: "text-xs text-center px-2 py-0",
                             }}
                           />
@@ -425,41 +380,44 @@ const Extension = () => {
                       </Tab>
                     ))}
                     <Tab id="STRUCTURE">
-                      <div className="flex items-center text-base h-12">
+                      <div className="flex items-center justify-between w-full gap-1 text-sm h-12 pl-3">
                         <p>Structure</p>
                       </div>
                     </Tab>
                   </TabList>
-                  <div className="flex gap-4">
-                    <IconButton
-                      appearance="default"
-                      isIconOnly={true}
-                      onPress={handleReset}
-                      aria-label="Reset Results"
-                    >
-                      <ResetIcon
-                        width={16}
-                        height={16}
-                        className="text-neutral-800"
-                      />
-                    </IconButton>
-                    <DownloadCSV
-                      csvData={{ errorType, warningType, passType, noticeType }}
-                      rules={rulesets}
-                    />
-                  </div>
                 </div>
                 <TabPanel id="FAIL">
-                  <CheckboxTable data={errorType} rules={rulesets} />
+                  <CheckboxTable
+                    data={errorType}
+                    rules={rulesets}
+                    sendDataToExtension={handleDataFromTable}
+                    issueType="fail"
+                  />
                 </TabPanel>
                 <TabPanel id="MANUAL">
-                  <CheckboxTable data={warningType} rules={rulesets} />
+                  <CheckboxTable
+                    data={warningType}
+                    rules={rulesets}
+                    isCheckboxVisible={true}
+                    sendDataToExtension={handleDataFromTable}
+                    issueType="manual"
+                  />
                 </TabPanel>
                 <TabPanel id="PASS">
-                  <CheckboxTable data={passType} rules={rulesets} />
+                  <CheckboxTable
+                    data={passType}
+                    rules={rulesets}
+                    sendDataToExtension={handleDataFromTable}
+                    issueType="pass"
+                  />
                 </TabPanel>
                 <TabPanel id="BEST-PRACTICE">
-                  <CheckboxTable data={noticeType} rules={rulesets} />
+                  <CheckboxTable
+                    data={noticeType}
+                    rules={rulesets}
+                    sendDataToExtension={handleDataFromTable}
+                    issueType="best-practice"
+                  />
                 </TabPanel>
                 <TabPanel id="STRUCTURE">
                   <WebsiteLandmarks html={html} />
