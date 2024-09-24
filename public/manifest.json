@@ -22,7 +22,10 @@
     "nativeMessaging",
     "storage"
   ],
-  "devtools_page": "devtools.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "devtools_page": "src/devtools/index.html",
   "background": {
     "service_worker": "background.js"
   },
@@ -31,7 +34,7 @@
   },
   "content_scripts": [
     {
-      "js": ["scally.js"],
+      "js": ["content.js","scally.js"],
       "matches": ["http://*/*", "https://*/*", "file:///*", "<all_urls>"]
     }
   ],

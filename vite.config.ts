@@ -8,6 +8,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         popup: "./src/popup/index.html",
+        devtools: "./src/devtools/index.html",
       },
       output: {
         entryFileNames: "[name].js",
