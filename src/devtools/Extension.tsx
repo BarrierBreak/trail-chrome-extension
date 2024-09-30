@@ -13,6 +13,7 @@ import { ResetIcon, TrailAMSVerticalIcon, TrailIcon } from "@trail-ui/icons";
 import CheckboxTable from "./CheckboxTable";
 import WebsiteLandmarks from "./WebsiteLandmarks";
 import DownloadCSV from "./DownloadCSV";
+import ColorContrast from "./ColorContrast";
 
 export type Clip = {
   x: number;
@@ -353,9 +354,9 @@ const Extension = () => {
                 classNames={{
                   tab: "border-b border-neutral-200 py-0 pr-1.5 justify-start data-[selected=true]:bg-purple-50 data-[focus-visible=true]:outline-purple-600 data-[focus-visible=true]:-outline-offset-2",
                   tabList:
-                    "flex flex-col w-[120px] fixed bg-neutral-50 mt-[309px] p-0 before:content-[''] before:h-full before:fixed before:w-[1px] before:bg-neutral-200 before:left-[120px] after:content-[''] after:h-full after:fixed after:w-[120px] after:bg-neutral-50 after:left-[0px] after:top-[301px]",
+                    "flex flex-col w-[120px] fixed bg-neutral-50 mt-[358px] p-0 before:content-[''] before:h-full before:fixed before:w-[1px] before:bg-neutral-200 before:left-[120px] after:content-[''] after:h-full after:fixed after:w-[120px] after:bg-neutral-50 after:left-[0px] after:top-[350px]",
                   panel:
-                    "mt-[8px] mr-6 ml-[144px] sm:w-[74vw] md:w-[79vw] lg:w-[84vw] xl:w-[87vw]",
+                    "mt-[24px] mr-4 ml-[136px] sm:w-[74vw] md:w-[79vw] lg:w-[84vw] xl:w-[87vw]",
                   cursor: "h-full w-1 left-0",
                 }}
               >
@@ -382,6 +383,11 @@ const Extension = () => {
                     <Tab id="STRUCTURE">
                       <div className="flex items-center justify-between w-full gap-1 text-sm h-12 pl-3">
                         <p>Structure</p>
+                      </div>
+                    </Tab>
+                    <Tab id="COLOR-CONTRAST">
+                      <div className="flex items-center justify-between w-full gap-1 text-sm h-12 pl-3">
+                        <p>Color Contrast</p>
                       </div>
                     </Tab>
                   </TabList>
@@ -422,18 +428,64 @@ const Extension = () => {
                 <TabPanel id="STRUCTURE">
                   <WebsiteLandmarks html={html} />
                 </TabPanel>
+                <TabPanel id="COLOR-CONTRAST">
+                  <ColorContrast />
+                </TabPanel>
               </Tabs>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-4 w-full h-screen">
-              <Button
-                appearance="primary"
-                onPress={handleResponse}
-                isLoading={isLoading}
-                className="test-website text-base"
+            <div>
+              <Tabs
+                color="purple"
+                orientation="vertical"
+                classNames={{
+                  tab: "border-b border-neutral-200 py-0 pr-1.5 justify-start data-[selected=true]:bg-purple-50 data-[focus-visible=true]:outline-purple-600 data-[focus-visible=true]:-outline-offset-2",
+                  tabList:
+                    "flex flex-col w-[120px] fixed bg-neutral-50 mt-[211px] p-0 before:content-[''] before:h-full before:fixed before:w-[1px] before:bg-neutral-200 before:left-[120px] after:content-[''] after:h-full after:fixed after:w-[120px] after:bg-neutral-50 after:left-[0px] after:top-[350px]",
+                  panel:
+                    "mt-[24px] mr-4 ml-[136px] sm:w-[74vw] md:w-[79vw] lg:w-[84vw] xl:w-[87vw]",
+                  cursor: "h-full w-1 left-0",
+                }}
               >
-                Test Webpage
-              </Button>
+                <div className="tab flex items-center text-start justify-between h-12 w-[120px] sticky z-[1] bg-neutral-50 top-14">
+                  <TabList>
+                    <Tab id="TEST">
+                      <div className="flex items-center justify-between w-full gap-1 text-sm h-12 pl-3">
+                        <p>Test</p>
+                      </div>
+                    </Tab>
+                    <Tab id="STRUCTURE">
+                      <div className="flex items-center justify-between w-full gap-1 text-sm h-12 pl-3">
+                        <p>Structure</p>
+                      </div>
+                    </Tab>
+                    <Tab id="COLOR-CONTRAST">
+                      <div className="flex items-center justify-between w-full gap-1 text-sm h-12 pl-3">
+                        <p>Color Contrast</p>
+                      </div>
+                    </Tab>
+                  </TabList>
+                </div>
+
+                <TabPanel id="TEST">
+                  <div className="flex flex-col items-center justify-center gap-4 w-full h-[80vh]">
+                    <Button
+                      appearance="primary"
+                      onPress={handleResponse}
+                      isLoading={isLoading}
+                      className="test-website text-base"
+                    >
+                      Test Webpage
+                    </Button>
+                  </div>
+                </TabPanel>
+                <TabPanel id="STRUCTURE">
+                  <WebsiteLandmarks html={html} />
+                </TabPanel>
+                <TabPanel id="COLOR-CONTRAST">
+                  <ColorContrast />
+                </TabPanel>
+              </Tabs>
             </div>
           )}
         </div>

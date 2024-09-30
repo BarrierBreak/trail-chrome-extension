@@ -1,5 +1,3 @@
-// background.js
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "RUN_AUDIT") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -14,11 +12,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       payload: request.payload,
       tabId: request.tabId,
     });
-  }
-});
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "CAPTURE_SCREENSHOT") {
+  } else if (request.type === "CAPTURE_SCREENSHOT") {
     chrome.tabs.captureVisibleTab(null, { format: "png" }, (image) => {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError);

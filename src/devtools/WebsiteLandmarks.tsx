@@ -84,35 +84,31 @@ const WebsiteLandmarks = ({ html }: { html: string }) => {
 
   return (
     <div>
-      <div className="pt-4">
-        {landMarks.map((landmark) => (
-          <>
-            <span
-              style={{
-                color: landmark.color,
-                backgroundColor: landmark.bgColor,
-                marginLeft: landmark.level * 20 - 20,
-                padding: "0px 6px",
-                borderRadius: "4px",
-                fontWeight: "500",
-                fontSize: "16px",
-              }}
-            >
-              {landmark.tagName}
-            </span>
-            <div
-              style={{
-                margin: "4px 0",
-                marginLeft: landmark.level * 20 - 20,
-                color: "#19171D",
-                fontSize: "16px",
-              }}
-            >
-              {landmark.text}
-            </div>
-          </>
-        ))}
-      </div>
+      <p className="text-base font-semibold text-neutral-900 pb-3">
+        Page Structure
+      </p>
+      {landMarks.map((landmark) => (
+        <>
+          <span
+            className="px-1.5 py-0 rounded font-medium text-base"
+            style={{
+              color: landmark.color,
+              backgroundColor: landmark.bgColor,
+              marginLeft: landmark.level * 20 - 20,
+            }}
+          >
+            {landmark.tagName}
+          </span>
+          <div
+            className="mx-0 my-1 text-base text-neutral-900"
+            style={{
+              marginLeft: landmark.level * 20 - 20,
+            }}
+          >
+            {landmark.text}
+          </div>
+        </>
+      ))}
     </div>
   );
 };

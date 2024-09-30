@@ -34,7 +34,7 @@
   },
   "content_scripts": [
     {
-      "js": ["content.js","scally.js"],
+      "js": ["content.js", "scally.js"],
       "matches": ["http://*/*", "https://*/*", "file:///*", "<all_urls>"]
     }
   ],
