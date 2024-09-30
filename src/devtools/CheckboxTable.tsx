@@ -419,9 +419,9 @@ const CheckboxTable = ({
                     <div
                       role="heading"
                       aria-level={2}
-                      className="flex items-center justify-between py-4 first:pt-0"
+                      className="flex items-center justify-between py-2 first:pt-0"
                     >
-                      <span className="font-semibold text-lg">
+                      <span className="font-semibold text-base">
                         Level {item[0]?.conformance_level} (Conformance Level)
                       </span>
                       <Chip
@@ -435,8 +435,8 @@ const CheckboxTable = ({
                             : 'Instances'
                         }`}
                         classNames={{
-                          content: 'font-medium',
-                          base: 'hover:bg-purple-100 active:bg-purple-100',
+                          content: "font-medium text-sm",
+                          base: "hover:bg-purple-100 active:bg-purple-100",
                         }}
                       />
                     </div>
@@ -460,14 +460,14 @@ const CheckboxTable = ({
                             scope="col"
                             className="table-cell p-1 w-[80px] align-middle border-r border-neutral-200"
                           >
-                            <p className="font-medium text-base pl-1">ID</p>
+                            <p className="font-medium text-sm pl-1">ID</p>
                           </th>
                           <th
                             id="element"
                             scope="col"
                             className="table-cell p-1 w-[80px] align-middle border-r border-neutral-200"
                           >
-                            <p className="font-medium text-base pl-1">
+                            <p className="font-medium text-sm pl-1">
                               Element
                             </p>
                           </th>
@@ -476,7 +476,7 @@ const CheckboxTable = ({
                             scope="col"
                             className="table-cell p-1 min-w-[120px] w-[45%] align-middle border-r border-neutral-200"
                           >
-                            <p className="font-medium text-base pl-1">
+                            <p className="font-medium text-sm pl-1">
                               Screenshot
                             </p>
                           </th>
@@ -485,7 +485,7 @@ const CheckboxTable = ({
                             scope="col"
                             className="table-cell p-1 min-w-[120px] w-[45%] align-middle"
                           >
-                            <p className="font-medium text-base pl-1">
+                            <p className="font-medium text-sm pl-1">
                               Attribute
                             </p>
                           </th>
@@ -554,7 +554,7 @@ const CheckboxTable = ({
                                   className="p-2 pl-4 w-full focus-visible:outline-focus"
                                 >
                                   <div className="flex gap-1 items-center justify-between">
-                                    <p className="text-start font-semibold text-base">
+                                    <p className="text-start font-semibold text-sm">
                                       {`${parentIndex + 1}. ${
                                         issue.failing_technique
                                       } (${issue.issues.length} ${
@@ -590,7 +590,7 @@ const CheckboxTable = ({
                               (instance: Instance, index: number) => (
                                 <tr
                                   id={instance.id}
-                                  className={`text-base border-b border-neutral-200 hidden last:border-none ${
+                                  className={`text-sm border-b border-neutral-200 hidden last:border-none ${
                                     selectedInstances.includes(instance.id)
                                       ? 'bg-purple-50'
                                       : ''

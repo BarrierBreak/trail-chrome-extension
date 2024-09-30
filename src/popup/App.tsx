@@ -15,50 +15,6 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [selectedTool, setSelectedTool] = useState<Selection>(new Set([]));
 
-  //   (() => {
-  //   const tokenValue = document.getElementById("authToken") as HTMLInputElement;
-  //   console.log("tokenValue", tokenValue?.value);
-
-  // //   // let urlValue = document.getElementById("serverUrl");
-  //   const saveBtn = document.getElementById("saveBtn") as HTMLButtonElement;
-
-  //   const authToken = localStorage.getItem("authToken");
-  //   if (authToken !== null && tokenValue) {
-  //     tokenValue.value = authToken;
-  //   }
-
-  //   // const serverURL = localStorage.getItem("serverUrl");
-  //   // if (serverURL !== null) {
-  //   //   urlValue.value = serverURL;
-  //   // }
-
-  // saveBtn?.addEventListener("click", () => {
-  //   const data = {
-  //     authToken: tokenValue.value,
-  //     // serverUrl: urlValue.value,
-  //   };
-
-  //   localStorage.setItem("authToken", data.authToken);
-  //   // localStorage.setItem("serverUrl", data.serverUrl);
-
-  //   chrome.runtime.sendMessage({ type: "RELOAD" }, () => {});
-  //   window.close();
-  // });
-
-  //   const handleSave = () => {
-  //     const data = {
-  //       authToken: tokenValue.value,
-  //       // serverUrl: urlValue.value,
-  //     };
-  //     localStorage.setItem("authToken", data.authToken);
-  //     // localStorage.setItem("serverUrl", data.serverUrl);
-  //     chrome.runtime.sendMessage({ type: "RELOAD" }, () => {});
-  //     window.close();
-  //   }
-
-  //   saveBtn?.addEventListener("click", handleSave);
-  // })();
-
   const handleSave = () => {
     localStorage.setItem("authToken", inputRef.current?.value || "");
     chrome.runtime.sendMessage({ type: "RELOAD" }, () => {});
@@ -77,26 +33,6 @@ function App() {
       "links",
       "forms",
     ];
-
-    // tools.forEach((tool) => {
-    //   if (selectedToolArray.includes(tool)) {
-    //     chrome.tabs.query(
-    //       { active: true, currentWindow: true },
-    //       function (tabs) {
-    //         const tabId = tabs[0].id;
-    //         chrome.tabs.sendMessage(tabId!, { type: `show-${tool}` }, () => {});
-    //       }
-    //     );
-    //   } else {
-    //     chrome.tabs.query(
-    //       { active: true, currentWindow: true },
-    //       function (tabs) {
-    //         const tabId = tabs[0].id;
-    //         chrome.tabs.sendMessage(tabId!, { type: `hide-${tool}` }, () => {});
-    //       }
-    //     );
-    //   }
-    // });
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       const tabId = tabs[0].id;
