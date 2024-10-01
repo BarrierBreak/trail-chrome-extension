@@ -305,7 +305,7 @@ const Extension = () => {
 
   return (
     <div className="font-poppins">
-      <div className="w-full" aria-label="Trail AMS" role="dialog">
+      <div className="w-full">
         <div className="flex justify-between items-center w-full fixed bg-neutral-50 top-0 z-[1] border-b border-neutral-200 h-14 px-6 py-2">
           <div className="flex items-center gap-1">
             <TrailIcon

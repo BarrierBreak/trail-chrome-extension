@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CheckIcon, CloseIcon, ColorPickerIcon } from "@trail-ui/icons";
-import { Button, Input } from "@trail-ui/react";
+import { Input } from "@trail-ui/react";
 import { useEffect, useState } from "react";
 import { rgbaToHex } from "./utils";
 
@@ -24,6 +24,7 @@ const ColorContrast = () => {
   const [background, setBackground] = useState("#FFFFFF");
   const [textColorArray, setTextColorArray] = useState([]);
   const [bgColorArray, setBgColorArray] = useState([]);
+  const [isButtonPressed, setIsButtonPressed] = useState(false);
 
   const eyeDropper = new EyeDropper();
 
@@ -84,6 +85,8 @@ const ColorContrast = () => {
   const largeAAA = ratio >= 4.5;
 
   const checkFgColor = () => {
+    setIsButtonPressed(true);
+
     if (!("EyeDropper" in window)) {
       console.log("EyeDropper not supported");
       return;
@@ -93,7 +96,7 @@ const ColorContrast = () => {
       .open()
       .then((colorSelectionResult: any) => {
         setForeground(colorSelectionResult.sRGBHex);
-        console.log(colorSelectionResult.sRGBHex);
+        setIsButtonPressed(false);
       })
       .catch((error: any) => {
         console.error(error);
@@ -101,6 +104,8 @@ const ColorContrast = () => {
   };
 
   const checkBgColor = () => {
+    setIsButtonPressed(true);
+
     if (!("EyeDropper" in window)) {
       console.log("EyeDropper not supported");
       return;
@@ -110,7 +115,7 @@ const ColorContrast = () => {
       .open()
       .then((colorSelectionResult: any) => {
         setBackground(colorSelectionResult.sRGBHex);
-        console.log(colorSelectionResult.sRGBHex);
+        setIsButtonPressed(false);
       })
       .catch((error: any) => {
         console.error(error);
@@ -163,10 +168,12 @@ const ColorContrast = () => {
         <div className="flex flex-col gap-4 w-[50%]">
           <div className="flex flex-col gap-1">
             <p>Foreground</p>
-            <Button
-              onPress={checkFgColor}
-              appearance="transparent"
-              className="h-20 border border-neutral-200"
+            <button
+              aria-hidden="true"
+              onClick={checkFgColor}
+              className="flex items-center justify-center h-20 border border-neutral-200 rounded focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-4"
+              aria-label="Foreground Color Picker"
+              aria-pressed={isButtonPressed}
               style={{
                 backgroundColor: foreground,
               }}
@@ -176,11 +183,12 @@ const ColorContrast = () => {
                 width={24}
                 className="text-neutral-700"
               />
-            </Button>
+            </button>
           </div>
           <Input
             startContent={<span>#</span>}
             defaultValue="000000"
+            aria-label="Foreground Color"
             value={foreground.slice(1).toUpperCase()}
             className="gap-0 border-neutral-200"
             maxLength={6}
@@ -195,10 +203,12 @@ const ColorContrast = () => {
         <div className="flex flex-col gap-4 w-[50%]">
           <div className="flex flex-col gap-1">
             <p>Background</p>
-            <Button
-              onPress={checkBgColor}
-              appearance="transparent"
-              className="h-20 border border-neutral-200"
+            <button
+              aria-hidden="true"
+              onClick={checkBgColor}
+              className="flex items-center justify-center h-20 border border-neutral-200 rounded focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-4"
+              aria-label="Background Color Picker"
+              aria-pressed={isButtonPressed}
               style={{
                 backgroundColor: background,
               }}
@@ -208,11 +218,12 @@ const ColorContrast = () => {
                 width={24}
                 className="text-neutral-700"
               />
-            </Button>
+            </button>
           </div>
           <Input
             startContent={<span>#</span>}
             defaultValue="FFFFFF"
+            aria-label="Background Color"
             value={background.slice(1).toUpperCase()}
             className="gap-0 border-neutral-200"
             maxLength={6}

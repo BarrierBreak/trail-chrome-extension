@@ -34,7 +34,7 @@ const DownloadCSV = ({ csvData, rules }) => {
   });
 
   // To download CSV file
-  const downloadCSV = () => {
+  const handleDownload = () => {
     const workbook = XLSX.utils.book_new();
 
     const conformanceOrder: { [key: string]: number } = {
@@ -153,7 +153,7 @@ const DownloadCSV = ({ csvData, rules }) => {
             issue.code !== "BB10615" &&
             issue.element === "Contrast"
               ? `Font-size: ${formattedParts["FontSize"]}, Font-weight: ${formattedParts["FontWeight"]}, Foreground Color: ${formattedParts["Foreground"]}, Background Color: ${formattedParts["Background"]}, Ratio: ${formattedParts["Ratio"]}`
-              : issue.message;
+              : item.message;
 
           const codeSnippet =
             item.context?.length > 300
@@ -184,11 +184,6 @@ const DownloadCSV = ({ csvData, rules }) => {
     });
 
     XLSX.writeFile(workbook, `${currentURL} Report.xlsx`);
-  };
-
-  // To handle download click
-  const handleDownload = () => {
-    downloadCSV();
   };
 
   return (
