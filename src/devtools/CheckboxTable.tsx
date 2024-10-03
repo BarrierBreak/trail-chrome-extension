@@ -378,33 +378,35 @@ const CheckboxTable = ({
       }
     );
 
-    if (navigator.userAgent.indexOf("Mac OS X") != -1) {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const tabId = tabs[0].id;
+    setTimeout(() => {
+      if (navigator.userAgent.indexOf("Mac OS X") != -1) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const tabId = tabs[0].id;
 
-        chrome.tabs.sendMessage(tabId as number, {
-          type: "CAPTURE_AREA",
-          name: name,
-          x: 0,
-          y: 0,
-          width: 3000,
-          height: 1500,
+          chrome.tabs.sendMessage(tabId as number, {
+            type: "CAPTURE_AREA",
+            name: name,
+            x: 0,
+            y: 0,
+            width: 3000,
+            height: 1500,
+          });
         });
-      });
-    } else {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const tabId = tabs[0].id;
+      } else {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          const tabId = tabs[0].id;
 
-        chrome.tabs.sendMessage(tabId as number, {
-          type: "CAPTURE_AREA",
-          name: name,
-          x: 0,
-          y: 0,
-          width: 1400,
-          height: 650,
+          chrome.tabs.sendMessage(tabId as number, {
+            type: "CAPTURE_AREA",
+            name: name,
+            x: 0,
+            y: 0,
+            width: 1400,
+            height: 650,
+          });
         });
-      });
-    }
+      }
+    }, 2500);
   };
 
   return (
