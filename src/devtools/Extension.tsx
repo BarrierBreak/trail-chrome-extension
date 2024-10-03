@@ -163,18 +163,21 @@ const Extension = () => {
       method: "GET",
       headers: {
         Accept: "*/*",
-        "User-Agent": "Test 123",
+        "User-Agent": "GreasyMonk",
         "x-api-key": `${apiKey}`,
         "Content-Type": "application/json",
       },
     })
       .then((response) => response.json())
       .then((data) => {
+        if (data.statusCode === 500) {
+          alert("Please enter your Auth Token in the Auth Token dialog");
+        }
         setRulesets(data);
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error("Error:", error);
+        console.log("Error:", error);
       });
   }, [apiKey]);
 
@@ -298,9 +301,7 @@ const Extension = () => {
     sessionStorage.removeItem(`auditResults_${tabId}`);
     getRulesets();
     runAudit();
-    apiKey
-      ? liveRegionAndTabFocus()
-      : alert("Please enter your Auth Token in the Auth Token dialog");
+    liveRegionAndTabFocus();
   };
 
   return (
