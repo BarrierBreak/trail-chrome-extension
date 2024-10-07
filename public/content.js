@@ -836,6 +836,14 @@ function hideForms() {
   formLabels.forEach((label) => label.remove());
 }
 
+function grayscaleMode() {
+  document.body.style.filter = "grayscale(100%)";
+}
+
+function removeGrayscaleMode() {
+  document.body.style.filter = "none";
+}
+
 // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 //   if (message.type === "INSERT_SCALLY") {
 //     insertScally();
@@ -880,20 +888,6 @@ function isElementVisible(element) {
     style.visibility !== "hidden" &&
     style.opacity !== "0"
   );
-}
-
-function sortPixelValues(pixelValues) {
-  return pixelValues
-    .map((value) => parseFloat(value))
-    .sort((a, b) => a - b)
-    .map((value) => `${value}px`);
-}
-
-function formatFontFamilies(fontArray) {
-  return fontArray
-    .flatMap((font) => font.replace(/"/g, "").split(","))
-    .map((font) => font.trim())
-    .sort((a, b) => a.length - b.length);
 }
 
 function extractColors() {
@@ -949,6 +943,20 @@ function extractColors() {
   };
 }
 
+function sortPixelValues(pixelValues) {
+  return pixelValues
+    .map((value) => parseFloat(value))
+    .sort((a, b) => a - b)
+    .map((value) => `${value}px`);
+}
+
+function formatFontFamilies(fontArray) {
+  return fontArray
+    .flatMap((font) => font.replace(/"/g, "").split(","))
+    .map((font) => font.trim())
+    .sort((a, b) => a.length - b.length);
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "CAPTURE_AREA") {
     const { name, x, y, width, height } = message;
@@ -989,6 +997,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.type === "hide-forms") {
     hideForms();
     sendResponse({ status: "hide forms" });
+  } else if (message.type === "show-grayscale") {
+    grayscaleMode();
+  } else if (message.type === "hide-grayscale") {
+    removeGrayscaleMode();
+    sendResponse({ status: "hide grayscale" });
   } else if (message.action === "COLOR") {
     sendResponse(extractColors());
   } else {

@@ -32,6 +32,7 @@ function App() {
       "alt-text",
       "links",
       "forms",
+      "grayscale",
     ];
 
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -47,7 +48,7 @@ function App() {
   }, [selectedTool]);
 
   return (
-    <div className={`${isOpen ? "h-[410px]" : ""} w-[320px] p-6 font-poppins`}>
+    <div className={`${isOpen ? "h-[440px]" : ""} w-[320px] p-6 font-poppins`}>
       <Label className="text-neutral-700 text-base font-medium">
         Auth Token
       </Label>
@@ -83,14 +84,8 @@ function App() {
             className="w-[264px]"
             classNames={{ popover: "font-poppins" }}
           >
-            <MenuItem id="tab-order" classNames={{ title: "text-base" }}>
-              Tab Order
-            </MenuItem>
             <MenuItem id="headings" classNames={{ title: "text-base" }}>
               Headings
-            </MenuItem>
-            <MenuItem id="list-tags" classNames={{ title: "text-base" }}>
-              List
             </MenuItem>
             <MenuItem id="landmarks" classNames={{ title: "text-base" }}>
               Landmark
@@ -101,8 +96,17 @@ function App() {
             <MenuItem id="links" classNames={{ title: "text-base" }}>
               Links
             </MenuItem>
+            <MenuItem id="list-tags" classNames={{ title: "text-base" }}>
+              List
+            </MenuItem>
             <MenuItem id="forms" classNames={{ title: "text-base" }}>
               Forms
+            </MenuItem>
+            <MenuItem id="tab-order" classNames={{ title: "text-base" }}>
+              Tab Order
+            </MenuItem>
+            <MenuItem id="grayscale" classNames={{ title: "text-base" }}>
+              Grayscale
             </MenuItem>
           </Menu>
         </MenuTrigger>
