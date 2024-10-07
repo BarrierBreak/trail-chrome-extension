@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CheckIcon, CloseIcon, ColorPickerIcon } from "@trail-ui/icons";
-import { Input } from "@trail-ui/react";
 import { useEffect, useState } from "react";
-import { rgbaToHex } from "./utils";
+import { Input } from "@trail-ui/react";
+import { CheckIcon, CloseIcon, ColorPickerIcon } from "@trail-ui/icons";
+import {
+  getLuminance,
+  hexToRgb,
+  checkForOpacity,
+  getContrastRatio,
+  parseRGBA,
+} from "./utils";
 
 interface EyeDropper {
   open(): Promise<{ sRGBHex: string }>;
@@ -24,42 +30,15 @@ const ColorContrast = () => {
   const [background, setBackground] = useState("#FFFFFF");
   const [textColorArray, setTextColorArray] = useState([]);
   const [bgColorArray, setBgColorArray] = useState([]);
+  const [fontSizeArray, setFontSizeArray] = useState([]);
+  const [fontFamilyArray, setFontFamilyArray] = useState([]);
+  const [standardTextArray, setStandardTextArray] = useState([]);
+  const [largeTextArray, setLargeTextArray] = useState([]);
   const [isButtonPressed, setIsButtonPressed] = useState(false);
 
   const eyeDropper = new EyeDropper();
 
-  const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
-    hex = hex.replace(/^#/, "");
-
-    if (hex.length === 3) {
-      hex = hex
-        .split("")
-        .map((h) => h + h)
-        .join("");
-    }
-
-    const bigint = parseInt(hex, 16);
-    return {
-      r: (bigint >> 16) & 255,
-      g: (bigint >> 8) & 255,
-      b: bigint & 255,
-    };
-  };
-
-  const getLuminance = (r: number, g: number, b: number): number => {
-    const normalize = (value: number) => {
-      const sRGB = value / 255;
-      return sRGB <= 0.03928
-        ? sRGB / 12.92
-        : Math.pow((sRGB + 0.055) / 1.055, 2.4);
-    };
-
-    const luminance =
-      0.2126 * normalize(r) + 0.7152 * normalize(g) + 0.0722 * normalize(b);
-    return luminance;
-  };
-
-  const contrastRatio = (hex1: string, hex2: string): number => {
+  const checkColorContrast = (hex1: string, hex2: string): number => {
     if (
       (foreground.length === 4 || foreground.length === 7) &&
       (background.length === 4 || background.length === 7)
@@ -78,63 +57,42 @@ const ColorContrast = () => {
     return 0;
   };
 
-  const ratio = contrastRatio(foreground, background);
-  const normalAA = ratio >= 4.5;
+  const ratio = checkColorContrast(foreground, background);
+  const standardAA = ratio >= 4.5;
   const largeAA = ratio >= 3;
-  const normalAAA = ratio >= 7;
+  const standardAAA = ratio >= 7;
   const largeAAA = ratio >= 4.5;
 
-  const checkFgColor = () => {
+  const openEyeDropper = (setColor: (color: string) => void) => {
     setIsButtonPressed(true);
 
     if (!("EyeDropper" in window)) {
       console.log("EyeDropper not supported");
+      setIsButtonPressed(false);
       return;
     }
 
     eyeDropper
       .open()
       .then((colorSelectionResult: any) => {
-        setForeground(colorSelectionResult.sRGBHex);
+        setColor(colorSelectionResult.sRGBHex);
         setIsButtonPressed(false);
       })
       .catch((error: any) => {
         console.error(error);
-      });
-  };
-
-  const checkBgColor = () => {
-    setIsButtonPressed(true);
-
-    if (!("EyeDropper" in window)) {
-      console.log("EyeDropper not supported");
-      return;
-    }
-
-    eyeDropper
-      .open()
-      .then((colorSelectionResult: any) => {
-        setBackground(colorSelectionResult.sRGBHex);
         setIsButtonPressed(false);
-      })
-      .catch((error: any) => {
-        console.error(error);
       });
   };
 
-  const handleForegroundBlur = (e: any) => {
+  const handleInputBlur = (
+    e: any,
+    setColor: (color: string) => void,
+    defaultColor: string
+  ) => {
     if (e.target.value.length < 3) {
-      setForeground("#000000");
+      setColor(defaultColor);
     } else if (e.target.value.length > 3 && e.target.value.length < 6) {
-      setForeground(`#${e.target.value.slice(0, 3)}`);
-    }
-  };
-
-  const handleBackgroundBlur = (e: any) => {
-    if (e.target.value.length < 3) {
-      setBackground("#FFFFFF");
-    } else if (e.target.value.length > 3 && e.target.value.length < 6) {
-      setBackground(`#${e.target.value.slice(0, 3)}`);
+      setColor(`#${e.target.value.slice(0, 3)}`);
     }
   };
 
@@ -144,16 +102,45 @@ const ColorContrast = () => {
       chrome.tabs.sendMessage(tabId!, { action: "COLOR" }, (response) => {
         setTextColorArray(response.textColorArray);
         setBgColorArray(response.backgroundColorArray);
+        setFontSizeArray(response.fontSizeArray);
+        setFontFamilyArray(response.fontFamilyArray);
+
+        const standardText = response.colorPairsArray.filter(
+          (colorPair: any) => {
+            const contrastRatio = getContrastRatio(
+              parseRGBA(colorPair.color),
+              parseRGBA(colorPair.backgroundColor)
+            );
+            return contrastRatio < 7;
+          }
+        );
+
+        const largeText = response.colorPairsArray.filter((colorPair: any) => {
+          const contrastRatio = getContrastRatio(
+            parseRGBA(colorPair.color),
+            parseRGBA(colorPair.backgroundColor)
+          );
+
+          const isLargeText =
+            parseFloat(colorPair.fontSize) >= 24 ||
+            (parseFloat(colorPair.fontSize) >= 18.5 &&
+              colorPair.fontWeight >= 700);
+
+          return contrastRatio < 4.5 && isLargeText;
+        });
+
+        setStandardTextArray(standardText);
+        setLargeTextArray(largeText);
       });
     });
   }, []);
 
-  const checkForOpacity = (color: string) => {
-    let hexColor = rgbaToHex(color);
-    if (hexColor.endsWith("ff")) {
-      hexColor = hexColor.slice(0, -2);
+  const handleColorChange = (e: any, setColor: (color: string) => void) => {
+    let value = e.target.value;
+    if (value.startsWith("#")) {
+      value = value.slice(1).substring(0, 6);
     }
-    return hexColor;
+    setColor(`#${value.toUpperCase()}`);
   };
 
   return (
@@ -164,13 +151,14 @@ const ColorContrast = () => {
         </p>
         <p className="text-sm text-neutral-700 pb-3">{instructions}</p>
       </div>
+
       <div className="flex gap-4">
         <div className="flex flex-col gap-4 w-[50%]">
           <div className="flex flex-col gap-1">
             <p>Foreground</p>
             <button
               aria-hidden="true"
-              onClick={checkFgColor}
+              onClick={() => openEyeDropper(setForeground)}
               className="flex items-center justify-center h-20 border border-neutral-200 rounded focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-4"
               aria-label="Foreground Color Picker"
               aria-pressed={isButtonPressed}
@@ -191,13 +179,10 @@ const ColorContrast = () => {
             aria-label="Foreground Color"
             value={foreground.slice(1).toUpperCase()}
             className="gap-0 border-neutral-200"
-            maxLength={6}
+            maxLength={7}
             placeholder="Enter Foreground Color"
-            onChange={(e) => {
-              setForeground(`#${e.target.value}`);
-              e.target.value.toUpperCase();
-            }}
-            onBlur={(e) => handleForegroundBlur(e)}
+            onChange={(e) => handleColorChange(e, setForeground)}
+            onBlur={(e) => handleInputBlur(e, setForeground, "#000000")}
           />
         </div>
         <div className="flex flex-col gap-4 w-[50%]">
@@ -205,7 +190,7 @@ const ColorContrast = () => {
             <p>Background</p>
             <button
               aria-hidden="true"
-              onClick={checkBgColor}
+              onClick={() => openEyeDropper(setBackground)}
               className="flex items-center justify-center h-20 border border-neutral-200 rounded focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-4"
               aria-label="Background Color Picker"
               aria-pressed={isButtonPressed}
@@ -226,13 +211,10 @@ const ColorContrast = () => {
             aria-label="Background Color"
             value={background.slice(1).toUpperCase()}
             className="gap-0 border-neutral-200"
-            maxLength={6}
+            maxLength={7}
             placeholder="Enter Background Color"
-            onChange={(e) => {
-              setBackground(`#${e.target.value}`);
-              e.target.value.toUpperCase();
-            }}
-            onBlur={(e) => handleBackgroundBlur(e)}
+            onChange={(e) => handleColorChange(e, setBackground)}
+            onBlur={(e) => handleInputBlur(e, setBackground, "#FFFFFF")}
           />
         </div>
       </div>
@@ -251,7 +233,7 @@ const ColorContrast = () => {
                 } `}
           >
             <p className="text-xl font-semibold">
-              {ratio !== 0 ? `${ratio.toFixed(2)} : 1` : ""}
+              {ratio !== 0 ? `${ratio.toString().slice(0, 4)} : 1` : ""}
             </p>
           </div>
         </div>
@@ -260,15 +242,15 @@ const ColorContrast = () => {
             <div className="flex flex-col items-center gap-1.5">
               <div
                 className={`flex justify-between w-[90px] pl-2 pr-1.5 py-1 rounded ${
-                  normalAA
+                  standardAA
                     ? "text-green-950 bg-green-100"
                     : "text-red-950 bg-red-50"
                 } `}
               >
                 <p className="font-medium">
-                  {normalAA ? "AA Pass" : "AA Fail"}
+                  {standardAA ? "AA Pass" : "AA Fail"}
                 </p>
-                {normalAA ? passIcon : failIcon}
+                {standardAA ? passIcon : failIcon}
               </div>
               <p className="text-neutral-950">Standard Text</p>
             </div>
@@ -303,15 +285,15 @@ const ColorContrast = () => {
             <div className="flex flex-col items-center gap-1.5">
               <div
                 className={`flex justify-between w-[90px] pl-2 pr-1.5 py-1 rounded ${
-                  normalAAA
+                  standardAAA
                     ? "text-green-950 bg-green-100"
                     : "text-red-950 bg-red-50"
                 } `}
               >
                 <p className="font-medium">
-                  {normalAAA ? "AAA Pass" : "AAA Fail"}
+                  {standardAAA ? "AAA Pass" : "AAA Fail"}
                 </p>
-                {normalAAA ? passIcon : failIcon}
+                {standardAAA ? passIcon : failIcon}
               </div>
               <p className="text-neutral-950">Standard Text</p>
             </div>
@@ -333,45 +315,281 @@ const ColorContrast = () => {
           </div>
         </div>
       </div>
+
       <div className="flex flex-col gap-4 pt-4 border-t border-neutral-200">
-        <p className="text-base text-neutral-900 font-semibold">Colors</p>
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-neutral-950">
-            Background Colors : {bgColorArray.length}
-          </p>
-          <div className="grid grid-cols-6 gap-x-3 gap-y-2">
-            {bgColorArray.map((bgColor) => (
-              <div className="flex flex-col gap-[2px] items-center">
+        <p className="text-base text-neutral-900 font-semibold">Color Palette</p>
+
+        {bgColorArray.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="text-sm text-neutral-950">
+              Background Colors : {bgColorArray.length}
+            </p>
+            <div className="grid grid-cols-4 gap-3" role="list">
+              {bgColorArray.map((bgColor) => (
                 <div
-                  className="h-6 w-16 rounded border border-neutral-200"
-                  style={{ backgroundColor: bgColor }}
-                ></div>
-                <p className="text-sm text-neutral-950">
-                  {checkForOpacity(bgColor).toUpperCase()}
-                </p>
-              </div>
-            ))}
+                  className="flex flex-col w-[100px] h-[90px] gap-[2px] items-center border border-neutral-200 rounded-md"
+                  role="listitem"
+                >
+                  <div
+                    className="h-[60px] w-full rounded rounded-b-none"
+                    style={{
+                      backgroundColor: bgColor,
+                      border: `1px solid ${bgColor}`,
+                      borderBottom: `1px solid #e5e7eb`,
+                    }}
+                  ></div>
+                  <p className="text-sm text-neutral-950 p-1">
+                    {checkForOpacity(bgColor).toUpperCase()}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-2 pt-4 border-t border-neutral-200">
-          <p className="text-sm text-neutral-950">
-            Text Colors : {textColorArray.length}
-          </p>
-          <div className="grid grid-cols-6 gap-x-3 gap-y-2">
-            {textColorArray.map((textColor) => (
-              <div className="flex flex-col gap-[2px] items-center">
+        )}
+
+        {textColorArray.length > 0 && (
+          <div className="flex flex-col gap-2 mt-2">
+            <p className="text-sm text-neutral-950">
+              Text Colors : {textColorArray.length}
+            </p>
+            <div className="grid grid-cols-4 gap-3" role="list">
+              {textColorArray.map((textColor) => (
                 <div
-                  className="h-6 w-16 rounded border border-neutral-200"
-                  style={{ backgroundColor: textColor }}
-                ></div>
-                <p className="text-sm text-neutral-950">
-                  {checkForOpacity(textColor).toUpperCase()}
-                </p>
-              </div>
-            ))}
+                  className="flex flex-col w-[100px] h-[90px] gap-[2px] items-center border border-neutral-200 rounded-md"
+                  role="listitem"
+                >
+                  <div
+                    className="h-[60px] w-full rounded rounded-b-none"
+                    style={{
+                      backgroundColor: textColor,
+                      border: `1px solid ${textColor}`,
+                      borderBottom: `1px solid #e5e7eb`,
+                    }}
+                  ></div>
+                  <p className="text-sm text-neutral-950 p-1">
+                    {checkForOpacity(textColor).toUpperCase()}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
+        )}
+
+        <div className="flex flex-col gap-4 pt-4 border-t border-neutral-200">
+          <p className="text-base text-neutral-900 font-semibold">
+            Contrast Issues : {standardTextArray.length + largeTextArray.length}
+          </p>
+
+          {standardTextArray.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-neutral-950">
+                Standard Text : {standardTextArray.length} Issues
+              </p>
+              <div className="grid grid-cols-3 gap-4" role="list">
+                {standardTextArray.map(
+                  (colorPair: {
+                    color: string;
+                    backgroundColor: string;
+                    fontSize: string;
+                    fontWeight: number;
+                  }) => (
+                    <>
+                      <div
+                        className="flex flex-col gap-2 p-2 items-center border rounded-lg"
+                        role="listitem"
+                      >
+                        <div
+                          className="flex items-center justify-center h-10 w-[100px] my-2 text-sm rounded border border-neutral-200"
+                          style={{
+                            backgroundColor: colorPair.backgroundColor,
+                            color: colorPair.color,
+                            fontWeight: colorPair.fontWeight,
+                            fontSize: colorPair.fontSize,
+                          }}
+                        >
+                          Text
+                        </div>
+                        <div className="flex flex-col gap-1 w-[90px]">
+                          <div className="flex justify-between">
+                            <p>FG</p>
+                            <p>
+                              {checkForOpacity(colorPair.color).toUpperCase()}
+                            </p>
+                          </div>
+                          <div className="flex justify-between pb-2 border-b border-neutral-200">
+                            <p>BG</p>
+                            <p>
+                              {checkForOpacity(
+                                colorPair.backgroundColor
+                              ).toUpperCase()}
+                            </p>
+                          </div>
+                          <div className="flex justify-between pt-1">
+                            <p>AA</p>
+                            {getContrastRatio(
+                              parseRGBA(colorPair.color),
+                              parseRGBA(colorPair.backgroundColor)
+                            ) >= 4.5 ? (
+                              <p>
+                                <CheckIcon
+                                  height={16}
+                                  width={16}
+                                  className="text-green-800"
+                                />
+                              </p>
+                            ) : (
+                              <p>
+                                <CloseIcon
+                                  height={16}
+                                  width={16}
+                                  className="text-red-800"
+                                />
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex justify-between">
+                            <p>AAA</p>
+                            <p>
+                              <CloseIcon
+                                height={16}
+                                width={16}
+                                className="text-red-800"
+                              />
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )
+                )}
+              </div>
+            </div>
+          )}
+
+          {largeTextArray.length > 0 && (
+            <div className="flex flex-col gap-2 mt-2">
+              <p className="text-sm text-neutral-950">
+                Large Text : {largeTextArray.length} Issues
+              </p>
+              <div className="grid grid-cols-3 gap-4" role="list">
+                {largeTextArray.map(
+                  (colorPair: {
+                    color: string;
+                    backgroundColor: string;
+                    fontSize: string;
+                    fontWeight: number;
+                  }) => (
+                    <>
+                      <div
+                        className="flex flex-col gap-2 p-2 items-center border rounded-lg"
+                        role="listitem"
+                      >
+                        <div
+                          className="flex items-center justify-center h-10 w-[100px] my-2 text-sm rounded border border-neutral-200"
+                          style={{
+                            backgroundColor: colorPair.backgroundColor,
+                            color: colorPair.color,
+                            fontWeight: colorPair.fontWeight,
+                            fontSize: colorPair.fontSize,
+                          }}
+                        >
+                          Text
+                        </div>
+                        <div className="flex flex-col gap-1 w-[90px]">
+                          <div className="flex justify-between">
+                            <p>FG</p>
+                            <p>
+                              {checkForOpacity(colorPair.color).toUpperCase()}
+                            </p>
+                          </div>
+                          <div className="flex justify-between pb-2 border-b border-neutral-200">
+                            <p>BG</p>
+                            <p>
+                              {checkForOpacity(
+                                colorPair.backgroundColor
+                              ).toUpperCase()}
+                            </p>
+                          </div>
+                          <div className="flex justify-between pt-1">
+                            <p>AA</p>
+                            {getContrastRatio(
+                              parseRGBA(colorPair.color),
+                              parseRGBA(colorPair.backgroundColor)
+                            ) >= 3 &&
+                            (parseFloat(colorPair.fontSize) >= 24 ||
+                              (parseFloat(colorPair.fontSize) >= 18.5 &&
+                                colorPair.fontWeight >= 700)) ? (
+                              <p>
+                                <CheckIcon
+                                  height={16}
+                                  width={16}
+                                  className="text-green-800"
+                                />
+                              </p>
+                            ) : (
+                              <p>
+                                <CloseIcon
+                                  height={16}
+                                  width={16}
+                                  className="text-red-800"
+                                />
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex justify-between">
+                            <p>AAA</p>
+                            <p>
+                              <CloseIcon
+                                height={16}
+                                width={16}
+                                className="text-red-800"
+                              />
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {fontSizeArray.length > 0 && (
+        <div className="flex flex-col gap-4 pt-4 border-t border-neutral-200">
+          <p className="text-base text-neutral-900 font-semibold">Font Size</p>
+          <div className="grid grid-cols-5 gap-4" role="list">
+            {fontSizeArray.map((fontSize) => (
+              <div
+                className="text-sm text-neutral-950 border border-neutral-200 rounded text-center py-1"
+                role="listitem"
+              >
+                {fontSize}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {fontFamilyArray.length > 0 && (
+        <div className="flex flex-col gap-4 pt-4 border-t border-neutral-200">
+          <p className="text-base text-neutral-900 font-semibold">
+            Font Family
+          </p>
+          <div className="flex flex-wrap gap-4" role="list">
+            {fontFamilyArray.map((fontFamily) => (
+              <span
+                className="w-fit text-sm text-neutral-950 border border-neutral-200 rounded text-center px-2 py-1"
+                role="listitem"
+              >
+                {fontFamily}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

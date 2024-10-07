@@ -22,7 +22,7 @@
 const labelColors = {
   RED_700: "#D20000",
   BLUE_700: "#294CB5",
-  GREEN_800: "#458A46",
+  GREEN_900: "#2C5A2E",
   PURPLE_700: "#5827DA",
   YELLOW_700: "#F5BD00",
   NEUTRAL_50: "#FEFEFE",
@@ -59,54 +59,6 @@ function captureSpecificArea(name, x, y, width, height) {
     document.body.removeChild(link);
   });
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === "CAPTURE_AREA") {
-    const { name, x, y, width, height } = message;
-    captureSpecificArea(name, x, y, width, height);
-  } else if (message.type === "show-tab-order") {
-    showTabOrderLabels();
-  } else if (message.type === "hide-tab-order") {
-    hideTabOrderLabels();
-    sendResponse({ status: "hide tab order labels" });
-  } else if (message.type === "show-headings") {
-    showHeadings();
-  } else if (message.type === "hide-headings") {
-    hideHeadings();
-    sendResponse({ status: "hide headings" });
-  } else if (message.type === "show-list-tags") {
-    showListTags();
-    sendResponse({ status: "show list tags" });
-  } else if (message.type === "hide-list-tags") {
-    hideListTags();
-    sendResponse({ status: "hide list tags" });
-  } else if (message.type === "show-landmarks") {
-    showLandmarks();
-  } else if (message.type === "hide-landmarks") {
-    hideLandmarks();
-    sendResponse({ status: "hide landmarks" });
-  } else if (message.type === "show-alt-text") {
-    showAltText();
-  } else if (message.type === "hide-alt-text") {
-    hideAltText();
-    sendResponse({ status: "hide alt text" });
-  } else if (message.type === "show-links") {
-    showLinks();
-  } else if (message.type === "hide-links") {
-    hideLinks();
-    sendResponse({ status: "hide links" });
-  } else if (message.type === "show-forms") {
-    showForms();
-  } else if (message.type === "hide-forms") {
-    hideForms();
-    sendResponse({ status: "hide forms" });
-  } else if (message.type === "extractColors") {
-    extractColors();
-  } else {
-    return true;
-  }
-});
 
 // To display iframe
 // extensionBtn.addEventListener("click", () => {
@@ -366,7 +318,7 @@ function showHeadings() {
           headingLabel.style.backgroundColor = labelColors.PURPLE_700;
           break;
         case "H3":
-          headingLabel.style.backgroundColor = labelColors.GREEN_800;
+          headingLabel.style.backgroundColor = labelColors.GREEN_900;
           break;
         case "H4":
           headingLabel.style.backgroundColor = labelColors.BLUE_700;
@@ -424,7 +376,7 @@ function showListTags() {
 
       switch (listItem.tagName) {
         case "UL":
-          listItemLabel.style.backgroundColor = labelColors.GREEN_800;
+          listItemLabel.style.backgroundColor = labelColors.GREEN_900;
           break;
         case "OL":
           listItemLabel.style.backgroundColor = labelColors.YELLOW_700;
@@ -508,7 +460,7 @@ function showLandmarks() {
           landmarkLabel.style.backgroundColor = labelColors.BLUE_700;
           break;
         case "search":
-          landmarkLabel.style.backgroundColor = labelColors.GREEN_800;
+          landmarkLabel.style.backgroundColor = labelColors.GREEN_900;
           break;
         case "banner":
           landmarkLabel.style.backgroundColor = labelColors.YELLOW_700;
@@ -567,14 +519,14 @@ function showLandmarks() {
           sectionLabel.style.backgroundColor = labelColors.RED_700;
           break;
         case "ARTICLE":
-          sectionLabel.style.backgroundColor = labelColors.GREEN_800;
+          sectionLabel.style.backgroundColor = labelColors.GREEN_900;
           break;
         case "ASIDE":
           sectionLabel.style.backgroundColor = labelColors.YELLOW_700;
           sectionLabel.style.color = labelColors.NEUTRAL_900;
           break;
         case "NAV":
-          sectionLabel.style.backgroundColor = labelColors.GREEN_800;
+          sectionLabel.style.backgroundColor = labelColors.GREEN_900;
           break;
         case "HEADER":
           sectionLabel.style.backgroundColor = labelColors.PURPLE_700;
@@ -769,7 +721,7 @@ function showForms() {
           formLabel.style.color = labelColors.NEUTRAL_900;
           break;
         case "FIELDSET":
-          formLabel.style.backgroundColor = labelColors.GREEN_800;
+          formLabel.style.backgroundColor = labelColors.GREEN_900;
           break;
         case "FORM":
           formLabel.style.backgroundColor = labelColors.BLUE_700;
@@ -875,78 +827,22 @@ function hideForms() {
 //   }
 // }
 
-window.addEventListener("message", (event) => {
-  switch (event.data) {
-    // To run trail automatically when opened from dashboard
-    // case "open-trail":
-    //   showIframe();
-    //   break;
+// window.addEventListener("message", (event) => {
+//   switch (event.data) {
+//     // To run trail automatically when opened from dashboard
+//     // case "open-trail":
+//     //   showIframe();
+//     //   break;
 
-    // case "minimise-button-clicked":
-    //   hideIframe();
-    //   extensionBtn.focus();
-    //   break;
+//     // case "minimise-button-clicked":
+//     //   hideIframe();
+//     //   extensionBtn.focus();
+//     //   break;
 
-    case "show-tab-order":
-      showTabOrderLabels();
-      break;
-
-    case "hide-tab-order":
-      hideTabOrderLabels();
-      break;
-
-    case "show-headings":
-      showHeadings();
-      break;
-
-    case "hide-headings":
-      hideHeadings();
-      break;
-
-    case "show-list-tags":
-      showListTags();
-      break;
-
-    case "hide-list-tags":
-      hideListTags();
-      break;
-
-    case "show-landmarks":
-      showLandmarks();
-      break;
-
-    case "hide-landmarks":
-      hideLandmarks();
-      break;
-
-    case "show-alt-text":
-      showAltText();
-      break;
-
-    case "hide-alt-text":
-      hideAltText();
-      break;
-
-    case "show-links":
-      showLinks();
-      break;
-
-    case "hide-links":
-      hideLinks();
-      break;
-
-    case "show-forms":
-      showForms();
-      break;
-
-    case "hide-forms":
-      hideForms();
-      break;
-
-    default:
-      break;
-  }
-});
+//     default:
+//       break;
+//   }
+// });
 
 function isElementVisible(element) {
   const style = window.getComputedStyle(element);
@@ -957,31 +853,116 @@ function isElementVisible(element) {
   );
 }
 
+function sortPixelValues(pixelValues) {
+  return pixelValues
+    .map((value) => parseFloat(value))
+    .sort((a, b) => a - b)
+    .map((value) => `${value}px`);
+}
+
+function formatFontFamilies(fontArray) {
+  return fontArray
+    .flatMap((font) => font.replace(/"/g, "").split(","))
+    .map((font) => font.trim())
+    .sort((a, b) => a.length - b.length);
+}
+
 function extractColors() {
   const elements = document.getElementsByTagName("*");
+  const colorPairs = new Map();
+
   let textColorArray = [];
   let backgroundColorArray = [];
+  let fontSizeArray = [];
+  let fontFamilyArray = [];
+  let colorPairsArray = [];
 
-  Array.from(elements).forEach((element) => {
-    if (isElementVisible(element)) {
-      const style = window.getComputedStyle(element);
+  for (let element of elements) {
+    if (!isElementVisible(element)) continue;
 
-      textColorArray.push(style.color);
-      backgroundColorArray.push(style.backgroundColor);
+    const style = window.getComputedStyle(element);
+    const { color, backgroundColor, fontSize, fontWeight, fontFamily } = style;
+
+    if (
+      color !== "rgba(0, 0, 0, 0)" &&
+      color !== "transparent" &&
+      backgroundColor !== "rgba(0, 0, 0, 0)" &&
+      backgroundColor !== "transparent"
+    ) {
+      const key = `${color}|${backgroundColor}`;
+
+      if (!colorPairs.has(key)) {
+        colorPairs.set(key, { color, backgroundColor, fontSize, fontWeight });
+      }
+
+      textColorArray.push(color);
+      backgroundColorArray.push(backgroundColor);
+      fontSizeArray.push(fontSize);
+      fontFamilyArray.push(fontFamily);
     }
-  });
+  }
 
   textColorArray = Array.from(new Set(textColorArray));
   backgroundColorArray = Array.from(new Set(backgroundColorArray));
+  fontSizeArray = sortPixelValues(Array.from(new Set(fontSizeArray)));
+  fontFamilyArray = formatFontFamilies(Array.from(new Set(fontFamilyArray)));
+
+  colorPairs.forEach((value) => {
+    colorPairsArray.push(value);
+  });
 
   return {
+    colorPairsArray,
     textColorArray,
+    fontSizeArray,
+    fontFamilyArray,
     backgroundColorArray,
   };
 }
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "COLOR") {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "CAPTURE_AREA") {
+    const { name, x, y, width, height } = message;
+    captureSpecificArea(name, x, y, width, height);
+  } else if (message.type === "show-tab-order") {
+    showTabOrderLabels();
+  } else if (message.type === "hide-tab-order") {
+    hideTabOrderLabels();
+    sendResponse({ status: "hide tab order labels" });
+  } else if (message.type === "show-headings") {
+    showHeadings();
+  } else if (message.type === "hide-headings") {
+    hideHeadings();
+    sendResponse({ status: "hide headings" });
+  } else if (message.type === "show-list-tags") {
+    showListTags();
+    sendResponse({ status: "show list tags" });
+  } else if (message.type === "hide-list-tags") {
+    hideListTags();
+    sendResponse({ status: "hide list tags" });
+  } else if (message.type === "show-landmarks") {
+    showLandmarks();
+  } else if (message.type === "hide-landmarks") {
+    hideLandmarks();
+    sendResponse({ status: "hide landmarks" });
+  } else if (message.type === "show-alt-text") {
+    showAltText();
+  } else if (message.type === "hide-alt-text") {
+    hideAltText();
+    sendResponse({ status: "hide alt text" });
+  } else if (message.type === "show-links") {
+    showLinks();
+  } else if (message.type === "hide-links") {
+    hideLinks();
+    sendResponse({ status: "hide links" });
+  } else if (message.type === "show-forms") {
+    showForms();
+  } else if (message.type === "hide-forms") {
+    hideForms();
+    sendResponse({ status: "hide forms" });
+  } else if (message.action === "COLOR") {
     sendResponse(extractColors());
+  } else {
+    return true;
   }
 });

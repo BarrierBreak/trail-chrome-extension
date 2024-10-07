@@ -11,7 +11,6 @@ export default {
     extend: {
       fontFamily: {
         poppins: ["Poppins", "Roboto"],
-        sourceCode: ["Source Code Pro", "monospace"],
       },
       fontSize: {
         sm: "12px",

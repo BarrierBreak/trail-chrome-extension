@@ -467,9 +467,8 @@ const Extension = () => {
                     </Tab>
                   </TabList>
                 </div>
-
                 <TabPanel id="TEST">
-                  <div className="flex flex-col items-center justify-center gap-4 w-full h-[80vh]">
+                  <div className="flex flex-col items-center justify-center gap-4 w-[75vw] h-[80vh]">
                     <Button
                       appearance="primary"
                       onPress={handleResponse}
