@@ -282,17 +282,13 @@ function hideTabOrderLabels() {
 
 function showHeadings() {
   const headings = document.querySelectorAll(
-    "h1, h2, h3, h4, h5, h6",
-    "[role=heading][aria-level=1]",
-    "[role=heading][aria-level=2]",
-    "[role=heading][aria-level=3]",
-    "[role=heading][aria-level=4]",
-    "[role=heading][aria-level=5]",
-    "[role=heading][aria-level=6]"
+    "h1, h2, h3, h4, h5, h6, [role=heading]"
   );
 
   if (document.querySelectorAll(".heading-label").length <= 0) {
     headings.forEach((heading) => {
+      const role = heading.getAttribute("role");
+      const ariaLevel = heading.getAttribute("aria-level");
       const headingLabel = document.createElement("span");
       headingLabel.className = "heading-label";
       headingLabel.style.color = labelColors.NEUTRAL_50;
@@ -306,35 +302,68 @@ function showHeadings() {
       headingLabel.style.border = `1px solid ${labelColors.NEUTRAL_50}`;
       headingLabel.style.verticalAlign = "middle";
       headingLabel.textContent = `<${heading.tagName.toLowerCase()}>`;
-      headingLabel.style.textTransform = "lowercase";
       heading.prepend(headingLabel);
 
-      switch (heading.tagName) {
-        case "H1":
-          headingLabel.style.backgroundColor = labelColors.YELLOW_700;
-          headingLabel.style.color = labelColors.NEUTRAL_900;
-          break;
-        case "H2":
-          headingLabel.style.backgroundColor = labelColors.PURPLE_700;
-          break;
-        case "H3":
-          headingLabel.style.backgroundColor = labelColors.GREEN_900;
-          break;
-        case "H4":
-          headingLabel.style.backgroundColor = labelColors.BLUE_700;
-          break;
-        case "H5":
-          headingLabel.style.backgroundColor = labelColors.RED_700;
-          break;
-        case "H6":
-          headingLabel.style.backgroundColor = labelColors.NEUTRAL_700;
-          break;
-        default:
-          break;
+      let color;
+      let bgColor;
+
+      if (role === "heading" && ariaLevel) {
+        switch (ariaLevel) {
+          case "1":
+            color = "#19171D";
+            bgColor = "#F5BD00";
+            break;
+          case "2":
+            bgColor = "#5827DA";
+            break;
+          case "3":
+            bgColor = "#458A46";
+            break;
+          case "4":
+            bgColor = "#294CB5";
+            break;
+          case "5":
+            bgColor = "#D20000";
+            break;
+          case "6":
+            bgColor = "#484453";
+            break;
+        }
+        headingLabel.textContent = `[role=heading][aria-level=${ariaLevel}]`;
+      } else {
+        switch (heading.tagName) {
+          case "H1":
+            bgColor = labelColors.YELLOW_700;
+            color = labelColors.NEUTRAL_900;
+            break;
+          case "H2":
+            bgColor = labelColors.PURPLE_700;
+            break;
+          case "H3":
+            bgColor = labelColors.GREEN_900;
+            break;
+          case "H4":
+            bgColor = labelColors.BLUE_700;
+            break;
+          case "H5":
+            bgColor = labelColors.RED_700;
+            break;
+          case "H6":
+            bgColor = labelColors.NEUTRAL_700;
+            break;
+          default:
+            break;
+        }
       }
+      headingLabel.style.backgroundColor = bgColor;
+      headingLabel.style.color = color;
 
       const endLabel = headingLabel.cloneNode(true);
-      endLabel.textContent = `</${heading.tagName.toLowerCase()}>`;
+
+      if (!(role === "heading" && ariaLevel)) {
+        endLabel.textContent = `</${heading.tagName.toLowerCase()}>`;
+      }
+
       heading.appendChild(endLabel);
     });
   }
