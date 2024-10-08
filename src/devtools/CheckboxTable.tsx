@@ -465,6 +465,15 @@ const CheckboxTable = ({
                             <p className="font-medium text-sm pl-1">ID</p>
                           </th>
                           <th
+                            id={`attribute-${item[0]?.conformance_level}`}
+                            scope="col"
+                            className="table-cell p-1 min-w-[120px] w-[85%] align-middle border-r border-neutral-200"
+                          >
+                            <p className="font-medium text-sm pl-1">
+                              Attribute
+                            </p>
+                          </th>
+                          <th
                             id={`element-${item[0]?.conformance_level}`}
                             scope="col"
                             className="table-cell p-1 w-[80px] align-middle border-r border-neutral-200"
@@ -474,19 +483,10 @@ const CheckboxTable = ({
                           <th
                             id={`screenshot-${item[0]?.conformance_level}`}
                             scope="col"
-                            className="table-cell p-1 min-w-[120px] w-[45%] align-middle border-r border-neutral-200"
+                            className="table-cell p-1 w-[85px] align-middle"
                           >
                             <p className="font-medium text-sm pl-1">
                               Screenshot
-                            </p>
-                          </th>
-                          <th
-                            id={`attribute-${item[0]?.conformance_level}`}
-                            scope="col"
-                            className="table-cell p-1 min-w-[120px] w-[45%] align-middle"
-                          >
-                            <p className="font-medium text-sm pl-1">
-                              Attribute
                             </p>
                           </th>
                         </tr>
@@ -646,45 +646,12 @@ const CheckboxTable = ({
                                   <td
                                     headers={`issue-${tableIndex + 1}-${
                                       parentIndex + 1
-                                    } element-${item[0]?.conformance_level}`}
-                                    className="table-cell w-[80px] border-r border-neutral-200 text-sm p-2"
-                                  >
-                                    <p>{`<${instance.elementTagName}>`}</p>
-                                  </td>
-                                  <td
-                                    headers={`issue-${tableIndex + 1}-${
-                                      parentIndex + 1
-                                    } screenshot-${item[0]?.conformance_level}`}
-                                    className="table-cell min-w-[120px] w-[45%] text-sm text-center border-r border-neutral-200 p-2"
-                                  >
-                                    <Button
-                                      appearance="link"
-                                      spacing="none"
-                                      aria-label={`Download ${
-                                        issue.failing_technique
-                                      } ID-${index + 1} Screenshot`}
-                                      isDisabled={!instance.selector}
-                                      onPress={() =>
-                                        downloadScreenshot(
-                                          instance.selector,
-                                          instance.type,
-                                          issue.failing_technique,
-                                          index
-                                        )
-                                      }
-                                    >
-                                      Download
-                                    </Button>
-                                  </td>
-                                  <td
-                                    headers={`issue-${tableIndex + 1}-${
-                                      parentIndex + 1
                                     } attribute-${item[0]?.conformance_level}`}
-                                    className="table-cell min-w-[120px] w-[45%] p-2"
+                                    className="table-cell min-w-[120px] w-[85%] border-r border-neutral-200 p-2"
                                   >
                                     <section
                                       tabIndex={0}
-                                      className="h-[62px] p-1 text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                                      className="flex items-center h-[62px] p-1 text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                                     >
                                       {issue.element === "Contrast" &&
                                       issue.code !== "BB10575" &&
@@ -742,6 +709,39 @@ const CheckboxTable = ({
                                         instance.message?.toString()
                                       )}
                                     </section>
+                                  </td>
+                                  <td
+                                    headers={`issue-${tableIndex + 1}-${
+                                      parentIndex + 1
+                                    } element-${item[0]?.conformance_level}`}
+                                    className="table-cell w-[85px] border-r border-neutral-200 text-sm p-2"
+                                  >
+                                    <p>{`<${instance.elementTagName}>`}</p>
+                                  </td>
+                                  <td
+                                    headers={`issue-${tableIndex + 1}-${
+                                      parentIndex + 1
+                                    } screenshot-${item[0]?.conformance_level}`}
+                                    className="table-cell w-[80px] text-sm text-center p-2"
+                                  >
+                                    <Button
+                                      appearance="link"
+                                      spacing="none"
+                                      aria-label={`Download ${
+                                        issue.failing_technique
+                                      } ID-${index + 1} Screenshot`}
+                                      isDisabled={!instance.selector}
+                                      onPress={() =>
+                                        downloadScreenshot(
+                                          instance.selector,
+                                          instance.type,
+                                          issue.failing_technique,
+                                          index
+                                        )
+                                      }
+                                    >
+                                      Download
+                                    </Button>
                                   </td>
                                 </tr>
                               )
