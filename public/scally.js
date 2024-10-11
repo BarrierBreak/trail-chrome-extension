@@ -21,7 +21,6 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     window.addEventListener("message", (event) => {
       if (event.data === "reset-results") {
         auditData = {};
-        sessionStorage.removeItem(`auditResults_${tabId}`);
       }
     });
 
