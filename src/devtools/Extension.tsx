@@ -188,7 +188,7 @@ const Extension = () => {
 
     if (urlId && userId) {
       fetch(
-        `https://trail-mvp.barrierbeak.com/api/testResults?userId=${userId}&urlId=${urlId}`,
+        `https://trail-mvp.barrierbreak.com/api/testResults?userId=${userId}&urlId=${urlId}`,
         {
           method: 'POST',
           headers: {
