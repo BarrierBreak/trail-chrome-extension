@@ -2,65 +2,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, Input, Select, SelectItem } from "@trail-ui/react";
 import { CheckIcon, CloseIcon, ColorPickerIcon } from "@trail-ui/icons";
-import { rgbaToHex } from "./utils";
+import {
+  arrayToRgbString,
+  calculateLuminance,
+  checkForOpacity,
+  getContrastRatio,
+  hexToRgb,
+  parseRGBA,
+} from "./utils";
 
 interface EyeDropper {
   open(): Promise<{ sRGBHex: string }>;
-}
-
-// Function to get luminance of color
-const getLuminance = (r: number, g: number, b: number): number => {
-  const normalize = (value: number) => {
-    const sRGB = value / 255;
-    return sRGB <= 0.03928
-      ? sRGB / 12.92
-      : Math.pow((sRGB + 0.055) / 1.055, 2.4);
-  };
-  return 0.2126 * normalize(r) + 0.7152 * normalize(g) + 0.0722 * normalize(b);
-};
-
-// Function to convert to hex and check for opacity
-const checkForOpacity = (color: string) => {
-  let hexColor = rgbaToHex(color);
-  if (hexColor.endsWith("ff")) {
-    hexColor = hexColor.slice(0, -2);
-  }
-  return hexColor;
-};
-
-// Function to blend colors based on opacity
-const blendColors = (fg: number[], bg: number[], opacity: number) =>
-  fg.map((c, i) => Math.round(c * opacity + bg[i] * (1 - opacity)));
-
-// Function to parse rgba string into R, G, B, and A
-function parseRGBA(rgba: string): number[] {
-  const match = rgba.match(
-    /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d+))?\)/
-  );
-
-  if (!match) return [];
-
-  const r = Number(match[1]);
-  const g = Number(match[2]);
-  const b = Number(match[3]);
-  const a = match[4] !== undefined ? parseFloat(match[4]) : 1;
-
-  return [r, g, b, a];
-}
-
-// Function to get contrast ratio
-function getContrastRatio(fg: number[], bg: number[]) {
-  const opacity = fg[3] !== undefined ? fg[3] : 1;
-
-  const blendedColor = blendColors(fg, bg, opacity);
-
-  const l1 = getLuminance(blendedColor[0], blendedColor[1], blendedColor[2]);
-  const l2 = getLuminance(bg[0], bg[1], bg[2]);
-
-  const lighter = Math.max(l1, l2);
-  const darker = Math.min(l1, l2);
-
-  return (lighter + 0.05) / (darker + 0.05);
 }
 
 declare const EyeDropper: {
@@ -72,12 +24,17 @@ const ColorContrast = () => {
   const instructions =
     "According to WCAG, contrast ratios should be at least 4.5 : 1 for normal text and 3 : 1 for large text. Check your color contrast below.";
 
+  const eyeDropper = new EyeDropper();
+
   const passIcon = <CheckIcon height={18} width={18} />;
   const failIcon = <CloseIcon height={18} width={18} />;
 
   const [hexForeground, setHexForeground] = useState("#000000");
   const [hexaForeground, setHexaForeground] = useState("#000000FF");
   const [hexBackground, setHexBackground] = useState("#FFFFFF");
+  const [rgbForeground, setRgbForeground] = useState("rgb(0, 0, 0)");
+  const [rgbaForeground, setRgbaForeground] = useState("rgb(0, 0, 0, 1)");
+  const [rgbBackground, setRgbBackground] = useState("rgb(255, 255, 255)");
 
   const [textColorArray, setTextColorArray] = useState([]);
   const [bgColorArray, setBgColorArray] = useState([]);
@@ -91,6 +48,8 @@ const ColorContrast = () => {
   const [selectedLevel, setSelectedLevel] = useState("AA");
   const [fgType, setFgType] = useState("hex");
   const [bgType, setBgType] = useState("hex");
+  const [selectedFG, setSelectedFG] = useState("#000000");
+  const [selectedBG, setSelectedBG] = useState("#FFFFFF");
   const [isButtonPressed, setIsButtonPressed] = useState(false);
   const [isIssueVisible, setIsIssueVisible] = useState(false);
 
@@ -104,13 +63,17 @@ const ColorContrast = () => {
   const fgColorTypes = [
     { label: "HEX", value: "hex" },
     { label: "HEXa", value: "hexa" },
+    { label: "RGB", value: "rgb" },
+    { label: "RGBa", value: "rgba" },
   ];
 
-  const bgColorTypes = [{ label: "HEX", value: "hex" }];
+  const bgColorTypes = [
+    { label: "HEX", value: "hex" },
+    { label: "RGB", value: "rgb" },
+  ];
 
   const getContrastIssue = useCallback(() => {
-    setIsIssueVisible(!isIssueVisible);
-
+    setIsIssueVisible(false);
     fetch("https://trail-api.barrierbreak.com/api/colorChecker", {
       method: "GET",
       headers: {
@@ -123,145 +86,29 @@ const ColorContrast = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.statusCode === 500) {
+          setIsIssueVisible(false);
           alert("Please enter your Auth Token in the Auth Token dialog");
         }
       })
       .catch((error) => {
         console.log("Error:", error);
       });
+
+    setIsIssueVisible(!isIssueVisible);
   }, [apiKey, isIssueVisible]);
 
   const handleContrastBtnClick = () => {
     getContrastIssue();
   };
 
-  const eyeDropper = new EyeDropper();
-
-  function hexToRgb(hex: string): [number, number, number] {
-    const bigint = parseInt(hex.slice(1), 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = bigint & 255;
-    return [r, g, b];
-  }
-
-  function hexAtoRgbA(hexA: string): [number, number, number, number] {
-    const [r, g, b] = hexToRgb(hexA.slice(0, 7));
-    const a = parseInt(hexA.slice(7, 9), 16) / 255;
-    return [r, g, b, a];
-  }
-
-  function relativeLuminance(r: number, g: number, b: number): number {
-    const a = [r, g, b].map((value) => {
-      const normalized = value / 255;
-      return normalized <= 0.03928
-        ? normalized / 12.92
-        : Math.pow((normalized + 0.055) / 1.055, 2.4);
-    });
-    return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
-  }
-
-  function hexToRgbaFromShort(hex: string): [number, number, number, number] {
-    const r = parseInt(hex[1] + hex[1], 16);
-    const g = parseInt(hex[2] + hex[2], 16);
-    const b = parseInt(hex[3] + hex[3], 16);
-    const a = parseInt(hex[4], 16) / 15;
-
-    return [r, g, b, a];
-  }
-
-  function contrastRatioHexA(hexA: string, hex: string): string {
-    let fgR: number, fgG: number, fgB: number, alpha: number;
-    if (
-      (hexaForeground.length === 5 || hexaForeground.length === 9) &&
-      (hexBackground.length === 4 || hexBackground.length === 7)
-    ) {
-      if (hexaForeground.length === 9) {
-        [fgR, fgG, fgB, alpha] = hexAtoRgbA(hexA);
-      } else if (hexaForeground.length === 5) {
-        [fgR, fgG, fgB, alpha] = hexToRgbaFromShort(hexA);
-      } else {
-        return "0";
-      }
-
-      const [bgR, bgG, bgB] = hexToRgb(hex);
-
-      const finalR = alpha * fgR + (1 - alpha) * bgR;
-      const finalG = alpha * fgG + (1 - alpha) * bgG;
-      const finalB = alpha * fgB + (1 - alpha) * bgB;
-
-      const L1 = Math.max(
-        relativeLuminance(finalR, finalG, finalB),
-        relativeLuminance(bgR, bgG, bgB)
-      );
-      const L2 = Math.min(
-        relativeLuminance(finalR, finalG, finalB),
-        relativeLuminance(bgR, bgG, bgB)
-      );
-
-      const contrast = (L1 + 0.05) / (L2 + 0.05);
-
-      return contrast.toString().slice(0, 5);
-    } else {
-      return "0";
-    }
-  }
-
-  function contrastRatio(foreground: string, background: string): string {
-    function hexToRgb(hex: string): number[] {
-      hex = hex.replace(/^#/, "");
-
-      if (hex.length === 3) {
-        hex = hex
-          .split("")
-          .map((char) => char + char)
-          .join("");
-      }
-
-      const bigint = parseInt(hex, 16);
-      return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
-    }
-
-    function luminance(rgb: number[]): number {
-      const [r, g, b] = rgb.map((value) => {
-        value /= 255;
-        return value <= 0.03928
-          ? value / 12.92
-          : Math.pow((value + 0.055) / 1.055, 2.4);
-      });
-      return r * 0.2126 + g * 0.7152 + b * 0.0722;
-    }
-
-    if (
-      (hexForeground.length === 4 || hexForeground.length === 7) &&
-      (hexBackground.length === 4 || hexBackground.length === 7)
-    ) {
-      const rgb1 = hexToRgb(foreground);
-      const rgb2 = hexToRgb(background);
-
-      const lum1 = luminance(rgb1);
-      const lum2 = luminance(rgb2);
-
-      const ratio =
-        (Math.max(lum1, lum2) + 0.05) / (Math.min(lum1, lum2) + 0.05);
-
-      return ratio.toString().slice(0, 5);
-    }
-
-    return "0";
-  }
-
-  const ratio =
-    fgType === "hex"
-      ? parseFloat(contrastRatio(hexForeground, hexBackground))
-      : parseFloat(contrastRatioHexA(hexaForeground, hexBackground));
+  const ratio = parseFloat(allContrastRatio(selectedFG, selectedBG));
 
   const standardAA = ratio >= 4.5;
   const largeAA = ratio >= 3;
   const standardAAA = ratio >= 7;
   const largeAAA = ratio >= 4.5;
 
-  const openEyeDropper = (setColor: (color: string) => void) => {
+  const openFgEyeDropper = (setColor: (color: string) => void) => {
     setIsButtonPressed(true);
 
     if (!("EyeDropper" in window)) {
@@ -273,7 +120,32 @@ const ColorContrast = () => {
     eyeDropper
       .open()
       .then((colorSelectionResult: any) => {
-        setColor(colorSelectionResult.sRGBHex);
+        if (fgType === "hex") {
+          setSelectedFG(colorSelectionResult.sRGBHex);
+          setColor(colorSelectionResult.sRGBHex);
+        } else if (fgType === "hexa") {
+          setSelectedFG(colorSelectionResult.sRGBHex + "FF");
+          setColor(colorSelectionResult.sRGBHex + "FF");
+        } else if (fgType === "rgb") {
+          setSelectedFG(
+            arrayToRgbString(hexToRgb(colorSelectionResult.sRGBHex))
+          );
+          setColor(arrayToRgbString(hexToRgb(colorSelectionResult.sRGBHex)));
+        } else if (fgType === "rgba") {
+          setSelectedFG(
+            arrayToRgbString(hexToRgb(colorSelectionResult.sRGBHex)).slice(
+              0,
+              -1
+            ) + ", 1)"
+          );
+          setColor(
+            arrayToRgbString(hexToRgb(colorSelectionResult.sRGBHex)).slice(
+              0,
+              -1
+            ) + ", 1)"
+          );
+        }
+
         setIsButtonPressed(false);
       })
       .catch((error: any) => {
@@ -282,29 +154,153 @@ const ColorContrast = () => {
       });
   };
 
-  const handleBlurHex = (
-    e: any,
-    setColor: (color: string) => void,
-    defaultColor: string
-  ) => {
-    if (e.target.value.length < 3) {
-      setColor(defaultColor);
-    } else if (e.target.value.length > 3 && e.target.value.length < 6) {
+  const openBgEyeDropper = (setColor: (color: string) => void) => {
+    setIsButtonPressed(true);
+
+    if (!("EyeDropper" in window)) {
+      console.log("EyeDropper not supported");
+      setIsButtonPressed(false);
+      return;
+    }
+
+    eyeDropper
+      .open()
+      .then((colorSelectionResult: any) => {
+        if (bgType === "hex") {
+          setSelectedBG(colorSelectionResult.sRGBHex);
+          setColor(colorSelectionResult.sRGBHex);
+        } else if (bgType === "rgb") {
+          setSelectedBG(
+            arrayToRgbString(hexToRgb(colorSelectionResult.sRGBHex))
+          );
+          setColor(arrayToRgbString(hexToRgb(colorSelectionResult.sRGBHex)));
+        }
+        setIsButtonPressed(false);
+      })
+      .catch((error: any) => {
+        console.error(error);
+        setIsButtonPressed(false);
+      });
+  };
+
+  function hexToRgba(hex: string, alpha: number = 1): string {
+    hex = hex.replace(/^#/, "");
+    let r: number, g: number, b: number;
+
+    if (hex.length === 8 && fgType === "hexa") {
+      r = parseInt(hex.slice(0, 2), 16);
+      g = parseInt(hex.slice(2, 4), 16);
+      b = parseInt(hex.slice(4, 6), 16);
+      alpha = parseInt(hex.slice(6, 8), 16) / 255;
+    } else if (hex.length === 6 && (fgType === "hex" || bgType === "hex")) {
+      r = parseInt(hex.slice(0, 2), 16);
+      g = parseInt(hex.slice(2, 4), 16);
+      b = parseInt(hex.slice(4, 6), 16);
+    } else if (hex.length === 4 && fgType === "hexa") {
+      r = parseInt(hex[0] + hex[0], 16);
+      g = parseInt(hex[1] + hex[1], 16);
+      b = parseInt(hex[2] + hex[2], 16);
+      alpha = parseInt(hex[3], 16) / 15;
+    } else if (hex.length === 3 && (fgType === "hex" || bgType === "hex")) {
+      r = parseInt(hex[0] + hex[0], 16);
+      g = parseInt(hex[1] + hex[1], 16);
+      b = parseInt(hex[2] + hex[2], 16);
+    } else {
+      return "0";
+    }
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function rgbToRgba(color: string): string {
+    const match = color.match(
+      /rgba?\(\s*(\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d+))?\s*\)/
+    );
+
+    if (!match) {
+      return "0";
+    }
+
+    const r = parseInt(match[1]);
+    const g = parseInt(match[2]);
+    const b = parseInt(match[3]);
+    const alpha = match[4] ? parseFloat(match[4]) : 1;
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function allContrastRatio(color1: string, color2: string): string {
+    let rgbaColor1 = "";
+    let rgbaColor2 = "";
+
+    if (fgType === "hex" || fgType === "hexa") {
+      rgbaColor1 = hexToRgba(color1);
+    } else if (fgType === "rgb" || fgType === "rgba") {
+      rgbaColor1 = rgbToRgba(color1);
+    }
+
+    if (bgType === "hex") {
+      rgbaColor2 = hexToRgba(color2);
+    } else if (bgType === "rgb") {
+      rgbaColor2 = rgbToRgba(color2);
+    }
+
+    const [r1, g1, b1, alpha] = rgbaColor1
+      .match(/\d+(\.\d+)?/g)!
+      .map((value, index) => {
+        return index < 3 ? Number(value) : parseFloat(value);
+      });
+
+    const [r2, g2, b2] = rgbaColor2.match(/\d+/g)!.map(Number).slice(0, 3);
+
+    const finalR = alpha * r1 + (1 - alpha) * r2;
+    const finalG = alpha * g1 + (1 - alpha) * g2;
+    const finalB = alpha * b1 + (1 - alpha) * b2;
+
+    const L1 = calculateLuminance(finalR, finalG, finalB);
+    const L2 = calculateLuminance(r2, g2, b2);
+
+    const lighterLuminance = Math.max(L1, L2);
+    const darkerLuminance = Math.min(L1, L2);
+
+    const ratio = (lighterLuminance + 0.05) / (darkerLuminance + 0.05);
+
+    return ratio.toString().slice(0, 5);
+  }
+
+  const handleBlurHex = (e: any, setColor: (color: string) => void) => {
+    if (e.target.value.length > 3 && e.target.value.length < 6) {
       setColor(`#${e.target.value.slice(0, 3)}`);
     }
   };
 
-  const handleBlurHexa = (
-    e: any,
-    setColor: (color: string) => void,
-    defaultColor: string
-  ) => {
-    if (e.target.value.length < 4) {
-      setColor(defaultColor);
-    } else if (e.target.value.length > 4 && e.target.value.length < 8) {
+  const handleBlurHexa = (e: any, setColor: (color: string) => void) => {
+    if (e.target.value.length > 4 && e.target.value.length < 8) {
       setColor(`#${e.target.value.slice(0, 4)}`);
     }
   };
+
+  function selectFgColorType(colorType: string) {
+    switch (colorType) {
+      case "hex":
+        return hexForeground;
+      case "hexa":
+        return hexaForeground;
+      case "rgb":
+        return rgbForeground;
+      case "rgba":
+        return rgbaForeground;
+    }
+  }
+
+  function selectBgColorType(colorType: string) {
+    switch (colorType) {
+      case "hex":
+        return hexBackground;
+      case "rgb":
+        return rgbBackground;
+    }
+  }
 
   useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -377,12 +373,32 @@ const ColorContrast = () => {
     });
   }, []);
 
-  const handleColorChange = (e: any, setColor: (color: string) => void) => {
+  const handleFgColorChange = (e: any, setColor: (color: string) => void) => {
     let value = e.target.value;
-    if (value.startsWith("#")) {
-      value = value.slice(1).substring(0, 6);
+    setSelectedFG(value);
+
+    if (fgType === "hex" || fgType === "hexa") {
+      if (value.startsWith("#")) {
+        value = value.slice(1).substring(0, 6);
+      }
+      setColor(`#${value.toUpperCase()}`);
+    } else if (fgType === "rgb" || fgType === "rgba") {
+      setColor(value);
     }
-    setColor(`#${value.toUpperCase()}`);
+  };
+
+  const handleBgColorChange = (e: any, setColor: (color: string) => void) => {
+    let value = e.target.value;
+    setSelectedBG(value);
+
+    if (bgType === "hex") {
+      if (value.startsWith("#")) {
+        value = value.slice(1).substring(0, 6);
+      }
+      setColor(`#${value.toUpperCase()}`);
+    } else {
+      setColor(value);
+    }
   };
 
   const displayStdText =
@@ -406,16 +422,21 @@ const ColorContrast = () => {
             <button
               aria-hidden="true"
               onClick={() =>
-                openEyeDropper(
-                  fgType === "hex" ? setHexForeground : setHexaForeground
+                openFgEyeDropper(
+                  fgType === "hex"
+                    ? setHexForeground
+                    : fgType === "hexa"
+                    ? setHexaForeground
+                    : fgType === "rgb"
+                    ? setRgbForeground
+                    : setRgbaForeground
                 )
               }
               className="flex items-center justify-center h-20 border border-neutral-200 rounded focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-4"
               aria-label="Foreground Color Picker"
               aria-pressed={isButtonPressed}
               style={{
-                backgroundColor:
-                  fgType === "hex" ? hexForeground : hexaForeground,
+                backgroundColor: selectFgColorType(fgType),
               }}
             >
               <ColorPickerIcon
@@ -427,15 +448,18 @@ const ColorContrast = () => {
           </div>
           <div>
             <Select
+              label="FG Color Format"
               isSearchable={false}
               defaultSelectedKey={"hex"}
               onSelectionChange={(e) => {
                 setFgType(e.toString());
               }}
-              className="w-[70px]"
+              className="flex flex-row justify-between items-center mb-2"
               classNames={{
+                label: "text-sm font-normal pb-0",
                 popover: "font-poppins",
-                trigger: "h-6 min-h-6",
+                trigger: "w-[65px] h-6 min-h-6",
+                mainWrapper: "w-[unset]",
                 selectorIcon: "w-4 h-4 right-1",
               }}
             >
@@ -459,8 +483,8 @@ const ColorContrast = () => {
                 className="gap-0 border-neutral-200"
                 maxLength={7}
                 placeholder="Enter Foreground Color"
-                onChange={(e) => handleColorChange(e, setHexForeground)}
-                onBlur={(e) => handleBlurHex(e, setHexForeground, "#000000")}
+                onChange={(e) => handleFgColorChange(e, setHexForeground)}
+                onBlur={(e) => handleBlurHex(e, setHexForeground)}
               />
             )}
 
@@ -473,10 +497,30 @@ const ColorContrast = () => {
                 className="gap-0 border-neutral-200"
                 maxLength={9}
                 placeholder="Enter Foreground Color"
-                onChange={(e) => handleColorChange(e, setHexaForeground)}
-                onBlur={(e) =>
-                  handleBlurHexa(e, setHexaForeground, "#000000FF")
-                }
+                onChange={(e) => handleFgColorChange(e, setHexaForeground)}
+                onBlur={(e) => handleBlurHexa(e, setHexaForeground)}
+              />
+            )}
+
+            {fgType === "rgb" && (
+              <Input
+                defaultValue="rgb(0, 0, 0)"
+                aria-label="Foreground Color"
+                value={rgbForeground}
+                className="gap-0 border-neutral-200"
+                placeholder="Enter Foreground Color"
+                onChange={(e) => handleFgColorChange(e, setRgbForeground)}
+              />
+            )}
+
+            {fgType === "rgba" && (
+              <Input
+                defaultValue="rgb(0, 0, 0, 1)"
+                aria-label="Foreground Color"
+                value={rgbaForeground}
+                className="gap-0 border-neutral-200"
+                placeholder="Enter Foreground Color"
+                onChange={(e) => handleFgColorChange(e, setRgbaForeground)}
               />
             )}
           </div>
@@ -486,12 +530,16 @@ const ColorContrast = () => {
             <p>Background</p>
             <button
               aria-hidden="true"
-              onClick={() => openEyeDropper(setHexBackground)}
+              onClick={() => {
+                openBgEyeDropper(
+                  bgType === "hex" ? setHexBackground : setRgbBackground
+                );
+              }}
               className="flex items-center justify-center h-20 border border-neutral-200 rounded focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-4"
               aria-label="Background Color Picker"
               aria-pressed={isButtonPressed}
               style={{
-                backgroundColor: hexBackground,
+                backgroundColor: selectBgColorType(bgType),
               }}
             >
               <ColorPickerIcon
@@ -503,13 +551,18 @@ const ColorContrast = () => {
           </div>
           <div>
             <Select
+              label="BG Color Format"
               isSearchable={false}
               defaultSelectedKey={"hex"}
-              onSelectionChange={(e) => setBgType(e.toString())}
-              className="w-[70px]"
+              onSelectionChange={(e) => {
+                setBgType(e.toString());
+              }}
+              className="flex flex-row justify-between items-center mb-2"
               classNames={{
+                label: "text-sm font-normal pb-0",
                 popover: "font-poppins",
-                trigger: "h-6 min-h-6",
+                trigger: "w-[65px] h-6 min-h-6",
+                mainWrapper: "w-[unset]",
                 selectorIcon: "w-4 h-4 right-1",
               }}
             >
@@ -533,22 +586,36 @@ const ColorContrast = () => {
                 className="gap-0 border-neutral-200"
                 maxLength={7}
                 placeholder="Enter Background Color"
-                onChange={(e) => handleColorChange(e, setHexBackground)}
-                onBlur={(e) => handleBlurHex(e, setHexBackground, "#FFFFFF")}
+                onChange={(e) => handleBgColorChange(e, setHexBackground)}
+                onBlur={(e) => handleBlurHex(e, setHexBackground)}
+              />
+            )}
+
+            {bgType === "rgb" && (
+              <Input
+                defaultValue="rgb(255, 255, 255)"
+                aria-label="Background Color"
+                value={rgbBackground}
+                className="gap-0 border-neutral-200"
+                placeholder="Enter Background Color"
+                onChange={(e) => handleBgColorChange(e, setRgbBackground)}
               />
             )}
           </div>
         </div>
       </div>
-      <p
-        className="flex items-center justify-center h-8 my-1 text-base font-semibold border border-neutral-200 rounded"
-        style={{
-          color: fgType === "hex" ? hexForeground : hexaForeground,
-          backgroundColor: hexBackground,
-        }}
-      >
-        This is a sample text
-      </p>
+      <div className="flex flex-col gap-2">
+        <p className="text-sm text-neutral-950">Preview</p>
+        <p
+          className="flex items-center justify-center h-10 mb-1 text-base font-semibold border border-dashed border-neutral-200 rounded"
+          style={{
+            color: selectFgColorType(fgType),
+            backgroundColor: selectBgColorType(bgType),
+          }}
+        >
+          The quick brown fox jumps over the lazy dog.
+        </p>
+      </div>
       <div className="flex gap-5">
         <div className="flex flex-col items-center gap-2">
           <p className="text-sm">Color Contrast</p>
@@ -564,7 +631,9 @@ const ColorContrast = () => {
                 } `}
           >
             <p className="text-xl font-semibold">
-              {ratio !== 0 ? `${ratio.toString().slice(0, 4)} : 1` : ""}
+              {ratio !== 0 && ratio!
+                ? `${ratio.toString().slice(0, 4)} : 1`
+                : ""}
             </p>
           </div>
         </div>
@@ -708,7 +777,7 @@ const ColorContrast = () => {
         )}
       </div>
 
-      {apiKey && (
+      {(apiKey || apiKey === "") && (
         <>
           {!isIssueVisible ? (
             <div className="flex items-center justify-center w-full">
@@ -730,30 +799,40 @@ const ColorContrast = () => {
                     displayStdText.length + displayLargeText.length
                   }`}
                 </p>
-                <Select
-                  isSearchable={false}
-                  defaultSelectedKey={"AA"}
-                  onSelectionChange={(e) => setSelectedLevel(e.toString())}
-                  className="w-[110px]"
-                  classNames={{ popover: "font-poppins" }}
-                >
-                  {levelsData.map((item) => (
-                    <SelectItem
-                      key={item.value}
-                      id={item.value}
-                      textValue={item.value}
-                    >
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </Select>
+                <div className="flex items-center gap-2">
+                  <Select
+                    label="Conformance"
+                    isSearchable={false}
+                    defaultSelectedKey={"AA"}
+                    onSelectionChange={(e) => setSelectedLevel(e.toString())}
+                    className="flex flex-row items-center gap-2"
+                    classNames={{
+                      label: "text-sm font-normal pb-0",
+                      popover: "font-poppins",
+                      trigger: "w-[108px] h-8 min-h-8",
+                      mainWrapper: "w-[unset]",
+                    }}
+                  >
+                    {levelsData.map((item) => (
+                      <SelectItem
+                        key={item.value}
+                        id={item.value}
+                        textValue={item.value}
+                      >
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                </div>
               </div>
 
-              {displayStdText.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm text-neutral-950">
-                    Standard Text : {displayStdText.length} Issues
-                  </p>
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-neutral-950">
+                  {`Standard Text : ${displayStdText.length} ${
+                    displayStdText.length === 1 ? "Issue" : "Issues"
+                  }`}
+                </p>
+                {displayStdText.length > 0 ? (
                   <div className="grid grid-cols-3 gap-4" role="list">
                     {displayStdText.map(
                       (colorPair: {
@@ -837,14 +916,21 @@ const ColorContrast = () => {
                       )
                     )}
                   </div>
-                </div>
-              )}
-
-              {displayLargeText.length > 0 && (
-                <div className="flex flex-col gap-2 my-2">
-                  <p className="text-sm text-neutral-950">
-                    Large Text : {displayLargeText.length} Issues
+                ) : (
+                  <p className="flex justify-center text-sm rounded border border-neutral-200 p-2">
+                    Great news! No color contrast issues were found for Standard
+                    Text.
                   </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2 my-2">
+                <p className="text-sm text-neutral-950">
+                  {`Large Text : ${displayLargeText.length} ${
+                    displayLargeText.length === 1 ? "Issue" : "Issues"
+                  }`}
+                </p>
+                {displayLargeText.length > 0 ? (
                   <div className="grid grid-cols-3 gap-4" role="list">
                     {displayLargeText.map(
                       (colorPair: {
@@ -931,8 +1017,13 @@ const ColorContrast = () => {
                       )
                     )}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="flex justify-center text-sm rounded border border-neutral-200 p-2">
+                    Great news! No color contrast issues were found for Large
+                    Text.
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </>

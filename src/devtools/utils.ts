@@ -15,6 +15,79 @@ export function rgbaToHex(rgba: string): string {
   return "";
 }
 
+// Function to convert Hex to RGB
+export function hexToRgb(hex: string): [number, number, number] {
+  const bigint = parseInt(hex.slice(1), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return [r, g, b];
+}
+
+// Function to check if color has 100%opacity
+export const checkForOpacity = (color: string) => {
+  let hexColor = rgbaToHex(color);
+
+  if (hexColor.endsWith("ff")) {
+    hexColor = hexColor.slice(0, -2);
+  }
+  return hexColor;
+};
+
+// Function to blend colors based on opacity
+export const blendColors = (fg: number[], bg: number[], opacity: number) =>
+  fg.map((c, i) => Math.round(c * opacity + bg[i] * (1 - opacity)));
+
+// Function to parse rgba string into R, G, B and A
+export function parseRGBA(rgba: string): number[] {
+  const match = rgba.match(
+    /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d*\.?\d+))?\)/
+  );
+
+  if (!match) return [];
+
+  const r = Number(match[1]);
+  const g = Number(match[2]);
+  const b = Number(match[3]);
+  const a = match[4] !== undefined ? parseFloat(match[4]) : 1;
+
+  return [r, g, b, a];
+}
+
+// Function to format RGB values to string
+export function arrayToRgbString(rgbArray: [number, number, number]): string {
+  const [r, g, b] = rgbArray;
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+// Function to calculate luminance
+export function calculateLuminance(r: number, g: number, b: number): number {
+  const a = [r / 255, g / 255, b / 255].map((value) => {
+    return value <= 0.03928
+      ? value / 12.92
+      : Math.pow((value + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+}
+
+// Function to calculate color contrast ratio
+export function getContrastRatio(fg: number[], bg: number[]) {
+  const opacity = fg[3] !== undefined ? fg[3] : 1;
+  const blendedColor = blendColors(fg, bg, opacity);
+
+  const l1 = calculateLuminance(
+    blendedColor[0],
+    blendedColor[1],
+    blendedColor[2]
+  );
+  const l2 = calculateLuminance(bg[0], bg[1], bg[2]);
+
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
 // Function to convert number to alphabet
 export function numberToAlphabet(num: number): string {
   if (num < 1) {

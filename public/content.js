@@ -153,10 +153,7 @@ function getFocusableElements() {
         element.offsetWidth ||
         element.offsetHeight ||
         element.getClientRects().length
-      ) &&
-      window.getComputedStyle(element).visibility !== "hidden" &&
-      element.id !== "trail-btn" &&
-      element.id !== "trail-iframe"
+      ) && window.getComputedStyle(element).visibility !== "hidden"
     );
   }
 
