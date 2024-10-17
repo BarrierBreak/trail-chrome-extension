@@ -409,7 +409,11 @@ const ColorContrast = () => {
   return (
     <div className="flex flex-col gap-4 w-[452px] pr-4 pb-4">
       <div className="border-b border-neutral-200">
-        <p className="text-base font-semibold text-neutral-900 pb-3">
+        <p
+          role="heading"
+          aria-level={2}
+          className="text-base font-semibold text-neutral-900 pb-3"
+        >
           Color Contrast
         </p>
         <p className="text-sm text-neutral-700 pb-3">{instructions}</p>
@@ -418,7 +422,7 @@ const ColorContrast = () => {
       <div className="flex gap-4">
         <div className="flex flex-col gap-4 w-[50%]">
           <div className="flex flex-col gap-1">
-            <p>Foreground</p>
+            <p>Foreground (FG)</p>
             <button
               aria-hidden="true"
               onClick={() =>
@@ -476,12 +480,10 @@ const ColorContrast = () => {
 
             {fgType === "hex" && (
               <Input
-                startContent={<span>#</span>}
-                defaultValue="000000"
+                defaultValue="#000000"
                 aria-label="Foreground Color"
-                value={hexForeground.slice(1).toUpperCase()}
+                value={hexForeground.toUpperCase()}
                 className="gap-0 border-neutral-200"
-                maxLength={7}
                 placeholder="Enter Foreground Color"
                 onChange={(e) => handleFgColorChange(e, setHexForeground)}
                 onBlur={(e) => handleBlurHex(e, setHexForeground)}
@@ -490,12 +492,10 @@ const ColorContrast = () => {
 
             {fgType === "hexa" && (
               <Input
-                startContent={<span>#</span>}
-                defaultValue="000000FF"
+                defaultValue="#000000FF"
                 aria-label="Foreground Color"
-                value={hexaForeground.slice(1).toUpperCase()}
+                value={hexaForeground.toUpperCase()}
                 className="gap-0 border-neutral-200"
-                maxLength={9}
                 placeholder="Enter Foreground Color"
                 onChange={(e) => handleFgColorChange(e, setHexaForeground)}
                 onBlur={(e) => handleBlurHexa(e, setHexaForeground)}
@@ -527,7 +527,7 @@ const ColorContrast = () => {
         </div>
         <div className="flex flex-col gap-4 w-[50%]">
           <div className="flex flex-col gap-1">
-            <p>Background</p>
+            <p>Background (BG)</p>
             <button
               aria-hidden="true"
               onClick={() => {
@@ -579,12 +579,10 @@ const ColorContrast = () => {
 
             {bgType === "hex" && (
               <Input
-                startContent={<span>#</span>}
-                defaultValue="FFFFFF"
+                defaultValue="#FFFFFF"
                 aria-label="Background Color"
-                value={hexBackground.slice(1).toUpperCase()}
+                value={hexBackground.toUpperCase()}
                 className="gap-0 border-neutral-200"
-                maxLength={7}
                 placeholder="Enter Background Color"
                 onChange={(e) => handleBgColorChange(e, setHexBackground)}
                 onBlur={(e) => handleBlurHex(e, setHexBackground)}
@@ -605,7 +603,9 @@ const ColorContrast = () => {
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        <p className="text-sm text-neutral-950">Preview</p>
+        <p role="heading" aria-level={3} className="text-sm text-neutral-950">
+          Preview
+        </p>
         <p
           className="flex items-center justify-center h-10 mb-1 text-base font-semibold border border-dashed border-neutral-200 rounded"
           style={{
@@ -717,12 +717,20 @@ const ColorContrast = () => {
       </div>
 
       <div className="flex flex-col gap-4 pt-4 border-t border-neutral-200">
-        <p className="text-base text-neutral-900 font-semibold">
+        <p
+          role="heading"
+          aria-level={2}
+          className="text-base text-neutral-900 font-semibold"
+        >
           Color Palette
         </p>
         {bgColorArray.length > 0 && (
           <div className="flex flex-col gap-2">
-            <p className="text-sm text-neutral-950">
+            <p
+              role="heading"
+              aria-level={3}
+              className="text-sm text-neutral-950"
+            >
               Background Colors : {bgColorArray.length}
             </p>
             <div className="grid grid-cols-4 gap-3" role="list">
@@ -750,7 +758,11 @@ const ColorContrast = () => {
 
         {textColorArray.length > 0 && (
           <div className="flex flex-col gap-2 mt-2">
-            <p className="text-sm text-neutral-950">
+            <p
+              role="heading"
+              aria-level={3}
+              className="text-sm text-neutral-950"
+            >
               Text Colors : {textColorArray.length}
             </p>
             <div className="grid grid-cols-4 gap-3" role="list">
@@ -794,7 +806,11 @@ const ColorContrast = () => {
           ) : (
             <div className="flex flex-col gap-4 py-4 border-y border-neutral-200">
               <div className="flex justify-between items-center">
-                <p className="text-base text-neutral-900 font-semibold">
+                <p
+                  role="heading"
+                  aria-level={2}
+                  className="text-base text-neutral-900 font-semibold"
+                >
                   {`Contrast Issues : ${
                     displayStdText.length + displayLargeText.length
                   }`}
@@ -827,7 +843,11 @@ const ColorContrast = () => {
               </div>
 
               <div className="flex flex-col gap-2">
-                <p className="text-sm text-neutral-950">
+                <p
+                  role="heading"
+                  aria-level={3}
+                  className="text-sm text-neutral-950"
+                >
                   {`Standard Text : ${displayStdText.length} ${
                     displayStdText.length === 1 ? "Issue" : "Issues"
                   }`}
@@ -925,7 +945,11 @@ const ColorContrast = () => {
               </div>
 
               <div className="flex flex-col gap-2 my-2">
-                <p className="text-sm text-neutral-950">
+                <p
+                  role="heading"
+                  aria-level={3}
+                  className="text-sm text-neutral-950"
+                >
                   {`Large Text : ${displayLargeText.length} ${
                     displayLargeText.length === 1 ? "Issue" : "Issues"
                   }`}
@@ -1031,7 +1055,13 @@ const ColorContrast = () => {
 
       {fontSizeArray.length > 0 && (
         <div className="flex flex-col gap-4">
-          <p className="text-base text-neutral-900 font-semibold">Font Size</p>
+          <p
+            role="heading"
+            aria-level={2}
+            className="text-base text-neutral-900 font-semibold"
+          >
+            Font Size
+          </p>
           <div className="grid grid-cols-5 gap-4" role="list">
             {fontSizeArray.map((fontSize) => (
               <div
@@ -1047,7 +1077,11 @@ const ColorContrast = () => {
 
       {fontFamilyArray.length > 0 && (
         <div className="flex flex-col gap-4 pt-4 border-t border-neutral-200">
-          <p className="text-base text-neutral-900 font-semibold">
+          <p
+            role="heading"
+            aria-level={2}
+            className="text-base text-neutral-900 font-semibold"
+          >
             Font Family
           </p>
           <div className="flex flex-wrap gap-4" role="list">
