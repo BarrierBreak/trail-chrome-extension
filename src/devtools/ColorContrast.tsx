@@ -480,9 +480,10 @@ const ColorContrast = () => {
 
             {fgType === "hex" && (
               <Input
+                startContent={<span>#</span>}
                 defaultValue="#000000"
                 aria-label="Foreground Color"
-                value={hexForeground.toUpperCase()}
+                value={hexForeground.slice(1).toUpperCase()}
                 className="gap-0 border-neutral-200"
                 placeholder="Enter Foreground Color"
                 onChange={(e) => handleFgColorChange(e, setHexForeground)}
@@ -492,9 +493,10 @@ const ColorContrast = () => {
 
             {fgType === "hexa" && (
               <Input
+                startContent={<span>#</span>}
                 defaultValue="#000000FF"
                 aria-label="Foreground Color"
-                value={hexaForeground.toUpperCase()}
+                value={hexaForeground.slice(1).toUpperCase()}
                 className="gap-0 border-neutral-200"
                 placeholder="Enter Foreground Color"
                 onChange={(e) => handleFgColorChange(e, setHexaForeground)}
@@ -579,9 +581,10 @@ const ColorContrast = () => {
 
             {bgType === "hex" && (
               <Input
+                startContent={<span>#</span>}
                 defaultValue="#FFFFFF"
                 aria-label="Background Color"
-                value={hexBackground.toUpperCase()}
+                value={hexBackground.slice(1).toUpperCase()}
                 className="gap-0 border-neutral-200"
                 placeholder="Enter Background Color"
                 onChange={(e) => handleBgColorChange(e, setHexBackground)}
