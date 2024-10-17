@@ -651,7 +651,7 @@ const CheckboxTable = ({
                                   >
                                     <section
                                       tabIndex={0}
-                                      className="flex items-center h-[62px] p-1 text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
+                                      className="h-[62px] p-1 text-left font-poppins break-words text-sm overflow-y-scroll focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2"
                                     >
                                       {issue.element === "Contrast" &&
                                       issue.code !== "BB10575" &&
